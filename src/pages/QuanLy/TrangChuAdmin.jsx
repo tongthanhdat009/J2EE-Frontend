@@ -13,6 +13,7 @@ function TrangChuAdmin() {
         { path: 'ChuyenBay', icon: <FaPlaneDeparture size={20} />, text: 'Chuyến bay' },
         { path: 'DichVu', icon: <FaConciergeBell size={20} />, text: 'Dịch vụ' },
         { path: 'SanBay', icon: <MdLocalAirport size={20} />, text: 'Sân bay' },
+        { path: 'QuanLyTKAdmin', icon: <FaUsers size={20} />, text: 'Quản lý TK Admin' },
     ];
 
     return (

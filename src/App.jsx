@@ -13,6 +13,7 @@ import QuanLyTuyenBay from './pages/QuanLy/QuanLyTuyenBay';
 import QuanLyChuyenBay from './pages/QuanLy/QuanLyChuyenBay';
 import QuanLyDichVu from './pages/QuanLy/QuanLyDichVu';
 import QuanLySanBay from "./pages/QuanLy/QuanLySanBay"
+import QuanLyTKAdmin from "./pages/QuanLy/QuanLyTKAdmin"
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
             <Route path="/admin/DichVu" element={<QuanLyDichVu />} />
             <Route path="/admin/ThongKe" element={<ThongKeDoanhThu />} />
             <Route path="/admin/SanBay" element={<QuanLySanBay />} />
+            <Route path="/admin/QuanLyTKAdmin" element={<QuanLyTKAdmin />} />
           </Route>
         </Routes>
       </main>
