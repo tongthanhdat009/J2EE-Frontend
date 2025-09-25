@@ -41,11 +41,6 @@ const QuanLySanBay = () => {
         setIsModalOpen(true);
     };
 
-    const handleOpenModalForEdit = (sanBay) => { // Thêm hàm mở modal cho sửa
-        setCurrentSanBay(sanBay);
-        setIsModalOpen(true);
-    };
-
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setCurrentSanBay(null);
@@ -78,7 +73,6 @@ const QuanLySanBay = () => {
                 sanBayList={filteredSanBayList} // Thay đổi từ sanBayList thành filteredSanBayList
                 loading={loading}
                 error={error}
-                onEdit={handleOpenModalForEdit}
                 onDelete={handleDelete}
                 search={search}
                 setSearch={setSearch}

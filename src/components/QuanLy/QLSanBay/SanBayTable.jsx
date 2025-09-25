@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
-const SanBayTable = ({ sanBayList, loading, error, onEdit, onDelete, search, setSearch, handleAdd }) => {
+const SanBayTable = ({ sanBayList, loading, error, onDelete, search, setSearch, handleAdd }) => {
     if (loading) {
         return <div className="text-center py-4">Đang tải dữ liệu...</div>;
     }
