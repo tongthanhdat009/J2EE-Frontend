@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { FaPlaneDeparture, FaPlaneArrival, FaChevronDown } from 'react-icons/fa';
 import { HiUser, HiUsers } from 'react-icons/hi';
 import DatePicker from "react-datepicker";
@@ -7,12 +8,13 @@ import "react-datepicker/dist/react-datepicker.css";
 import { getAllSanBay } from '../../services/datVeServices';
 
 function TimChuyenBayForm() {
+    const navigate = useNavigate();
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [departureValue, setDepartureValue] = useState('');
     const [arrivalValue, setArrivalValue] = useState('');
-    const [passengers, setPassengers] = useState(''); // ✅ Thêm state cho passengers
-    const [flightType, setFlightType] = useState(''); // ✅ Thêm state cho flight type
+    const [passengers, setPassengers] = useState('');
+    const [flightType, setFlightType] = useState('');
     const [sanBayList, setSanBayList] = useState([]);
 
     const groupByCountry = (airport) => {
@@ -30,7 +32,6 @@ function TimChuyenBayForm() {
         const fetchData = async () => {
             try {
                 const result = await getAllSanBay();
-                console.log("Kết quả thật:", result.data);
                 setSanBayList(result.data || []);
             } catch (error) {
                 console.error("Lỗi fetch data:", error);
@@ -53,8 +54,6 @@ function TimChuyenBayForm() {
             endDate: endDate,
             passengers: passengers
         };
-        
-        console.log("📋 Form Data:", formData);
         return formData;
     };
 
@@ -82,8 +81,7 @@ function TimChuyenBayForm() {
             return;
         }
         const formData = getFormData();
-        console.log("Tìm kiếm với data:", formData);
-        
+        navigate("/chon-chuyen-bay", { state: formData });
     };
 
     return (
@@ -225,17 +223,6 @@ function TimChuyenBayForm() {
                     className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                 >
                     <span>Tìm chuyến bay</span>
-                </button>
-            </div>
-
-            {/* ✅ Debug button để xem data */}
-            <div>
-                <button 
-                    type="button"
-                    onClick={getFormData}
-                    className="w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm"
-                >
-                    🔍 Debug - Xem dữ liệu form
                 </button>
             </div>
         </form>

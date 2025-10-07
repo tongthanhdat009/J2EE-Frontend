@@ -9,3 +9,13 @@ export const getAllSanBay = async () =>{
         throw error;
     }
 };
+
+export const getSanBayByThanhPhoSanBay = async (thanhPhoSanBay) =>{
+    try{
+        const response = await apiClient.get(`/api/sanbay/${thanhPhoSanBay}`);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy sân bay theo thành phố", error);
+        throw error;
+    }
+};

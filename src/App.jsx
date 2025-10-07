@@ -21,6 +21,11 @@ import ThongTinTaiKhoan from "./pages/KhachHang/ThongTinTaiKhoan/ThongTinTaiKhoa
 import LichSuGiaoDich from "./pages/KhachHang/ThongTinTaiKhoan/LichSuGiaoDich"
 import HoTro from "./pages/KhachHang/HoTro"
 
+import ChonChuyenBay from "./pages/KhachHang/DatVe/ChonChuyenBay"
+// import ThongTinHanhKhach from "./pages/KhachHang/DatVe/ThongTinHanhKhach"
+// import ChonDichVu from "./pages/KhachHang/DatVe/ChonDichVu"
+// import ThanhToan from "./pages/KhachHang/DatVe/ThanhToan"
+
 function App() {
   return (
     <Router>
@@ -38,7 +43,7 @@ function App() {
           <Route path="/ho-tro" element={<HoTro/>}/>
           
           {/* Trang đặt vé */}
-          <Route path="/chon-chuyen-bay" element={<DichVuKhac/>}/>
+          <Route path="/chon-chuyen-bay" element={<ChonChuyenBay/>}/>
           <Route path="/thong-tin-hanh-khach" element={<DichVuKhac/>}/>
           <Route path="/chon-dich-vu" element={<DichVuKhac/>}/>
           <Route path="/thanh-toan" element={<DichVuKhac/>}/>
