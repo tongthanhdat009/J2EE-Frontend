@@ -1,7 +1,6 @@
 import React from "react";
 import { DangNhapClientServices } from "../../services/DangNhapClientServices";
-import { setToken } from "../../utils/token";
-
+import Cookies from "js-cookie";
 
 function DangNhap() {
   const [showPass, setShowPass] = React.useState(false);
@@ -40,48 +39,19 @@ function DangNhap() {
       setError("Mật khẩu không được để trống!");
       return;
     }
-
-    // try {
-    //   const userData  = { email, matKhau };
-    //   const { token , response }  = await DangNhapClientServices(userData);
-      
-    //   if(!token){
-    //     setError("Đăng nhập thất bại, vui lòng kiểm tra lại email và mật khẩu!");
-    //     return;
-    //   }
-    //   setToken(token); // Lưu token vào localStorage
-    //   setMessage("🎉 Đăng nhập thành công! Chào mừng bạn.");
-    //   console.log("API Response:", response);
-    //   // Xóa form sau khi đăng nhập thành công  
-    //   setEmail("");
-    //   setMatKhau("");
-    // } catch (err) {
-    //   // Hiển thị lỗi từ server hoặc lỗi chung
-    //   setError(`❌ ${err.message || "Đã có lỗi xảy ra. Vui lòng thử lại."}`);
-    // }
-
     try {
-  const userData = { email, matKhau };
-
-  // Nhận đúng 2 field BE trả
-  const { token, message } = await DangNhapClientServices(userData);
-
-  if (!token) {
-    setError("Đăng nhập thất bại, vui lòng kiểm tra lại email và mật khẩu!");
-    return;
-  }
-
-  setToken(token); // lưu vào localStorage
-  setMessage(message || "🎉 Đăng nhập thành công! Chào mừng bạn.");
-  setEmail("");
-  setMatKhau("");
-} catch (err) {
-  setError(`❌ ${err.message || "Đã có lỗi xảy ra. Vui lòng thử lại."}`);
-}
+      const userData = { email, matKhau };
+      const {accessToken, refreshToken , message} = await DangNhapClientServices(userData);
+      // Lưu token vào cookie
+      Cookies.set("refreshToken", refreshToken);
+      Cookies.set("accessToken", accessToken);
+      setMessage(message || "🎉 Đăng nhập thành công! Chào mừng bạn.");
+      setEmail("");
+      setMatKhau("");
+    } catch (err) {
+      setError(`❌ ${err.message || "Đã có lỗi xảy ra. Vui lòng thử lại."}`);
+    }
   };
-
-
-
 
   // Nút về trang chủ (nổi góc trái)
   const BackToHomeButton = () => (
