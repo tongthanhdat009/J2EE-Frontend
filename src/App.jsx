@@ -21,7 +21,7 @@ import ThongTinTaiKhoan from "./pages/KhachHang/ThongTinTaiKhoan/ThongTinTaiKhoa
 import LichSuGiaoDich from "./pages/KhachHang/ThongTinTaiKhoan/LichSuGiaoDich"
 import HoTro from "./pages/KhachHang/HoTro"
 
-import ChonChuyenBay from "./pages/KhachHang/DatVe/ChonChuyenBay"
+import ChonChuyenBay from "./pages/KhachHang/DatVe/ChonChuyenBay/ChonChuyenBayKhuHoi"
 // import ThongTinHanhKhach from "./pages/KhachHang/DatVe/ThongTinHanhKhach"
 // import ChonDichVu from "./pages/KhachHang/DatVe/ChonDichVu"
 // import ThanhToan from "./pages/KhachHang/DatVe/ThanhToan"

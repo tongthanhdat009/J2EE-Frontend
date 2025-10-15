@@ -19,3 +19,13 @@ export const getSanBayByThanhPhoSanBay = async (thanhPhoSanBay) =>{
         throw error;
     }
 };
+
+export const searchChuyenBay = async (sanBayDi, sanBayDen, ngayDi) => {
+    try {
+        const response = await apiClient.get(`/api/sanbay/${sanBayDi}/${sanBayDen}/${ngayDi}`);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi tìm kiếm chuyến bay", error);
+        throw error;
+    }
+};
