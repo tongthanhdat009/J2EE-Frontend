@@ -29,3 +29,13 @@ export const searchChuyenBay = async (sanBayDi, sanBayDen, ngayDi) => {
         throw error;
     }
 };
+
+export const getGiaVe = async (chuyenBayId, hangVeId) => {
+    try {
+        const response = await apiClient.get(`/api/sanbay/giave/${chuyenBayId}/${hangVeId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy giá vé", error);
+        throw error;
+    }
+};
