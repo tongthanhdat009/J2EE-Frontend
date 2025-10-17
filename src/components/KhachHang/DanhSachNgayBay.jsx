@@ -1,9 +1,9 @@
 import { useRef, useState, useEffect } from "react";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 
-function DanhSachNgayBay() {
+function DanhSachNgayBay({ ngayChon, onSelect = () => {} }) {
   const soNgay = 30;
-  const soHienThi = 5; // luôn hiển thị 5 ngày
+  const soHienThi = 5;
   const itemWidth = 110;
   const gap = 12;
   const scrollRef = useRef(null);
@@ -16,17 +16,16 @@ function DanhSachNgayBay() {
     const weekday = d.toLocaleDateString("vi-VN", { weekday: "long" });
     const day = d.getDate();
     const month = d.getMonth() + 1;
-    return { weekday, day, month };
+    const dateStr = d.toISOString().split("T")[0]; // "YYYY-MM-DD"
+    return { weekday, day, month, dateStr };
   });
 
   const totalItemWidth = itemWidth + gap;
-  const leadingPlaceholders = 2; // để phần tử được chọn nằm giữa
+  const leadingPlaceholders = 2;
 
-  // Cuộn tới index (có placeholder offset)
   const scrollToIndex = (index) => {
     if (!scrollRef.current) return;
-    const containerWidth =
-      soHienThi * totalItemWidth - gap; // chỉ 5 phần tử vừa đủ
+    const containerWidth = soHienThi * totalItemWidth - gap;
     const scrollTo =
       (index + leadingPlaceholders) * totalItemWidth -
       containerWidth / 2 +
@@ -37,25 +36,36 @@ function DanhSachNgayBay() {
   const handleSelect = (index) => {
     setSelectedIndex(index);
     scrollToIndex(index);
+    try {
+      const selectedDay = days[index];
+      const selectedDate = new Date();
+      selectedDate.setDate(
+        today.getDate() + index
+      );
+      onSelect(selectedDate);
+    } catch (error) {
+      console.error("Lỗi khi gọi hàm onSelect:", error);
+    }
   };
 
-  const scrollLeft = () => {
-    const newIndex = Math.max(selectedIndex - 1, 0);
-    handleSelect(newIndex);
-  };
+  const scrollLeft = () => handleSelect(Math.max(selectedIndex - 1, 0));
+  const scrollRight = () =>
+    handleSelect(Math.min(selectedIndex + 1, days.length - 1));
 
-  const scrollRight = () => {
-    const newIndex = Math.min(selectedIndex + 1, days.length - 1);
-    handleSelect(newIndex);
-  };
-
-  // Lần đầu: chọn hôm nay và căn giữa
+  // Xử lý ngày truyền vào (props)
   useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      scrollToIndex(0);
-    });
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  if (!ngayChon) return; 
+
+    const ngayProp =
+      typeof ngayChon === "string" ? new Date(ngayChon) : new Date(ngayChon);
+    const ngayStr = ngayProp.toISOString().split("T")[0];
+
+    const foundIndex = days.findIndex((d) => d.dateStr === ngayStr);
+    const indexToSelect = foundIndex !== -1 ? foundIndex : 0;
+
+    setSelectedIndex(indexToSelect);
+    scrollToIndex(indexToSelect);
+  }, [ngayChon]);
 
   return (
     <div className="relative flex items-center justify-center mt-3 px-38">
@@ -72,7 +82,7 @@ function DanhSachNgayBay() {
         <IoChevronBack className="w-5 h-5 text-gray-700" />
       </button>
 
-      {/* Thanh danh sách chỉ hiển thị 5 ô */}
+      {/* Danh sách ngày */}
       <div
         ref={scrollRef}
         className="flex overflow-x-auto gap-3 scroll-smooth hide-scrollbar justify-start"
@@ -81,19 +91,17 @@ function DanhSachNgayBay() {
           scrollSnapType: "x mandatory",
         }}
       >
-        {/* 2 ô trống đầu */}
         <div style={{ minWidth: itemWidth }} />
         <div style={{ minWidth: itemWidth }} />
 
-        {/* Danh sách ngày */}
         {days.map((d, index) => (
           <div
-            key={index}
+            key={d.dateStr}
             onClick={() => handleSelect(index)}
             className={`flex flex-col items-center justify-center rounded-xl py-3 cursor-pointer transition-all duration-300 ${
               selectedIndex === index
                 ? "bg-gradient-to-tl from-yellow-500 to-yellow-400 text-white scale-105 drop-shadow-lg"
-                : ""
+                : " text-gray-700"
             }`}
             style={{
               minWidth: itemWidth,
@@ -110,7 +118,6 @@ function DanhSachNgayBay() {
           </div>
         ))}
 
-        {/* 2 ô trống cuối */}
         <div style={{ minWidth: itemWidth }} />
         <div style={{ minWidth: itemWidth }} />
       </div>
