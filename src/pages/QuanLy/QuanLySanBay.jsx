@@ -3,12 +3,15 @@ import { FaPlus } from 'react-icons/fa';
 import { getAllSanBay, addSanBay, deleteSanBay } from '../../services/QLSanBayServices';
 import SanBayTable from '../../components/QuanLy/QLSanBay/SanBayTable.jsx';
 import SanBayModal from '../../components/QuanLy/QLSanBay/SanBayModal.jsx';
+import Card from '../../components/QuanLy/CardChucNang'; // Thêm import Card
+
 const QuanLySanBay = () => {
     const [sanBayList, setSanBayList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentSanBay, setCurrentSanBay] = useState(null);
+    const [search, setSearch] = useState(''); // Thêm state search
 
     const fetchSanBay = async () => {
         try {
@@ -26,6 +29,12 @@ const QuanLySanBay = () => {
     useEffect(() => {
         fetchSanBay();
     }, []);
+
+    const filteredSanBayList = sanBayList.filter(sb =>
+        sb.tenSanBay?.toLowerCase().includes(search.toLowerCase()) ||
+        sb.thanhPhoSanBay?.toLowerCase().includes(search.toLowerCase()) ||
+        sb.quocGiaSanBay?.toLowerCase().includes(search.toLowerCase())
+    );
 
     const handleOpenModalForAdd = () => {
         setCurrentSanBay(null);
@@ -59,23 +68,15 @@ const QuanLySanBay = () => {
     };
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">Quản lý sân bay</h2>
-                <button
-                    onClick={handleOpenModalForAdd}
-                    className="flex items-center gap-2 bg-sky-500 text-white px-4 py-2 rounded-lg hover:bg-sky-600 transition-colors"
-                >
-                    <FaPlus />
-                    Thêm sân bay
-                </button>
-            </div>
-
+        <Card title="Quản lý sân bay">
             <SanBayTable
-                sanBayList={sanBayList}
+                sanBayList={filteredSanBayList} // Thay đổi từ sanBayList thành filteredSanBayList
                 loading={loading}
                 error={error}
                 onDelete={handleDelete}
+                search={search}
+                setSearch={setSearch}
+                handleAdd={handleOpenModalForAdd}
             />
 
             <SanBayModal
@@ -84,7 +85,7 @@ const QuanLySanBay = () => {
                 onSave={handleSave}
                 sanBay={currentSanBay}
             />
-        </div>
+        </Card>
     );
 };
 
