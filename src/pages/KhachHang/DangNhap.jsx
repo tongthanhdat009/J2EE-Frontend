@@ -1,9 +1,11 @@
 import React from "react";
 import { DangNhapClientServices } from "../../services/DangNhapClientServices";
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 function DangNhap() {
   const [showPass, setShowPass] = React.useState(false);
+  const navigate = useNavigate();
 
   // kiểm tra dữ liệu đầu vào
   const [email, setEmail] = React.useState("");
@@ -41,13 +43,18 @@ function DangNhap() {
     }
     try {
       const userData = { email, matKhau };
-      const {accessToken, refreshToken , message} = await DangNhapClientServices(userData);
+      const { accessToken, refreshToken, message } = await DangNhapClientServices(userData);
       // Lưu token vào cookie
       Cookies.set("refreshToken", refreshToken);
       Cookies.set("accessToken", accessToken);
       setMessage(message || "🎉 Đăng nhập thành công! Chào mừng bạn.");
       setEmail("");
       setMatKhau("");
+
+      // Chờ 2 giây trước khi chuyển hướng
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     } catch (err) {
       setError(`❌ ${err.message || "Đã có lỗi xảy ra. Vui lòng thử lại."}`);
     }
