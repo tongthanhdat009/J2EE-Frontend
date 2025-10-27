@@ -86,16 +86,16 @@ const QuanLyChuyenBay = () => {
 
     return (
         <Card title="Quản lý chuyến bay">
-            {/* Thanh công cụ: Lọc và Tìm kiếm */}
-            <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
+            {/* Thanh công cụ */}
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-3">
                 <div className="flex w-full md:w-auto gap-2">
-                    <div className="relative flex-grow">
+                    <div className="relative flex-grow md:w-80">
                         <input
                             type="text"
                             placeholder="Tìm số hiệu chuyến bay..."
                             value={filters.keyword}
                             onChange={(e) => setFilters({ ...filters, keyword: e.target.value })}
-                            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
                         />
                         <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
                     </div>
@@ -103,93 +103,193 @@ const QuanLyChuyenBay = () => {
                         type="date"
                         value={filters.date}
                         onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-                        className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                     />
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors w-full md:w-auto"
+                    className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl font-semibold w-full md:w-auto"
                 >
                     <FaPlus />
                     <span>Thêm chuyến bay</span>
                 </button>
             </div>
 
-            {/* Bảng dữ liệu chuyến bay */}
-            <div className="overflow-x-auto bg-white rounded-lg shadow">
-                <table className="w-full text-sm text-left text-gray-600">
-                    <thead className="bg-gray-100 text-xs text-gray-700 uppercase">
-                        <tr>
-                            <th scope="col" className="px-6 py-3">Số hiệu</th>
-                            <th scope="col" className="px-6 py-3">Tuyến bay</th>
-                            <th scope="col" className="px-6 py-3">Thời gian đi</th>
-                            <th scope="col" className="px-6 py-3">Thời gian đến</th>
-                            <th scope="col" className="px-6 py-3 text-center">Trạng thái</th>
-                            <th scope="col" className="px-6 py-3 text-center">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredFlights.map(flight => (
-                            <tr key={flight.machuyenbay} className="bg-white border-b hover:bg-gray-50">
-                                <td className="px-6 py-4 font-bold text-gray-900">{flight.sohieuchuyenbay}</td>
-                                <td className="px-6 py-4 font-medium">{getRouteInfo(flight.matuyenbay)}</td>
-                                <td className="px-6 py-4">{flight.giodi} - {flight.ngaydi}</td>
-                                <td className="px-6 py-4">{flight.gioden} - {flight.ngayden}</td>
-                                <td className="px-6 py-4 text-center">
-                                    <span className={`px-3 py-1 text-xs font-medium rounded-full ${flight.trangthai === 'Đang mở bán' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                        {flight.trangthai}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 text-center space-x-2">
-                                    <button onClick={() => handleOpenModal(flight)} className="p-2 text-yellow-500 hover:text-yellow-700" title="Chỉnh sửa"><FaEdit /></button>
-                                    {flight.trangthai === 'Đang mở bán' && (
-                                        <button onClick={() => handleCancelFlight(flight.machuyenbay)} className="p-2 text-red-500 hover:text-red-700" title="Hủy chuyến"><FaTimesCircle /></button>
-                                    )}
-                                </td>
+            {/* Bảng dữ liệu */}
+            <div className="overflow-hidden bg-white rounded-xl shadow-lg border border-gray-200">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                        <thead className="bg-gradient-to-r from-slate-700 to-slate-800 text-white">
+                            <tr>
+                                <th scope="col" className="px-6 py-4 text-left font-semibold">Số hiệu</th>
+                                <th scope="col" className="px-6 py-4 text-left font-semibold">Tuyến bay</th>
+                                <th scope="col" className="px-6 py-4 text-left font-semibold">Thời gian đi</th>
+                                <th scope="col" className="px-6 py-4 text-left font-semibold">Thời gian đến</th>
+                                <th scope="col" className="px-6 py-4 text-center font-semibold">Trạng thái</th>
+                                <th scope="col" className="px-6 py-4 text-center font-semibold">Hành động</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {filteredFlights.map((flight, index) => (
+                                <tr key={flight.machuyenbay} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}>
+                                    <td className="px-6 py-4 font-bold text-blue-600">{flight.sohieuchuyenbay}</td>
+                                    <td className="px-6 py-4 font-medium text-gray-900">
+                                        <div className="flex items-center gap-2">
+                                            <FaPlane className="text-gray-400" />
+                                            {getRouteInfo(flight.matuyenbay)}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-700">
+                                        <div className="flex flex-col">
+                                            <span className="font-semibold">{flight.giodi}</span>
+                                            <span className="text-xs text-gray-500">{flight.ngaydi}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-700">
+                                        <div className="flex flex-col">
+                                            <span className="font-semibold">{flight.gioden}</span>
+                                            <span className="text-xs text-gray-500">{flight.ngayden}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                        <span className={`px-3 py-1.5 text-xs font-semibold rounded-full ${
+                                            flight.trangthai === 'Đang mở bán' 
+                                            ? 'bg-green-100 text-green-700 border border-green-300' 
+                                            : 'bg-red-100 text-red-700 border border-red-300'
+                                        }`}>
+                                            {flight.trangthai}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex justify-center gap-2">
+                                            <button 
+                                                onClick={() => handleOpenModal(flight)} 
+                                                className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" 
+                                                title="Chỉnh sửa"
+                                            >
+                                                <FaEdit size={16} />
+                                            </button>
+                                            {flight.trangthai === 'Đang mở bán' && (
+                                                <button 
+                                                    onClick={() => handleCancelFlight(flight.machuyenbay)} 
+                                                    className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors" 
+                                                    title="Hủy chuyến"
+                                                >
+                                                    <FaTimesCircle size={16} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                            {filteredFlights.length === 0 && (
+                                <tr>
+                                    <td colSpan="6" className="text-center py-12">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <FaPlane className="text-gray-300 text-5xl" />
+                                            <p className="text-gray-500 font-medium">Không tìm thấy chuyến bay nào.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            {/* Modal thêm/sửa chuyến bay */}
+            {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg">
-                        <h2 className="text-xl font-bold mb-4">{currentFlight ? 'Chỉnh sửa chuyến bay' : 'Thêm chuyến bay mới'}</h2>
-                        <form onSubmit={handleSubmit}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-xl">
+                            <h2 className="text-2xl font-bold">{currentFlight ? 'Chỉnh sửa chuyến bay' : 'Thêm chuyến bay mới'}</h2>
+                        </div>
+                        <form onSubmit={handleSubmit} className="p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-bold mb-2">Tuyến bay</label>
-                                    <select name="matuyenbay" value={formData.matuyenbay} onChange={handleFormChange} className="w-full p-2 border rounded-lg" required>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Tuyến bay</label>
+                                    <select 
+                                        name="matuyenbay" 
+                                        value={formData.matuyenbay} 
+                                        onChange={handleFormChange} 
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                        required
+                                    >
                                         <option value="" disabled>-- Chọn tuyến bay --</option>
                                         {routes.map(r => <option key={r.matuyenbay} value={r.matuyenbay}>{getRouteInfo(r.matuyenbay)}</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold mb-2">Số hiệu chuyến bay</label>
-                                    <input type="text" name="sohieuchuyenbay" value={formData.sohieuchuyenbay} onChange={handleFormChange} className="w-full p-2 border rounded-lg" required />
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Số hiệu chuyến bay</label>
+                                    <input 
+                                        type="text" 
+                                        name="sohieuchuyenbay" 
+                                        value={formData.sohieuchuyenbay} 
+                                        onChange={handleFormChange} 
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                        required 
+                                        placeholder="VD: VN214"
+                                    />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold mb-2">Ngày đi</label>
-                                    <input type="date" name="ngaydi" value={formData.ngaydi} onChange={handleFormChange} className="w-full p-2 border rounded-lg" required />
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Ngày đi</label>
+                                    <input 
+                                        type="date" 
+                                        name="ngaydi" 
+                                        value={formData.ngaydi} 
+                                        onChange={handleFormChange} 
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                        required 
+                                    />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold mb-2">Giờ đi</label>
-                                    <input type="time" name="giodi" value={formData.giodi} onChange={handleFormChange} className="w-full p-2 border rounded-lg" required />
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Giờ đi</label>
+                                    <input 
+                                        type="time" 
+                                        name="giodi" 
+                                        value={formData.giodi} 
+                                        onChange={handleFormChange} 
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                        required 
+                                    />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold mb-2">Ngày đến</label>
-                                    <input type="date" name="ngayden" value={formData.ngayden} onChange={handleFormChange} className="w-full p-2 border rounded-lg" required />
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Ngày đến</label>
+                                    <input 
+                                        type="date" 
+                                        name="ngayden" 
+                                        value={formData.ngayden} 
+                                        onChange={handleFormChange} 
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                        required 
+                                    />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold mb-2">Giờ đến</label>
-                                    <input type="time" name="gioden" value={formData.gioden} onChange={handleFormChange} className="w-full p-2 border rounded-lg" required />
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Giờ đến</label>
+                                    <input 
+                                        type="time" 
+                                        name="gioden" 
+                                        value={formData.gioden} 
+                                        onChange={handleFormChange} 
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                        required 
+                                    />
                                 </div>
                             </div>
-                            <div className="flex justify-end gap-3 mt-6">
-                                <button type="button" onClick={handleCloseModal} className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">Hủy</button>
-                                <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Lưu</button>
+                            <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
+                                <button 
+                                    type="button" 
+                                    onClick={handleCloseModal} 
+                                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold transition-colors"
+                                >
+                                    Hủy
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 font-semibold transition-all shadow-lg"
+                                >
+                                    Lưu
+                                </button>
                             </div>
                         </form>
                     </div>

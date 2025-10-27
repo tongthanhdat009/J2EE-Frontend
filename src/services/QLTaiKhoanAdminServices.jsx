@@ -2,7 +2,7 @@ import apiClient from "./apiClient";
 
 export const getAllTKadmin = async () =>{
     try{
-        const response = await apiClient.get("/tkadmin");
+        const response = await apiClient.get("/admin/dashboard/tkadmin");
         console.log(response.data);
         return response.data;
     }
@@ -15,7 +15,7 @@ export const getAllTKadmin = async () =>{
 export const thongTinTKadmin = async (maTKadmin) => { // 1. Thêm tham số maTKadmin
     try{
         // 2. Sử dụng maTKadmin để tạo URL động
-        const response = await apiClient.get(`/tkadmin/${maTKadmin}`); 
+        const response = await apiClient.get(`/admin/dashboard/tkadmin/${maTKadmin}`); 
         return response.data; // 3. Trả về dữ liệu từ response
     } catch (error) {
         // 4. Thêm xử lý lỗi
@@ -26,7 +26,7 @@ export const thongTinTKadmin = async (maTKadmin) => { // 1. Thêm tham số maTK
 
 export const addTKadmin = async (TKadminData) => {
     try{
-        const response = await apiClient.post('/tkadmin', TKadminData);
+        const response = await apiClient.post('/admin/dashboard/tkadmin', TKadminData);
         return response.data;
     }
     catch(error){
@@ -37,7 +37,7 @@ export const addTKadmin = async (TKadminData) => {
 
 export const deleteTKadmin = async (maTKadmin) => {
     try{
-        const response = await apiClient.delete(`/tkadmin/${maTKadmin}`);
+        const response = await apiClient.delete(`/admin/dashboard/tkadmin/${maTKadmin}`);
         return response.data;
     }
     catch(error){
@@ -48,7 +48,7 @@ export const deleteTKadmin = async (maTKadmin) => {
 
 export const updateTKadmin = async (maTKadmin, updatedData) => {
     try {
-        const response = await apiClient.put(`/tkadmin/update/${maTKadmin}`, updatedData);
+        const response = await apiClient.put(`/admin/dashboard/tkadmin/update/${maTKadmin}`, updatedData);
         return response.data;
     } catch (error) {
         console.error(`Lỗi khi cập nhật tài khoản admin ${maTKadmin}`, error);

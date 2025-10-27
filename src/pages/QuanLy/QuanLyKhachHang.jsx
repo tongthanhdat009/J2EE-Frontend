@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { FaSearch, FaUserPlus, FaFileExport, FaEllipsisV } from 'react-icons/fa';
-import Card from '../../components/QuanLy/CardChucNang'; // Giữ lại import Card của bạn
+import { FaSearch, FaUserPlus, FaFileExport, FaEdit, FaTrash, FaBan, FaEye } from 'react-icons/fa';
+import Card from '../../components/QuanLy/CardChucNang';
 
 const QuanLyKhachHang = () => {
-    // Dữ liệu mẫu - Trong thực tế, bạn sẽ fetch dữ liệu này từ API
     const initialCustomers = [
         { id: 101, name: 'Nguyễn Văn An', email: 'an.nguyen@email.com', phone: '0901234567', registered: '2025-10-10'},
         { id: 102, name: 'Trần Thị Bình', email: 'binh.tran@email.com', phone: '0912345678', registered: '2025-10-08'},
@@ -18,7 +17,6 @@ const QuanLyKhachHang = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
-    // Logic tìm kiếm và lọc dữ liệu
     const filteredCustomers = useMemo(() => {
         return initialCustomers.filter(customer =>
             customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,7 +25,6 @@ const QuanLyKhachHang = () => {
         );
     }, [searchTerm, initialCustomers]);
 
-    // Logic phân trang
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredCustomers.slice(indexOfFirstItem, indexOfLastItem);
@@ -37,99 +34,129 @@ const QuanLyKhachHang = () => {
 
     return (
         <Card title="Quản lý tài khoản khách hàng">
-            {/* Thanh công cụ: Tìm kiếm và các nút hành động */}
-            <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
-                <div className="relative w-full md:w-1/3">
+            {/* Thanh công cụ */}
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-3">
+                <div className="relative w-full md:w-96">
                     <input
                         type="text"
                         placeholder="Tìm kiếm theo tên, email, SĐT..."
-                        className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
                         onChange={(e) => {
                             setSearchTerm(e.target.value);
-                            setCurrentPage(1); // Reset về trang đầu khi tìm kiếm
+                            setCurrentPage(1);
                         }}
                     />
                     <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
                 </div>
                 <div className="flex gap-2">
-                    <button className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                    <button className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl">
                         <FaFileExport />
-                        <span>Xuất Excel</span>
+                        <span className="font-semibold">Xuất Excel</span>
                     </button>
-                     <button className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                    <button className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl">
                         <FaUserPlus />
-                        <span>Thêm mới</span>
+                        <span className="font-semibold">Thêm mới</span>
                     </button>
                 </div>
             </div>
 
-            {/* Bảng dữ liệu khách hàng */}
-            <div className="overflow-x-auto bg-white rounded-lg shadow">
-                <table className="w-full text-sm text-left text-gray-600">
-                    <thead className="bg-gray-100 text-xs text-gray-700 uppercase">
-                        <tr>
-                            <th scope="col" className="px-6 py-3">Mã KH</th>
-                            <th scope="col" className="px-6 py-3">Họ và tên</th>
-                            <th scope="col" className="px-6 py-3">Thông tin liên hệ</th>
-                            <th scope="col" className="px-6 py-3">Ngày đăng ký</th>
-                            <th scope="col" className="px-6 py-3 text-center">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentItems.length > 0 ? (
-                            currentItems.map((customer) => (
-                                <tr key={customer.id} className="bg-white border-b hover:bg-gray-50">
-                                    <td className="px-6 py-4 font-medium text-gray-900">{customer.id}</td>
-                                    <td className="px-6 py-4 font-medium text-gray-900">{customer.name}</td>
-                                    <td className="px-6 py-4">
-                                        <div className="text-sm">{customer.email}</div>
-                                        <div className="text-xs text-gray-500">{customer.phone}</div>
-                                    </td>
-                                    <td className="px-6 py-4">{customer.registered}</td>
-                                    <td className="px-6 py-4 text-center">
-                                        <button className="text-gray-500 hover:text-blue-600 p-2">
-                                           <FaEllipsisV />
-                                        </button>
-                                        {/* Bạn có thể tạo dropdown menu ở đây cho các hành động Sửa/Khóa/Xem chi tiết */}
+            {/* Bảng dữ liệu */}
+            <div className="overflow-hidden bg-white rounded-xl shadow-lg border border-gray-200">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                        <thead className="bg-gradient-to-r from-slate-700 to-slate-800 text-white">
+                            <tr>
+                                <th scope="col" className="px-6 py-4 text-left font-semibold">Mã KH</th>
+                                <th scope="col" className="px-6 py-4 text-left font-semibold">Họ và tên</th>
+                                <th scope="col" className="px-6 py-4 text-left font-semibold">Thông tin liên hệ</th>
+                                <th scope="col" className="px-6 py-4 text-left font-semibold">Ngày đăng ký</th>
+                                <th scope="col" className="px-6 py-4 text-center font-semibold">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {currentItems.length > 0 ? (
+                                currentItems.map((customer, index) => (
+                                    <tr key={customer.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}>
+                                        <td className="px-6 py-4 font-semibold text-blue-600">#{customer.id}</td>
+                                        <td className="px-6 py-4 font-medium text-gray-900">{customer.name}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-sm text-gray-700">{customer.email}</span>
+                                                <span className="text-xs text-gray-500 font-medium">{customer.phone}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-600">{customer.registered}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex justify-center gap-2">
+                                                <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" title="Xem chi tiết">
+                                                    <FaEye size={16} />
+                                                </button>
+                                                <button className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors" title="Chỉnh sửa">
+                                                    <FaEdit size={16} />
+                                                </button>
+                                                <button className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors" title="Khóa tài khoản">
+                                                    <FaBan size={16} />
+                                                </button>
+                                                <button className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors" title="Xóa">
+                                                    <FaTrash size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5" className="text-center py-12">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <div className="text-gray-400 text-5xl">📭</div>
+                                            <p className="text-gray-500 font-medium">Không tìm thấy khách hàng nào.</p>
+                                        </div>
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="6" className="text-center py-8 text-gray-500">
-                                    Không tìm thấy khách hàng nào.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Thanh phân trang */}
             {filteredCustomers.length > itemsPerPage && (
-                <div className="flex justify-between items-center mt-4">
-                     <span className="text-sm text-gray-700">
-                        Hiển thị {indexOfFirstItem + 1} đến {Math.min(indexOfLastItem, filteredCustomers.length)} của {filteredCustomers.length} kết quả
+                <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                    <span className="text-sm text-gray-600 font-medium">
+                        Hiển thị <span className="font-bold text-blue-600">{indexOfFirstItem + 1}</span> đến <span className="font-bold text-blue-600">{Math.min(indexOfLastItem, filteredCustomers.length)}</span> của <span className="font-bold text-blue-600">{filteredCustomers.length}</span> kết quả
                     </span>
                     <nav>
-                        <ul className="inline-flex -space-x-px">
+                        <ul className="flex gap-2">
                             <li>
                                 <button
                                     onClick={() => paginate(currentPage - 1)}
                                     disabled={currentPage === 1}
-                                    className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+                                    className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm"
                                 >
-                                    Trước
+                                    ← Trước
                                 </button>
                             </li>
-                            {/* Bạn có thể render các số trang ở đây nếu muốn */}
+                            {[...Array(totalPages)].map((_, index) => (
+                                <li key={index}>
+                                    <button
+                                        onClick={() => paginate(index + 1)}
+                                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                                            currentPage === index + 1
+                                                ? 'bg-blue-600 text-white shadow-lg'
+                                                : 'bg-white border border-gray-300 hover:bg-gray-100'
+                                        }`}
+                                    >
+                                        {index + 1}
+                                    </button>
+                                </li>
+                            ))}
                             <li>
                                 <button
                                     onClick={() => paginate(currentPage + 1)}
                                     disabled={currentPage === totalPages}
-                                    className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
+                                    className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm"
                                 >
-                                    Sau
+                                    Sau →
                                 </button>
                             </li>
                         </ul>

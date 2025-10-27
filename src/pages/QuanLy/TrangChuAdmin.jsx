@@ -1,69 +1,110 @@
-import React from 'react';
-// 1. Import NavLink và Outlet
+import React, { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { FaChartBar, FaUsers, FaRoute, FaPlaneDeparture, FaConciergeBell, FaSignOutAlt } from 'react-icons/fa';
+import { FaChartBar, FaUsers, FaRoute, FaPlaneDeparture, FaConciergeBell, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
 import { MdLocalAirport } from 'react-icons/md'; 
 
 function TrangChuAdmin() {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
     const menuItems = [
-        // 2. Cập nhật 'id' thành 'path' để khớp với route
-        { path: 'ThongKe', icon: <FaChartBar size={20} />, text: 'Thống kê' },
-        { path: 'KhachHang', icon: <FaUsers size={20} />, text: 'Khách hàng' },
-        { path: 'TuyenBay', icon: <FaRoute size={20} />, text: 'Tuyến bay' },
-        { path: 'ChuyenBay', icon: <FaPlaneDeparture size={20} />, text: 'Chuyến bay' },
-        { path: 'DichVu', icon: <FaConciergeBell size={20} />, text: 'Dịch vụ' },
-        { path: 'SanBay', icon: <MdLocalAirport size={20} />, text: 'Sân bay' },
-        { path: 'QuanLyTKAdmin', icon: <FaUsers size={20} />, text: 'Quản lý TK Admin' },
+        { path: 'ThongKe', icon: <FaChartBar size={20} />, text: 'Thống kê', color: 'from-blue-500 to-cyan-500' },
+        { path: 'KhachHang', icon: <FaUsers size={20} />, text: 'Khách hàng', color: 'from-purple-500 to-pink-500' },
+        { path: 'TuyenBay', icon: <FaRoute size={20} />, text: 'Tuyến bay', color: 'from-green-500 to-emerald-500' },
+        { path: 'ChuyenBay', icon: <FaPlaneDeparture size={20} />, text: 'Chuyến bay', color: 'from-orange-500 to-red-500' },
+        { path: 'DichVu', icon: <FaConciergeBell size={20} />, text: 'Dịch vụ', color: 'from-yellow-500 to-orange-500' },
+        { path: 'SanBay', icon: <MdLocalAirport size={20} />, text: 'Sân bay', color: 'from-indigo-500 to-blue-500' },
+        { path: 'QuanLyTKAdmin', icon: <FaUsers size={20} />, text: 'Quản lý TK Admin', color: 'from-purple-500 to-pink-500' },
     ];
 
     return (
-        <div className="flex h-screen bg-slate-100 font-sans">
+        <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-200 font-sans">
             {/* Sidebar */}
-            <div className="w-64 bg-slate-800 text-white flex flex-col justify-between">
-                <div>
+            <aside className={`${isSidebarOpen ? 'w-72' : 'w-0'} bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white flex flex-col justify-between shadow-2xl transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0`}>
+                {/* Decorative gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 to-purple-500/10 pointer-events-none"></div>
+                
+                <div className="relative z-10 flex flex-col h-full w-72">
                     {/* Logo */}
-                    <div className="flex items-center justify-center h-20 border-b border-slate-700">
-                        <FaPlaneDeparture className="text-sky-400" size={24} />
-                        <h1 className="text-xl font-bold ml-3">Admin Panel</h1>
+                    <div className="flex items-center justify-center h-24 border-b border-slate-700/50 bg-slate-900/80">
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 shadow-lg shadow-sky-500/50">
+                            <FaPlaneDeparture className="text-white" size={28} />
+                            <h1 className="text-2xl font-bold text-white tracking-tight">Admin</h1>
+                        </div>
                     </div>
+                    
                     {/* Navigation */}
-                    <nav className="mt-4">
-                        <ul>
+                    <nav className="flex-1 mt-6 px-4 overflow-y-auto">
+                        <ul className="space-y-2">
                             {menuItems.map(item => (
-                                <li key={item.path} className="px-4 py-1">
-                                    {/* 3. Sử dụng NavLink thay cho <a> */}
+                                <li key={item.path}>
                                     <NavLink
                                         to={item.path}
-                                        // Dùng hàm để xác định class, 'isActive' được NavLink cung cấp
                                         className={({ isActive }) =>
-                                            `flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 ${
+                                            `group flex items-center gap-4 px-5 py-3.5 rounded-xl transition-all duration-200 relative overflow-hidden ${
                                                 isActive 
-                                                ? 'bg-sky-500 text-white shadow-lg' 
-                                                : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                                                ? `bg-gradient-to-r ${item.color} text-white shadow-lg` 
+                                                : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                                             }`
                                         }
                                     >
-                                        {item.icon}
-                                        <span className="font-medium">{item.text}</span>
+                                        <div className="relative z-10 flex items-center gap-4 w-full">
+                                            <span className="transform group-hover:scale-110 transition-transform duration-200">
+                                                {item.icon}
+                                            </span>
+                                            <span className="font-semibold text-sm tracking-wide">{item.text}</span>
+                                        </div>
                                     </NavLink>
                                 </li>
                             ))}
                         </ul>
                     </nav>
+                
+                    {/* User Profile / Logout */}
+                    <div className="p-4 border-t border-slate-700/50 bg-slate-900/50">
+                        <div className="mb-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-sky-400 to-blue-500 flex items-center justify-center font-bold text-white shadow-lg flex-shrink-0">
+                                    A
+                                </div>
+                                <div className="overflow-hidden">
+                                    <p className="font-semibold text-sm text-white truncate">Admin User</p>
+                                    <p className="text-xs text-slate-400 truncate">admin@example.com</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button className="group flex items-center gap-4 px-5 py-3.5 rounded-xl text-slate-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 border border-transparent transition-all duration-200 w-full">
+                            <FaSignOutAlt size={20} className="group-hover:rotate-12 transition-transform duration-200" />
+                            <span className="font-semibold text-sm">Đăng xuất</span>
+                        </button>
+                    </div>
                 </div>
-                {/* User Profile / Logout */}
-                <div className="p-4 border-t border-slate-700">
-                     <a href="#" className="flex items-center gap-4 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-700 hover:text-white transition-colors duration-200">
-                        <FaSignOutAlt size={20} />
-                        <span className="font-medium">Đăng xuất</span>
-                    </a>
-                </div>
-            </div>
+            </aside>
 
             {/* Main Content */}
-            <main className="flex-1 p-8 overflow-y-auto">
-                {/* 4. Sử dụng Outlet để render component con từ router */}
-                <div className="animate-fadeIn">
+            <main className="flex-1 flex flex-col overflow-hidden">
+                {/* Toggle Button */}
+                <div className="bg-white shadow-md p-4 flex items-center gap-4">
+                    <button
+                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                    >
+                        {isSidebarOpen ? (
+                            <>
+                                <FaTimes size={20} />
+                                <span className="font-semibold text-sm">Đóng Menu</span>
+                            </>
+                        ) : (
+                            <>
+                                <FaBars size={20} />
+                                <span className="font-semibold text-sm">Mở Menu</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+
+                {/* Page Content */}
+                <div className="flex-1 p-8 overflow-y-auto">
                     <Outlet />
                 </div>
             </main>
