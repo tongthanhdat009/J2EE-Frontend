@@ -170,12 +170,6 @@ const QuanLyDichVu = () => {
       const updatedServices = services.filter(s => s.maDichVu !== currentService.maDichVu);
       setServices(updatedServices);
       
-      // Tính lại số trang sau khi xóa
-      const newFilteredServices = updatedServices.filter(service =>
-        service.tenDichVu.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      const newTotalPages = Math.ceil(newFilteredServices.length / itemsPerPage);
-      
       // Reset về trang đầu tiên sau khi xóa
       setCurrentPage(1);
       

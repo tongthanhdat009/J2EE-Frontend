@@ -1,59 +1,103 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Card from '../../components/QuanLy/CardChucNang';
-import { FaPlus, FaSearch, FaPlane, FaEdit, FaTimesCircle } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaPlane, FaEdit } from 'react-icons/fa';
+import { getAllChuyenBay, createChuyenBay, updateChuyenBay, updateTrangThaiChuyenBay, updateDelay, updateCancel } from '../../services/QLChuyenBayService';
+import { getAllTuyenBay } from '../../services/QLTuyenBayService';
+import { getActiveSanBay } from '../../services/QLSanBayService';
+import EditFlightModal from '../../components/QuanLy/QuanLyChuyenBay/EditFlightModal';
+import DelayFlightModal from '../../components/QuanLy/QuanLyChuyenBay/DelayFlightModal';
+import CancelFlightModal from '../../components/QuanLy/QuanLyChuyenBay/CancelFlightModal';
+import Toast from '../../components/common/Toast';
 
 const QuanLyChuyenBay = () => {
-    // --- DỮ LIỆU MẪU ---
-    // Trong thực tế, bạn sẽ fetch dữ liệu này từ API.
-    const initialAirports = [
-        { masanbay: 1, ma_iata: 'SGN', tensanbay: 'Tân Sơn Nhất' },
-        { masanbay: 2, ma_iata: 'HAN', tensanbay: 'Nội Bài' },
-        { masanbay: 3, ma_iata: 'DAD', tensanbay: 'Đà Nẵng' },
-    ];
-
-    const initialRoutes = [
-        { matuyenbay: 101, masanbaydi: 1, masanbayden: 2 },
-        { matuyenbay: 102, masanbaydi: 1, masanbayden: 3 },
-        { matuyenbay: 103, masanbaydi: 2, masanbayden: 3 },
-    ];
-
-    const initialFlights = [
-        { machuyenbay: 201, matuyenbay: 101, sohieuchuyenbay: 'VN214', ngaydi: '2025-11-15', giodi: '08:00', ngayden: '2025-11-15', gioden: '10:05', trangthai: 'Đang mở bán' },
-        { machuyenbay: 202, matuyenbay: 102, sohieuchuyenbay: 'VJ628', ngaydi: '2025-11-16', giodi: '11:30', ngayden: '2025-11-16', gioden: '12:45', trangthai: 'Đang mở bán' },
-        { machuyenbay: 203, matuyenbay: 103, sohieuchuyenbay: 'QH102', ngaydi: '2025-11-17', giodi: '14:00', ngayden: '2025-11-17', gioden: '15:10', trangthai: 'Đã hủy' },
-    ];
-
     // --- STATE MANAGEMENT ---
-    const [routes] = useState(initialRoutes);
-    const [flights, setFlights] = useState(initialFlights);
+    const [airports, setAirports] = useState([]);
+    const [routes, setRoutes] = useState([]);
+    const [flights, setFlights] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentFlight, setCurrentFlight] = useState(null);
     const [formData, setFormData] = useState({});
     const [filters, setFilters] = useState({ keyword: '', date: '' });
+    const [isDelayModalOpen, setIsDelayModalOpen] = useState(false);
+    const [delayFlightId, setDelayFlightId] = useState(null);
+    const [delayData, setDelayData] = useState({ lyDoDelay: '', thoiGianDiThucTe: '', thoiGianDenThucTe: '' });
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [cancelFlightId, setCancelFlightId] = useState(null);
+    const [cancelData, setCancelData] = useState({ lyDoHuy: '' });
+    const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' });
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
+    // --- FETCH DATA ---
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const [flightsRes, routesRes, airportsRes] = await Promise.all([
+                    getAllChuyenBay(),
+                    getAllTuyenBay(),
+                    getActiveSanBay()
+                ]);
+                setFlights(flightsRes.data.data || []);
+                setRoutes(routesRes.data.data || []);
+                setAirports(airportsRes.data.data || []);
+            } catch (err) {
+                setError('Không thể tải dữ liệu. Vui lòng thử lại.');
+                console.error('Error fetching data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
 
     // --- HELPER FUNCTIONS ---
-    const getRouteInfo = (routeId) => {
-        const route = routes.find(r => r.matuyenbay === routeId);
+    const getRouteInfo = (route) => {
         if (!route) return 'Không rõ';
-        const from = initialAirports.find(a => a.masanbay === route.masanbaydi)?.ma_iata || '?';
-        const to = initialAirports.find(a => a.masanbay === route.masanbayden)?.ma_iata || '?';
+        const from = airports.find(a => a.maSanBay === route.sanBayDi?.maSanBay)?.maIATA || '?';
+        const to = airports.find(a => a.maSanBay === route.sanBayDen?.maSanBay)?.maIATA || '?';
         return `${from} → ${to}`;
     };
 
     // --- LỌC DỮ LIỆU ---
     const filteredFlights = useMemo(() => {
         return flights.filter(flight => {
-            const keywordMatch = flight.sohieuchuyenbay.toLowerCase().includes(filters.keyword.toLowerCase());
-            const dateMatch = filters.date ? flight.ngaydi === filters.date : true;
+            const keywordMatch = (flight.soHieuChuyenBay?.toLowerCase() || '').includes(filters.keyword.toLowerCase());
+            const dateMatch = filters.date ? flight.ngayDi === filters.date : true;
             return keywordMatch && dateMatch;
         });
     }, [filters, flights]);
 
+    // --- PHÂN TRANG ---
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredFlights.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredFlights.length / itemsPerPage);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
     // --- MODAL HANDLERS ---
     const handleOpenModal = (flight = null) => {
+        // Nếu chuyến bay có trạng thái Delay, mở DelayModal
+        if (flight && flight.trangThai === 'Delay') {
+            setDelayFlightId(flight.maChuyenBay);
+            setDelayData({
+                lyDoDelay: flight.lyDoDelay || '',
+                thoiGianDiThucTe: flight.thoiGianDiThucTe ? new Date(flight.thoiGianDiThucTe).toISOString().slice(0, 16) : '',
+                thoiGianDenThucTe: flight.thoiGianDenThucTe ? new Date(flight.thoiGianDenThucTe).toISOString().slice(0, 16) : ''
+            });
+            setIsDelayModalOpen(true);
+            return;
+        }
+
         setCurrentFlight(flight);
-        setFormData(flight ? { ...flight } : {
-            matuyenbay: '', sohieuchuyenbay: '', ngaydi: '', giodi: '', ngayden: '', gioden: '', trangthai: 'Đang mở bán'
+        setFormData(flight ? { 
+            ...flight, 
+            maTuyenBay: flight.tuyenBay?.maTuyenBay || '' 
+        } : {
+            maTuyenBay: '', soHieuChuyenBay: '', ngayDi: '', gioDi: '', ngayDen: '', gioDen: ''
         });
         setIsModalOpen(true);
     };
@@ -67,25 +111,154 @@ const QuanLyChuyenBay = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (currentFlight) {
-            setFlights(flights.map(f => f.machuyenbay === currentFlight.machuyenbay ? { ...formData } : f));
-        } else {
-            const newFlight = { ...formData, machuyenbay: Date.now() }; // ID tạm thời
-            setFlights([...flights, newFlight]);
-        }
-        handleCloseModal();
+    const showToast = (message, type = 'success') => {
+        setToast({ isVisible: true, message, type });
     };
-    
-    const handleCancelFlight = (flightId) => {
-        if(window.confirm("Bạn có chắc muốn hủy chuyến bay này? Hành động này không thể hoàn tác.")) {
-            setFlights(flights.map(f => f.machuyenbay === flightId ? {...f, trangthai: 'Đã hủy'} : f));
+
+    const hideToast = () => {
+        setToast({ ...toast, isVisible: false });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const { maTuyenBay, ...restFormData } = formData;
+            const formattedData = {
+                ...restFormData,
+                gioDi: restFormData.gioDi ? `1970-01-01T${restFormData.gioDi}:00.000Z` : '',
+                gioDen: restFormData.gioDen ? `1970-01-01T${restFormData.gioDen}:00.000Z` : ''
+            };
+            const flightData = {
+                ...formattedData,
+                tuyenBay: routes.find(r => r.maTuyenBay === parseInt(formData.maTuyenBay))
+            };
+            if (currentFlight) {
+                await updateChuyenBay(flightData);
+                showToast('Cập nhật chuyến bay thành công!', 'success');
+            } else {
+                await createChuyenBay(flightData);
+                showToast('Thêm mới chuyến bay thành công!', 'success');
+            }
+            // Refresh data
+            const flightsRes = await getAllChuyenBay();
+            setFlights(flightsRes.data.data || []);
+            handleCloseModal();
+        } catch (err) {
+            console.error('Error saving flight:', err);
+            showToast('Có lỗi xảy ra khi lưu chuyến bay. Vui lòng thử lại.', 'error');
         }
-    }
+    };
+
+    const handleStatusChange = async (flightId, newStatus) => {
+        if (newStatus === 'Delay') {
+            setDelayFlightId(flightId);
+            setIsDelayModalOpen(true);
+            return;
+        }
+        if (newStatus === 'Đã hủy') {
+            setCancelFlightId(flightId);
+            setIsCancelModalOpen(true);
+            return;
+        }
+        try {
+            await updateTrangThaiChuyenBay(flightId, newStatus);
+            showToast('Cập nhật trạng thái chuyến bay thành công!', 'success');
+            // Refresh data
+            const flightsRes = await getAllChuyenBay();
+            setFlights(flightsRes.data.data || []);
+        } catch (err) {
+            console.error('Error updating status:', err);
+            showToast('Có lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại.', 'error');
+        }
+    };
+
+    const handleDelayClose = () => {
+        setIsDelayModalOpen(false);
+        setDelayFlightId(null);
+        setDelayData({ lyDoDelay: '', thoiGianDiThucTe: '', thoiGianDenThucTe: '' });
+    };
+
+    const handleDelaySubmit = async (e) => {
+        e.preventDefault();
+        const flight = flights.find(f => f.maChuyenBay === delayFlightId);
+        if (!flight) {
+            showToast('Không tìm thấy chuyến bay.', 'error');
+            return;
+        }
+        const departureScheduled = new Date(`${flight.ngayDi}T${flight.gioDi}`);
+        const arrivalScheduled = new Date(`${flight.ngayDen}T${flight.gioDen}`);
+        if (delayData.thoiGianDiThucTe && new Date(delayData.thoiGianDiThucTe) <= departureScheduled) {
+            showToast('Thời gian đi thực tế phải sau thời gian đi dự kiến.', 'error');
+            return;
+        }
+        if (new Date(delayData.thoiGianDenThucTe) <= arrivalScheduled) {
+            showToast('Thời gian đến thực tế phải sau thời gian đến dự kiến.', 'error');
+            return;
+        }
+        try {
+            const delayPayload = {
+                maChuyenBay: delayFlightId,
+                lyDoDelay: delayData.lyDoDelay,
+                thoiGianDiThucTe: delayData.thoiGianDiThucTe ? new Date(delayData.thoiGianDiThucTe).getTime() : null,
+                thoiGianDenThucTe: delayData.thoiGianDenThucTe ? new Date(delayData.thoiGianDenThucTe).getTime() : null
+            };
+            await updateDelay(delayPayload);
+            showToast('Cập nhật thông tin delay thành công!', 'success');
+            // Refresh data
+            const flightsRes = await getAllChuyenBay();
+            setFlights(flightsRes.data.data || []);
+            handleDelayClose();
+        } catch (err) {
+            console.error('Error updating delay:', err);
+            showToast('Có lỗi xảy ra khi cập nhật delay. Vui lòng thử lại.', 'error');
+        }
+    };
+
+    const handleCancelClose = () => {
+        setIsCancelModalOpen(false);
+        setCancelFlightId(null);
+        setCancelData({ lyDoHuy: '' });
+    };
+
+    const handleCancelSubmit = async (e) => {
+        e.preventDefault();
+        if (!cancelData.lyDoHuy.trim()) {
+            showToast('Vui lòng nhập lý do hủy chuyến bay.', 'error');
+            return;
+        }
+        try {
+            // Gọi API updateCancel để cập nhật lý do hủy và trạng thái
+            const cancelPayload = {
+                maChuyenBay: cancelFlightId,
+                lyDoHuy: cancelData.lyDoHuy
+            };
+            await updateCancel(cancelPayload);
+            await updateTrangThaiChuyenBay(cancelFlightId, 'Đã hủy');
+            showToast('Hủy chuyến bay thành công!', 'success');
+            // Refresh data
+            const flightsRes = await getAllChuyenBay();
+            setFlights(flightsRes.data.data || []);
+            handleCancelClose();
+        } catch (err) {
+            console.error('Error canceling flight:', err);
+            showToast('Có lỗi xảy ra khi hủy chuyến bay. Vui lòng thử lại.', 'error');
+        }
+    };
+
+    if (loading) return <div className="flex justify-center items-center h-64"><div className="text-lg">Đang tải...</div></div>;
+    if (error) return <div className="flex justify-center items-center h-64"><div className="text-lg text-red-500">{error}</div></div>;
 
     return (
         <Card title="Quản lý chuyến bay">
+            {/* Toast Notification */}
+            <Toast 
+                message={toast.message}
+                type={toast.type}
+                isVisible={toast.isVisible}
+                onClose={hideToast}
+                duration={3000}
+            />
+
             {/* Thanh công cụ */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-3">
                 <div className="flex w-full md:w-auto gap-2">
@@ -126,65 +299,86 @@ const QuanLyChuyenBay = () => {
                                 <th scope="col" className="px-6 py-4 text-left font-semibold">Thời gian đi</th>
                                 <th scope="col" className="px-6 py-4 text-left font-semibold">Thời gian đến</th>
                                 <th scope="col" className="px-6 py-4 text-center font-semibold">Trạng thái</th>
+                                <th scope="col" className="px-6 py-4 text-center font-semibold">Lý do</th>
+                                <th scope="col" className="px-6 py-4 text-center font-semibold">Thời gian đi thực tế</th>
+                                <th scope="col" className="px-6 py-4 text-center font-semibold">Thời gian đến thực tế</th>
                                 <th scope="col" className="px-6 py-4 text-center font-semibold">Hành động</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {filteredFlights.map((flight, index) => (
-                                <tr key={flight.machuyenbay} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}>
-                                    <td className="px-6 py-4 font-bold text-blue-600">{flight.sohieuchuyenbay}</td>
+                            {currentItems.map((flight, index) => (
+                                <tr key={flight.maChuyenBay} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}>
+                                    <td className="px-6 py-4 font-bold text-blue-600">{flight.soHieuChuyenBay}</td>
                                     <td className="px-6 py-4 font-medium text-gray-900">
                                         <div className="flex items-center gap-2">
                                             <FaPlane className="text-gray-400" />
-                                            {getRouteInfo(flight.matuyenbay)}
+                                            {getRouteInfo(flight.tuyenBay)}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-gray-700">
                                         <div className="flex flex-col">
-                                            <span className="font-semibold">{flight.giodi}</span>
-                                            <span className="text-xs text-gray-500">{flight.ngaydi}</span>
+                                            <span className="font-semibold">{flight.gioDi}</span>
+                                            <span className="text-xs text-gray-500">{flight.ngayDi}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-gray-700">
                                         <div className="flex flex-col">
-                                            <span className="font-semibold">{flight.gioden}</span>
-                                            <span className="text-xs text-gray-500">{flight.ngayden}</span>
+                                            <span className="font-semibold">{flight.gioDen}</span>
+                                            <span className="text-xs text-gray-500">{flight.ngayDen}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-center">
-                                        <span className={`px-3 py-1.5 text-xs font-semibold rounded-full ${
-                                            flight.trangthai === 'Đang mở bán' 
-                                            ? 'bg-green-100 text-green-700 border border-green-300' 
-                                            : 'bg-red-100 text-red-700 border border-red-300'
-                                        }`}>
-                                            {flight.trangthai}
-                                        </span>
+                                        <select
+                                            value={flight.trangThai}
+                                            onChange={(e) => handleStatusChange(flight.maChuyenBay, e.target.value)}
+                                            disabled={['Đã hủy', 'Đã bay'].includes(flight.trangThai)}
+                                            className={`px-3 py-1.5 text-xs font-semibold rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${['Đã hủy', 'Đã bay'].includes(flight.trangThai) ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                                        >
+                                            {flight.trangThai === 'Delay' ? (
+                                                <>
+                                                    <option value="Delay">Delay</option>
+                                                    <option value="Đã bay">Đã bay</option>
+                                                    <option value="Đã hủy">Đã hủy</option>
+                                                </>
+                                            ) : flight.trangThai === 'Đã hủy' ? (
+                                                <>
+                                                    <option value="Đã hủy">Đã hủy</option>
+                                                    <option value="Đã bay">Đã bay</option>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <option value="Đang mở bán">Đang mở bán</option>
+                                                    <option value="Đã bay">Đã bay</option>
+                                                    <option value="Delay">Delay</option>
+                                                    <option value="Đã hủy">Đã hủy</option>
+                                                </>
+                                            )}
+                                        </select>
+                                    </td>
+                                    <td className="px-6 py-4 text-center">{flight.lyDoDelay || '-'}</td>
+                                    <td className="px-6 py-4 text-center">
+                                        {flight.thoiGianDiThucTe ? new Date(flight.thoiGianDiThucTe).toLocaleString('vi-VN') : '-'}
+                                    </td>
+                                    <td className="px-6 py-4 text-center">
+                                        {flight.thoiGianDenThucTe ? new Date(flight.thoiGianDenThucTe).toLocaleString('vi-VN') : '-'}
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex justify-center gap-2">
                                             <button 
                                                 onClick={() => handleOpenModal(flight)} 
-                                                className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" 
-                                                title="Chỉnh sửa"
+                                                disabled={['Đã hủy', 'Đã bay'].includes(flight.trangThai)}
+                                                className={`p-2 rounded-lg transition-colors ${['Đã hủy', 'Đã bay'].includes(flight.trangThai) ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100'}`} 
+                                                title={flight.trangThai === 'Delay' ? 'Cập nhật thông tin delay' : 'Chỉnh sửa'}
                                             >
                                                 <FaEdit size={16} />
                                             </button>
-                                            {flight.trangthai === 'Đang mở bán' && (
-                                                <button 
-                                                    onClick={() => handleCancelFlight(flight.machuyenbay)} 
-                                                    className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors" 
-                                                    title="Hủy chuyến"
-                                                >
-                                                    <FaTimesCircle size={16} />
-                                                </button>
-                                            )}
                                         </div>
                                     </td>
                                 </tr>
                             ))}
                             {filteredFlights.length === 0 && (
                                 <tr>
-                                    <td colSpan="6" className="text-center py-12">
+                                    <td colSpan="9" className="text-center py-12">
                                         <div className="flex flex-col items-center gap-3">
                                             <FaPlane className="text-gray-300 text-5xl" />
                                             <p className="text-gray-500 font-medium">Không tìm thấy chuyến bay nào.</p>
@@ -197,104 +391,59 @@ const QuanLyChuyenBay = () => {
                 </div>
             </div>
 
-            {/* Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-xl">
-                            <h2 className="text-2xl font-bold">{currentFlight ? 'Chỉnh sửa chuyến bay' : 'Thêm chuyến bay mới'}</h2>
-                        </div>
-                        <form onSubmit={handleSubmit} className="p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Tuyến bay</label>
-                                    <select 
-                                        name="matuyenbay" 
-                                        value={formData.matuyenbay} 
-                                        onChange={handleFormChange} 
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                        required
+            {/* Thanh phân trang */}
+            {filteredFlights.length > itemsPerPage && (
+                <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                    <span className="text-sm text-gray-600 font-medium">
+                        Hiển thị <span className="font-bold text-blue-600">{indexOfFirstItem + 1}</span> đến <span className="font-bold text-blue-600">{Math.min(indexOfLastItem, filteredFlights.length)}</span> của <span className="font-bold text-blue-600">{filteredFlights.length}</span> kết quả
+                    </span>
+                    <nav>
+                        <ul className="flex gap-2">
+                            <li>
+                                <button
+                                    onClick={() => paginate(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm"
+                                >
+                                    ← Trước
+                                </button>
+                            </li>
+                            {[...Array(totalPages)].map((_, index) => (
+                                <li key={index}>
+                                    <button
+                                        onClick={() => paginate(index + 1)}
+                                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                                            currentPage === index + 1
+                                                ? 'bg-blue-600 text-white shadow-lg'
+                                                : 'bg-white border border-gray-300 hover:bg-gray-100'
+                                        }`}
                                     >
-                                        <option value="" disabled>-- Chọn tuyến bay --</option>
-                                        {routes.map(r => <option key={r.matuyenbay} value={r.matuyenbay}>{getRouteInfo(r.matuyenbay)}</option>)}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Số hiệu chuyến bay</label>
-                                    <input 
-                                        type="text" 
-                                        name="sohieuchuyenbay" 
-                                        value={formData.sohieuchuyenbay} 
-                                        onChange={handleFormChange} 
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                        required 
-                                        placeholder="VD: VN214"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Ngày đi</label>
-                                    <input 
-                                        type="date" 
-                                        name="ngaydi" 
-                                        value={formData.ngaydi} 
-                                        onChange={handleFormChange} 
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                        required 
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Giờ đi</label>
-                                    <input 
-                                        type="time" 
-                                        name="giodi" 
-                                        value={formData.giodi} 
-                                        onChange={handleFormChange} 
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                        required 
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Ngày đến</label>
-                                    <input 
-                                        type="date" 
-                                        name="ngayden" 
-                                        value={formData.ngayden} 
-                                        onChange={handleFormChange} 
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                        required 
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Giờ đến</label>
-                                    <input 
-                                        type="time" 
-                                        name="gioden" 
-                                        value={formData.gioden} 
-                                        onChange={handleFormChange} 
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                                        required 
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
-                                <button 
-                                    type="button" 
-                                    onClick={handleCloseModal} 
-                                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold transition-colors"
+                                        {index + 1}
+                                    </button>
+                                </li>
+                            ))}
+                            <li>
+                                <button
+                                    onClick={() => paginate(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm"
                                 >
-                                    Hủy
+                                    Sau →
                                 </button>
-                                <button 
-                                    type="submit" 
-                                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 font-semibold transition-all shadow-lg"
-                                >
-                                    Lưu
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             )}
+
+            {/* Modal */}
+            <EditFlightModal isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmit} formData={formData} onFormChange={handleFormChange} routes={routes} getRouteInfo={getRouteInfo} currentFlight={currentFlight} />
+
+            {/* Delay Modal */}
+            <DelayFlightModal isOpen={isDelayModalOpen} onClose={handleDelayClose} onSubmit={handleDelaySubmit} delayData={delayData} onDelayDataChange={setDelayData} flights={flights} delayFlightId={delayFlightId} />
+
+            {/* Cancel Modal */}
+            <CancelFlightModal isOpen={isCancelModalOpen} onClose={handleCancelClose} onSubmit={handleCancelSubmit} cancelData={cancelData} onCancelDataChange={setCancelData} />
         </Card>
     );
 };
