@@ -9,6 +9,8 @@ const QuanLyTKAdmin = () => {
   const [showForm, setShowForm] = useState(false);
   const [editAccount, setEditAccount] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     fetchAccounts();
@@ -34,6 +36,13 @@ const QuanLyTKAdmin = () => {
       acc.email?.toLowerCase().includes(search.toLowerCase()) ||
       acc.hoVaTen?.toLowerCase().includes(search.toLowerCase())
   ) : [];
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredAccounts.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredAccounts.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleAdd = () => {
     setEditAccount(null);
@@ -127,8 +136,8 @@ const QuanLyTKAdmin = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredAccounts.length > 0 ? (
-                  filteredAccounts.map((acc, index) => (
+                {currentItems.length > 0 ? (
+                  currentItems.map((acc, index) => (
                     <tr key={acc.maTaiKhoan} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}>
                       <td className="px-6 py-4 font-bold text-blue-600">#{acc.maTaiKhoan}</td>
                       <td className="px-6 py-4">
@@ -178,6 +187,51 @@ const QuanLyTKAdmin = () => {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* Thanh phân trang */}
+      {!loading && filteredAccounts.length > itemsPerPage && (
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+          <span className="text-sm text-gray-600 font-medium">
+            Hiển thị <span className="font-bold text-blue-600">{indexOfFirstItem + 1}</span> đến <span className="font-bold text-blue-600">{Math.min(indexOfLastItem, filteredAccounts.length)}</span> của <span className="font-bold text-blue-600">{filteredAccounts.length}</span> kết quả
+          </span>
+          <nav>
+            <ul className="flex gap-2">
+              <li>
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm"
+                >
+                  ← Trước
+                </button>
+              </li>
+              {[...Array(totalPages)].map((_, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => paginate(index + 1)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      currentPage === index + 1
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white border border-gray-300 hover:bg-gray-100'
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                </li>
+              ))}
+              <li>
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm"
+                >
+                  Sau →
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       )}
 
