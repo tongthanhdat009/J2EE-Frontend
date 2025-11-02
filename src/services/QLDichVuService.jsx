@@ -86,3 +86,75 @@ export const updateServiceImage = (maDichVu, imageFile) => {
         throw error;
     }
 }
+
+export const updateService = (maDichVu, serviceData) => {
+    try{
+        const response = apiClient.put(`/admin/dashboard/dichvu/${maDichVu}`, serviceData);
+        return response;
+    }catch(error){
+        console.error("Error updating service:", error);
+        throw error;
+    }
+}
+
+export const deleteService = (maDichVu) => {
+    try{
+        const response = apiClient.delete(`/admin/dashboard/dichvu/${maDichVu}`);
+        return response;
+    }
+    catch(error){
+        console.error("Error deleting service:", error);
+        throw error;
+    }
+}
+
+export const updateOption = (maDichVu, maLuaChon, optionData) => {
+    try{
+        const response = apiClient.put(`/admin/dashboard/dichvu/${maDichVu}/luachon/${maLuaChon}`, optionData);
+        return response;
+    }catch(error){
+        console.error("Error updating service option:", error);
+        throw error;
+    }
+}
+
+export const deleteOption = (maDichVu, maLuaChon) => {
+    try{
+        const response = apiClient.delete(`/admin/dashboard/dichvu/${maDichVu}/luachon/${maLuaChon}`);
+        return response;
+    }
+    catch(error){
+        console.error("Error deleting service option:", error);
+        throw error;
+    }
+}
+
+export const updateOptionImage = (maDichVu, maLuaChon, imageFile) => {
+    try{
+        const formData = new FormData();
+        formData.append('anh', imageFile);
+        const response = apiClient.post(`/admin/dashboard/dichvu/${maDichVu}/luachon/${maLuaChon}/anh`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response;
+    }
+    catch(error){
+        console.error("Error updating option image:", error);
+        throw error;
+    }
+}
+
+export const fetchOptionImageByName = (imageName) => {
+    try{
+        const response = apiClient.get(`/admin/dashboard/dichvu/luachon/anh/${imageName}`, {
+            responseType: 'blob', // Đảm bảo nhận dữ liệu dưới dạng blob
+        });
+        return response;
+    }
+    catch(error){
+        console.error("Error fetching option image:", error);
+        throw error;
+    }
+}

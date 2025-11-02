@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaConciergeBell, FaEye } from 'react-icons/fa';
 import Card from '../../components/QuanLy/CardChucNang';
-import { getAllServices, fetchImageByName, getServiceOptions, createServiceOption, createService, updateServiceImage } from '../../services/QLDichVuService';
+import { getAllServices, fetchImageByName, getServiceOptions, createServiceOption, createService, updateServiceImage, updateService, deleteService, updateOption, deleteOption, updateOptionImage } from '../../services/QLDichVuService';
+import ServiceModal from '../../components/QuanLy/QuanLyDichVu/ServiceModal';
+import DeleteConfirmationModal from '../../components/QuanLy/QuanLyDichVu/DeleteConfirmationModal';
+import ServiceDetailModal from '../../components/QuanLy/QuanLyDichVu/ServiceDetailModal';
 
 const QuanLyDichVu = () => {
   const [services, setServices] = useState([]);
@@ -13,6 +16,8 @@ const QuanLyDichVu = () => {
   const [serviceOptions, setServiceOptions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [imageCache, setImageCache] = useState({}); // Cache để lưu ảnh đã tải
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     fetchServices();
@@ -95,7 +100,29 @@ const QuanLyDichVu = () => {
     try {
       if (currentService) {
         // Editing existing service
-        setServices(services.map(s => s.maDichVu === currentService.maDichVu ? { ...s, ...serviceData } : s));
+        // Step 1: Update service data first
+        const updateResponse = await updateService(currentService.maDichVu, {
+          tenDichVu: serviceData.tenDichVu,
+          moTa: serviceData.moTa,
+        });
+
+        let updatedService = updateResponse.data.data;
+
+        // Step 2: If there's a new image, upload it
+        if (selectedImage) {
+          try {
+            const uploadResponse = await updateServiceImage(currentService.maDichVu, selectedImage);
+            if (uploadResponse.data && uploadResponse.data.data) {
+              updatedService = uploadResponse.data.data;
+            }
+          } catch (imageError) {
+            console.error('Error uploading image:', imageError);
+            // Continue with updated service data even if image upload fails
+          }
+        }
+
+        // Update local state
+        setServices(services.map(s => s.maDichVu === currentService.maDichVu ? updatedService : s));
       } else {
         // Creating new service
         // Step 1: Create service without image first
@@ -136,10 +163,28 @@ const QuanLyDichVu = () => {
     }
   };
 
-  const confirmDelete = () => {
-    setServices(services.filter(s => s.maDichVu !== currentService.maDichVu));
-    setIsDeleteConfirmOpen(false);
-    setCurrentService(null);
+  const confirmDelete = async () => {
+    try {
+      await deleteService(currentService.maDichVu);
+      // Remove from local state only after successful deletion
+      const updatedServices = services.filter(s => s.maDichVu !== currentService.maDichVu);
+      setServices(updatedServices);
+      
+      // Tính lại số trang sau khi xóa
+      const newFilteredServices = updatedServices.filter(service =>
+        service.tenDichVu.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      const newTotalPages = Math.ceil(newFilteredServices.length / itemsPerPage);
+      
+      // Reset về trang đầu tiên sau khi xóa
+      setCurrentPage(1);
+      
+      setIsDeleteConfirmOpen(false);
+      setCurrentService(null);
+    } catch (error) {
+      console.error('Lỗi khi xóa dịch vụ:', error);
+      alert('Không thể xóa dịch vụ. Vui lòng thử lại.');
+    }
   };
 
   const handleViewDetail = async (service) => {
@@ -162,24 +207,83 @@ const QuanLyDichVu = () => {
     }
   };
 
-  const handleCreateOption = async (optionData) => {
+  const handleCreateOption = async (optionData, selectedImage) => {
     try {
-      await createServiceOption(currentServiceDetail.maDichVu, optionData);
-      // Refresh options after creating new one
-      const response = await getServiceOptions(currentServiceDetail.maDichVu);
-      if (response.data && Array.isArray(response.data.data)) {
-        setServiceOptions(response.data.data);
-      } else if (Array.isArray(response.data)) {
-        setServiceOptions(response.data);
+      const response = await createServiceOption(currentServiceDetail.maDichVu, optionData);
+      let newOption = response.data.data;
+
+      if (selectedImage) {
+        try {
+          const uploadResponse = await updateOptionImage(currentServiceDetail.maDichVu, newOption.maLuaChon, selectedImage);
+          if (uploadResponse.data && uploadResponse.data.data) {
+            newOption = uploadResponse.data.data;
+          }
+        } catch (imageError) {
+          console.error('Error uploading option image:', imageError);
+          // Continue with new option data even if image upload fails
+        }
       }
+
+      // Add to local state
+      setServiceOptions(prev => [...prev, newOption]);
     } catch (error) {
       console.error("Failed to create service option:", error);
+    }
+  };
+
+  const handleEditOption = async (luachonId, optionData, selectedImage) => {
+    try {
+      // Step 1: Update option data first
+      const updateResponse = await updateOption(currentServiceDetail.maDichVu, luachonId, {
+        tenLuaChon: optionData.tenLuaChon,
+        moTa: optionData.moTa,
+        gia: optionData.gia,
+      });
+
+      let updatedOption = updateResponse.data.data;
+
+      // Step 2: If there's a new image, upload it
+      if (selectedImage) {
+        try {
+          const uploadResponse = await updateOptionImage(currentServiceDetail.maDichVu, luachonId, selectedImage);
+          if (uploadResponse.data && uploadResponse.data.data) {
+            updatedOption = uploadResponse.data.data;
+          }
+        } catch (imageError) {
+          console.error('Error uploading option image:', imageError);
+          // Continue with updated option data even if image upload fails
+        }
+      }
+
+      // Update local state
+      setServiceOptions(serviceOptions.map(opt => opt.maLuaChon === luachonId ? updatedOption : opt));
+    } catch (error) {
+      console.error("Failed to edit service option:", error);
+      throw error; // Re-throw to be caught by EditOptionModal
+    }
+  };
+
+  const handleDeleteOption = async (luachonId) => {
+    try {
+      await deleteOption(currentServiceDetail.maDichVu, luachonId);
+      // Remove from local state
+      setServiceOptions(serviceOptions.filter(opt => opt.maLuaChon !== luachonId));
+    } catch (error) {
+      console.error("Failed to delete service option:", error);
+      throw error; // Re-throw to show error
     }
   };
 
   const filteredServices = services.filter(service =>
     service.tenDichVu.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredServices.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Helper để lấy URL ảnh từ cache hoặc trả về placeholder
   const getImageUrl = (imagePath) => {
@@ -223,8 +327,8 @@ const QuanLyDichVu = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredServices.length > 0 ? (
-                filteredServices.map((service, index) => (
+              {currentItems.length > 0 ? (
+                currentItems.map((service, index) => (
                   <tr key={service.maDichVu} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -290,6 +394,51 @@ const QuanLyDichVu = () => {
         </div>
       </div>
 
+      {/* Thanh phân trang */}
+      {filteredServices.length > itemsPerPage && (
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+          <span className="text-sm text-gray-600 font-medium">
+            Hiển thị <span className="font-bold text-blue-600">{indexOfFirstItem + 1}</span> đến <span className="font-bold text-blue-600">{Math.min(indexOfLastItem, filteredServices.length)}</span> của <span className="font-bold text-blue-600">{filteredServices.length}</span> kết quả
+          </span>
+          <nav>
+            <ul className="flex gap-2">
+              <li>
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm"
+                >
+                  ← Trước
+                </button>
+              </li>
+              {[...Array(totalPages)].map((_, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => paginate(index + 1)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      currentPage === index + 1
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white border border-gray-300 hover:bg-gray-100'
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                </li>
+              ))}
+              <li>
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm"
+                >
+                  Sau →
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
+
       {/* Modals */}
       {isModalOpen && (
         <ServiceModal 
@@ -313,383 +462,11 @@ const QuanLyDichVu = () => {
           options={serviceOptions}
           onClose={() => setIsDetailModalOpen(false)}
           onCreateOption={handleCreateOption}
+          onEditOption={handleEditOption}
+          onDeleteOption={handleDeleteOption}
         />
       )}
     </Card>
-  );
-};
-
-// Modal Component
-const ServiceModal = ({ service, onClose, onSave }) => {
-  const [formData, setFormData] = useState({
-    tenDichVu: service?.tenDichVu || '',
-    moTa: service?.moTa || '',
-    anh: service?.anh || '',
-  });
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
-
-  // Load image preview when editing
-  useEffect(() => {
-    if (service?.anh) {
-      // If editing, try to get image from cache or API
-      const imageName = service.anh.split('/').pop();
-      // For now, just set the path, we'll handle preview in the component
-      setImagePreview(service.anh);
-    }
-  }, [service]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl);
-      // Update form data with file name
-      setFormData(prev => ({ ...prev, anh: file.name }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMessage(''); // Clear previous error
-    
-    try {
-      await onSave(formData, selectedImage);
-      // Cleanup preview URL
-      if (imagePreview && imagePreview.startsWith('blob:')) {
-        URL.revokeObjectURL(imagePreview);
-      }
-    } catch (error) {
-      console.error('Error saving service:', error);
-      // Extract error message from API response
-      if (error.response && error.response.data && error.response.data.message) {
-        setErrorMessage(error.response.data.message);
-      } else {
-        setErrorMessage('Có lỗi xảy ra khi lưu dịch vụ. Vui lòng thử lại.');
-      }
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-xl">
-          <h2 className="text-2xl font-bold">{service ? 'Chỉnh sửa dịch vụ' : 'Thêm dịch vụ mới'}</h2>
-        </div>
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="space-y-5">
-            <div>
-              <label htmlFor="tenDichVu" className="block text-sm font-bold text-gray-700 mb-2">Tên dịch vụ</label>
-              <input 
-                type="text" 
-                name="tenDichVu" 
-                id="tenDichVu" 
-                value={formData.tenDichVu} 
-                onChange={handleChange} 
-                className="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                required 
-                placeholder="Nhập tên dịch vụ"
-              />
-            </div>
-            <div>
-              <label htmlFor="moTa" className="block text-sm font-bold text-gray-700 mb-2">Mô tả</label>
-              <textarea 
-                name="moTa" 
-                id="moTa" 
-                value={formData.moTa} 
-                onChange={handleChange} 
-                className="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                required 
-                placeholder="Nhập mô tả dịch vụ"
-                rows="4"
-              />
-            </div>
-            <div>
-              <label htmlFor="anh" className="block text-sm font-bold text-gray-700 mb-2">Hình ảnh dịch vụ</label>
-              <div className="space-y-3">
-                {/* Image Preview */}
-                {imagePreview && (
-                  <div className="flex justify-center">
-                    <img 
-                      src={imagePreview.startsWith('blob:') ? imagePreview : `http://localhost:8080${imagePreview}`} 
-                      alt="Preview" 
-                      className="w-24 h-24 object-contain border border-gray-300 rounded-lg"
-                      onError={(e) => {
-                        e.target.src = '/no-product.png';
-                      }}
-                    />
-                  </div>
-                )}
-                
-                {/* File Input */}
-                <input 
-                  type="file" 
-                  name="anh" 
-                  id="anh" 
-                  accept="image/*"
-                  onChange={handleImageChange} 
-                  className="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
-                <p className="text-sm text-gray-500">Chọn file ảnh (SVG, PNG, JPG) để upload</p>
-              </div>
-            </div>
-          </div>
-          {errorMessage && (
-            <p className="text-sm text-red-500 mt-4">{errorMessage}</p>
-          )}
-          <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
-            <button 
-              type="button" 
-              onClick={onClose} 
-              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold transition-colors"
-            >
-              Hủy
-            </button>
-            <button 
-              type="submit" 
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 font-semibold transition-all shadow-lg"
-            >
-              Lưu
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-// Delete Confirmation Modal Component
-const DeleteConfirmationModal = ({ onClose, onConfirm, serviceName }) => {
-  return (
-    <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
-        <div className="p-6">
-          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-            <FaTrash className="text-red-600 text-2xl" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 text-center mb-2">Xác nhận xóa</h2>
-          <p className="text-sm text-gray-600 text-center mb-6">
-            Bạn có chắc chắn muốn xóa dịch vụ <span className="font-semibold text-gray-900">"{serviceName}"</span>? Hành động này không thể hoàn tác.
-          </p>
-          <div className="flex gap-3">
-            <button 
-              type="button" 
-              onClick={onClose} 
-              className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold transition-colors"
-            >
-              Hủy
-            </button>
-            <button 
-              type="button" 
-              onClick={onConfirm} 
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 font-semibold transition-all shadow-lg"
-            >
-              Xóa
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Service Detail Modal Component
-const ServiceDetailModal = ({ service, options, onClose, onCreateOption }) => {
-  const [isCreateOptionModalOpen, setIsCreateOptionModalOpen] = useState(false);
-
-  const handleCreateOption = (optionData) => {
-    onCreateOption(optionData);
-    setIsCreateOptionModalOpen(false);
-  };
-
-  return (
-    <>
-      <div className="fixed inset-0 flex justify-center items-center z-50 p-4">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-xl">
-            <h2 className="text-2xl font-bold">Chi tiết dịch vụ: {service.tenDichVu}</h2>
-          </div>
-          
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-            {/* Service Info */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Thông tin dịch vụ</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Tên dịch vụ</p>
-                  <p className="font-medium text-gray-900">{service.tenDichVu}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Mô tả</p>
-                  <p className="font-medium text-gray-900">{service.moTa}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Options Section */}
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Danh sách lựa chọn</h3>
-              <button
-                onClick={() => setIsCreateOptionModalOpen(true)}
-                className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all"
-              >
-                <FaPlus size={14} />
-                <span>Tạo lựa chọn mới</span>
-              </button>
-            </div>
-
-            {/* Options List */}
-            <div className="space-y-3">
-              {options.length > 0 ? (
-                options.map((option, index) => (
-                  <div key={option.id || index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{option.tenLuaChon || option.name}</h4>
-                        <p className="text-sm text-gray-600 mt-1">{option.moTa || option.description}</p>
-                        {option.gia && (
-                          <p className="text-sm font-semibold text-green-600 mt-2">
-                            Giá: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(option.gia)}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex gap-2 ml-4">
-                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" title="Chỉnh sửa">
-                          <FaEdit size={14} />
-                        </button>
-                        <button className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors" title="Xóa">
-                          <FaTrash size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <FaConciergeBell className="text-gray-300 text-4xl mx-auto mb-3" />
-                  <p className="text-gray-500">Chưa có lựa chọn nào cho dịch vụ này.</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
-            <button 
-              type="button" 
-              onClick={onClose} 
-              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold transition-colors"
-            >
-              Đóng
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Create Option Modal */}
-      {isCreateOptionModalOpen && (
-        <CreateOptionModal
-          onClose={() => setIsCreateOptionModalOpen(false)}
-          onSave={handleCreateOption}
-        />
-      )}
-    </>
-  );
-};
-
-// Create Option Modal Component
-const CreateOptionModal = ({ onClose, onSave }) => {
-  const [formData, setFormData] = useState({
-    tenLuaChon: '',
-    moTa: '',
-    gia: '',
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
-    setFormData({ tenLuaChon: '', moTa: '', gia: '' }); // Reset form
-  };
-
-  return (
-    <div className="fixed inset-0  flex justify-center items-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
-        <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6 rounded-t-xl">
-          <h2 className="text-2xl font-bold">Tạo lựa chọn mới</h2>
-        </div>
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="space-y-5">
-            <div>
-              <label htmlFor="tenLuaChon" className="block text-sm font-bold text-gray-700 mb-2">Tên lựa chọn</label>
-              <input 
-                type="text" 
-                name="tenLuaChon" 
-                id="tenLuaChon" 
-                value={formData.tenLuaChon} 
-                onChange={handleChange} 
-                className="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" 
-                required 
-                placeholder="Nhập tên lựa chọn"
-              />
-            </div>
-            <div>
-              <label htmlFor="moTa" className="block text-sm font-bold text-gray-700 mb-2">Mô tả</label>
-              <textarea 
-                name="moTa" 
-                id="moTa" 
-                value={formData.moTa} 
-                onChange={handleChange} 
-                className="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" 
-                required 
-                placeholder="Nhập mô tả lựa chọn"
-                rows="3"
-              />
-            </div>
-            <div>
-              <label htmlFor="gia" className="block text-sm font-bold text-gray-700 mb-2">Giá (VNĐ)</label>
-              <input 
-                type="number" 
-                name="gia" 
-                id="gia" 
-                value={formData.gia} 
-                onChange={handleChange} 
-                className="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" 
-                required 
-                placeholder="Nhập giá"
-                min="0"
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
-            <button 
-              type="button" 
-              onClick={onClose} 
-              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold transition-colors"
-            >
-              Hủy
-            </button>
-            <button 
-              type="submit" 
-              className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 font-semibold transition-all shadow-lg"
-            >
-              Tạo
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   );
 };
 
