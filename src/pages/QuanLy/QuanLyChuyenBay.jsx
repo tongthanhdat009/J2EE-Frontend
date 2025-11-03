@@ -8,6 +8,7 @@ import EditFlightModal from '../../components/QuanLy/QuanLyChuyenBay/EditFlightM
 import DelayFlightModal from '../../components/QuanLy/QuanLyChuyenBay/DelayFlightModal';
 import CancelFlightModal from '../../components/QuanLy/QuanLyChuyenBay/CancelFlightModal';
 import Toast from '../../components/common/Toast';
+import useWebSocket from '../../hooks/useWebSocket';
 
 const QuanLyChuyenBay = () => {
     // --- STATE MANAGEMENT ---
@@ -29,6 +30,9 @@ const QuanLyChuyenBay = () => {
     const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
+
+    // --- WEBSOCKET ---
+    const { flightUpdates, isConnected } = useWebSocket();
 
     // --- FETCH DATA ---
     useEffect(() => {
@@ -52,6 +56,34 @@ const QuanLyChuyenBay = () => {
         };
         fetchData();
     }, []);
+
+    // --- WEBSOCKET UPDATE HANDLER ---
+    useEffect(() => {
+        if (flightUpdates.length > 0) {
+            const latestUpdate = flightUpdates[0];
+            console.log('Processing flight update:', latestUpdate);
+
+            // Cập nhật trạng thái và thời gian thực tế của chuyến bay
+            setFlights(prevFlights =>
+                prevFlights.map(flight =>
+                    flight.maChuyenBay === latestUpdate.maChuyenBay
+                        ? { 
+                            ...flight, 
+                            trangThai: latestUpdate.newStatus,
+                            thoiGianDiThucTe: latestUpdate.thoiGianDiThucTe,
+                            thoiGianDenThucTe: latestUpdate.thoiGianDenThucTe
+                          }
+                        : flight
+                )
+            );
+
+            // Hiển thị toast notification
+            showToast(
+                `Chuyến bay ${latestUpdate.maChuyenBay} đã chuyển từ "${latestUpdate.oldStatus}" sang "${latestUpdate.newStatus}"`,
+                'info'
+            );
+        }
+    }, [flightUpdates]);
 
     // --- HELPER FUNCTIONS ---
     const getRouteInfo = (route) => {
@@ -125,8 +157,8 @@ const QuanLyChuyenBay = () => {
             const { maTuyenBay, ...restFormData } = formData;
             const formattedData = {
                 ...restFormData,
-                gioDi: restFormData.gioDi ? `1970-01-01T${restFormData.gioDi}:00.000Z` : '',
-                gioDen: restFormData.gioDen ? `1970-01-01T${restFormData.gioDen}:00.000Z` : ''
+                gioDi: restFormData.gioDi ? `${restFormData.gioDi}` : '',
+                gioDen: restFormData.gioDen ? `${restFormData.gioDen}` : ''
             };
             const flightData = {
                 ...formattedData,
