@@ -15,6 +15,8 @@ import QuanLyChuyenBay from './pages/QuanLy/QuanLyChuyenBay';
 import QuanLyDichVu from './pages/QuanLy/QuanLyDichVu';
 import QuanLySanBay from "./pages/QuanLy/QuanLySanBay"
 import QuanLyTKAdmin from "./pages/QuanLy/QuanLyTKAdmin"
+import QuanLyThanhToan from "./pages/QuanLy/QuanLyThanhToan"
+import QuanLyGiaBay from "./pages/QuanLy/QuanLyGiaBay"
 import DichVuChuyenBay from "./pages/KhachHang/DichVuChuyenBay"
 import DichVuKhac from "./pages/KhachHang/DichVuKhac"
 import ThongTinCaNhan from "./pages/KhachHang/ThongTinTaiKhoan/ThongTinCaNhan"
@@ -63,6 +65,8 @@ function App() {
             <Route path="ThongKe" element={<ThongKeDoanhThu />} />
             <Route path="SanBay" element={<QuanLySanBay />} />
             <Route path="QuanLyTKAdmin" element={<QuanLyTKAdmin />} />
+            <Route path="ThanhToan" element={<QuanLyThanhToan />} />
+            <Route path="GiaBay" element={<QuanLyGiaBay />} />
           </Route>
           
           {/* Backward compatibility - redirect old routes */}
@@ -74,6 +78,8 @@ function App() {
             <Route path="ThongKe" element={<ThongKeDoanhThu />} />
             <Route path="SanBay" element={<QuanLySanBay />} />
             <Route path="QuanLyTKAdmin" element={<QuanLyTKAdmin />} />
+            <Route path="ThanhToan" element={<QuanLyThanhToan />} />
+            <Route path="GiaBay" element={<QuanLyGiaBay />} />
           </Route>
         </Routes>
       </main>
