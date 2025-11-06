@@ -1,10 +1,32 @@
-import React, { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { FaChartBar, FaUsers, FaRoute, FaPlaneDeparture, FaConciergeBell, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
 import { MdLocalAirport } from 'react-icons/md'; 
+import { logout } from '../../services/AuthService';
+import { getUserInfo, isAuthenticated } from '../../utils/cookieUtils';
 
 function TrangChuAdmin() {
+    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [userInfo, setUserInfo] = useState(null);
+
+    // Kiểm tra xác thực khi component mount
+    useEffect(() => {
+        if (!isAuthenticated()) {
+            navigate('/admin/login');
+        } else {
+            // Lấy thông tin user từ cookie
+            const user = getUserInfo();
+            setUserInfo(user);
+        }
+    }, [navigate]);
+
+    const handleLogout = async () => {
+        if (window.confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+            await logout();
+            navigate('/admin/login');
+        }
+    };
 
     const menuItems = [
         { path: 'ThongKe', icon: <FaChartBar size={20} />, text: 'Thống kê', color: 'from-blue-500 to-cyan-500' },
@@ -15,6 +37,14 @@ function TrangChuAdmin() {
         { path: 'SanBay', icon: <MdLocalAirport size={20} />, text: 'Sân bay', color: 'from-indigo-500 to-blue-500' },
         { path: 'QuanLyTKAdmin', icon: <FaUsers size={20} />, text: 'Quản lý TK Admin', color: 'from-purple-500 to-pink-500' },
     ];
+
+    // Lấy chữ cái đầu của username để hiển thị avatar
+    const getInitial = () => {
+        if (userInfo?.username) {
+            return userInfo.username.charAt(0).toUpperCase();
+        }
+        return 'A';
+    };
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-200 font-sans">
@@ -64,16 +94,23 @@ function TrangChuAdmin() {
                         <div className="mb-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-sky-400 to-blue-500 flex items-center justify-center font-bold text-white shadow-lg flex-shrink-0">
-                                    A
+                                    {getInitial()}
                                 </div>
                                 <div className="overflow-hidden">
-                                    <p className="font-semibold text-sm text-white truncate">Admin User</p>
-                                    <p className="text-xs text-slate-400 truncate">admin@example.com</p>
+                                    <p className="font-semibold text-sm text-white truncate">
+                                        {userInfo?.username || 'Admin User'}
+                                    </p>
+                                    <p className="text-xs text-slate-400 truncate">
+                                        {userInfo?.email || userInfo?.role || 'Administrator'}
+                                    </p>
                                 </div>
                             </div>
                         </div>
                         
-                        <button className="group flex items-center gap-4 px-5 py-3.5 rounded-xl text-slate-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 border border-transparent transition-all duration-200 w-full">
+                        <button 
+                            onClick={handleLogout}
+                            className="group flex items-center gap-4 px-5 py-3.5 rounded-xl text-slate-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 border border-transparent transition-all duration-200 w-full"
+                        >
                             <FaSignOutAlt size={20} className="group-hover:rotate-12 transition-transform duration-200" />
                             <span className="font-semibold text-sm">Đăng xuất</span>
                         </button>

@@ -2,10 +2,11 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import Header from "./components/KhachHang/Header"
 import Home from "./pages/KhachHang/TrangChu"
 import Admin from "./pages/QuanLy/TrangChuAdmin"
-import LoginAdmin from "./pages/Quanly/DangNhap"
+import LoginAdmin from "./pages/QuanLy/DangNhap"
 import LoginClient from "./pages/KhachHang/DangNhap"
-import SignupClient from "./pages/KhachHang/DangKy"
+// import SignupClient from "./pages/KhachHang/DangKy"
 import TestAPI from "./testAPI"; 
+import ProtectedRoute from "./components/common/ProtectedRoute"
 
 import ThongKeDoanhThu from './pages/QuanLy/ThongKeDoanhThu';
 import QuanLyKhachHang from './pages/QuanLy/QuanLyKhachHang';
@@ -29,9 +30,10 @@ function App() {
         <Routes>
           {/*public Routes */}
           <Route path="/" element={<Home />} />
+          <Route path="/admin/login" element={<LoginAdmin/>}/>
           <Route path="/dang-nhap-admin" element={<LoginAdmin/>}/>
           <Route path="/dang-nhap-client" element={<LoginClient/>}/>
-          <Route path="/dang-ky-client" element={<SignupClient/>}/>
+          {/* <Route path="/dang-ky-client" element={<SignupClient/>}/> */}
           <Route path="/chuyen-bay-cua-toi" element={<LoginClient/>}/>
           <Route path="/dich-vu-chuyen-bay" element={<DichVuChuyenBay/>}/>
           <Route path="/dich-vu-khac" element={<DichVuKhac/>}/>
@@ -52,15 +54,26 @@ function App() {
           {/*test api*/}
           <Route path="/test-api" element={<TestAPI/>}/>
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<Admin />}>
-            <Route path="/admin/KhachHang" element={<QuanLyKhachHang />} />
-            <Route path="/admin/TuyenBay" element={<QuanLyTuyenBay />} />
-            <Route path="/admin/ChuyenBay" element={<QuanLyChuyenBay />} />
-            <Route path="/admin/DichVu" element={<QuanLyDichVu />} />
-            <Route path="/admin/ThongKe" element={<ThongKeDoanhThu />} />
-            <Route path="/admin/SanBay" element={<QuanLySanBay />} />
-            <Route path="/admin/QuanLyTKAdmin" element={<QuanLyTKAdmin />} />
+          {/* Admin Routes - Bảo vệ bằng ProtectedRoute */}
+          <Route path="/admin/dashboard" element={<ProtectedRoute><Admin /></ProtectedRoute>}>
+            <Route path="KhachHang" element={<QuanLyKhachHang />} />
+            <Route path="TuyenBay" element={<QuanLyTuyenBay />} />
+            <Route path="ChuyenBay" element={<QuanLyChuyenBay />} />
+            <Route path="DichVu" element={<QuanLyDichVu />} />
+            <Route path="ThongKe" element={<ThongKeDoanhThu />} />
+            <Route path="SanBay" element={<QuanLySanBay />} />
+            <Route path="QuanLyTKAdmin" element={<QuanLyTKAdmin />} />
+          </Route>
+          
+          {/* Backward compatibility - redirect old routes */}
+          <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>}>
+            <Route path="KhachHang" element={<QuanLyKhachHang />} />
+            <Route path="TuyenBay" element={<QuanLyTuyenBay />} />
+            <Route path="ChuyenBay" element={<QuanLyChuyenBay />} />
+            <Route path="DichVu" element={<QuanLyDichVu />} />
+            <Route path="ThongKe" element={<ThongKeDoanhThu />} />
+            <Route path="SanBay" element={<QuanLySanBay />} />
+            <Route path="QuanLyTKAdmin" element={<QuanLyTKAdmin />} />
           </Route>
         </Routes>
       </main>
