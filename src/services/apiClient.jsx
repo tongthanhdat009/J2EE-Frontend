@@ -1,5 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
+import { getAccessToken, getRefreshToken, setAuthToken, clearAuthCookies } from '../utils/cookieUtils';
 
 const BASE_URL = "http://localhost:8080";
 
@@ -7,7 +8,7 @@ const BASE_URL = "http://localhost:8080";
 const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
-  timeout: 10000, // timeout 10s để tránh treo request quá lâu
+  timeout: 10000,
 });
 
 // Cờ và hàng đợi để xử lý tình huống refresh token đang diễn ra
@@ -15,65 +16,160 @@ let isRefreshing = false;
 let pendingQueue = [];
 
 /**
- * Xóa token trong cookie khi không còn hợp lệ
- * Lưu ý: nếu muốn cookie httpOnly/secure/samesite thì phải cấu hình từ server (Set-Cookie),
- * js-cookie không thể set httpOnly từ phía client.
+ * Xác định loại người dùng dựa trên URL hoặc cookie
  */
-const clearTokens = () => {
-  Cookies.remove("accessToken");
-  Cookies.remove("refreshToken");
+const getUserType = (url) => {
+  // Nếu URL chứa /admin/ hoặc có admin token
+  if (url && url.includes('/admin/')) {
+    return 'admin';
+  }
+  // Kiểm tra cookie để xác định
+  if (Cookies.get('admin_access_token')) {
+    return 'admin';
+  }
+  if (Cookies.get('user_access_token')) {
+    return 'customer';
+  }
+  return null;
 };
 
 /**
- * Khi refresh xong (hoặc thất bại), xử lý lại toàn bộ request đang chờ:
- * - Nếu có newToken: gắn vào header Authorization của từng request và gọi lại.
- * - Nếu lỗi: reject tất cả promise trong hàng đợi.
+ * Lấy access token theo loại người dùng
+ */
+const getAccessTokenByType = (userType) => {
+  if (userType === 'admin') {
+    return Cookies.get('admin_access_token');
+  } else if (userType === 'customer') {
+    return Cookies.get('user_access_token');
+  }
+  return null;
+};
+
+/**
+ * Lấy refresh token theo loại người dùng
+ */
+const getRefreshTokenByType = (userType) => {
+  if (userType === 'admin') {
+    return Cookies.get('admin_refresh_token');
+  } else if (userType === 'customer') {
+    return Cookies.get('user_refresh_token');
+  }
+  return null;
+};
+
+/**
+ * Lưu token theo loại người dùng
+ */
+const setTokensByType = (userType, accessToken, refreshToken) => {
+  if (userType === 'admin') {
+    Cookies.set('admin_access_token', accessToken, { expires: 1 }); // 1 day
+    if (refreshToken) {
+      Cookies.set('admin_refresh_token', refreshToken, { expires: 30 }); // 30 days
+    }
+  } else if (userType === 'customer') {
+    Cookies.set('user_access_token', accessToken, { expires: 1 });
+    if (refreshToken) {
+      Cookies.set('user_refresh_token', refreshToken, { expires: 30 });
+    }
+  }
+};
+
+/**
+ * Xóa token theo loại người dùng
+ */
+const clearTokensByType = (userType) => {
+  if (userType === 'admin') {
+    Cookies.remove('admin_access_token');
+    Cookies.remove('admin_refresh_token');
+  } else if (userType === 'customer') {
+    Cookies.remove('user_access_token');
+    Cookies.remove('user_refresh_token');
+  }
+};
+
+/**
+ * Lấy đường dẫn refresh token theo loại người dùng
+ */
+const getRefreshEndpoint = (userType) => {
+  if (userType === 'admin') {
+    return '/admin/dangnhap/refresh';
+  } else if (userType === 'customer') {
+    return '/customer/dangnhap/refresh';
+  }
+  return null;
+};
+
+/**
+ * Lấy đường dẫn đăng nhập theo loại người dùng
+ */
+const getLoginPath = (userType) => {
+  if (userType === 'admin') {
+    return '/admin/login';
+  } else if (userType === 'customer') {
+    return '/customer/login';
+  }
+  return '/login';
+};
+
+/**
+ * Xử lý hàng đợi request sau khi refresh token
  */
 const processQueue = (newToken, error) => {
   pendingQueue.forEach(({ resolve, reject, originalRequest }) => {
     if (newToken) {
       originalRequest.headers.Authorization = `Bearer ${newToken}`;
-      resolve(apiClient(originalRequest)); // chạy lại request với token mới
+      resolve(apiClient(originalRequest));
     } else {
       reject(error);
     }
   });
-  pendingQueue = []; // dọn hàng đợi
+  pendingQueue = [];
 };
 
-// Interceptor trước khi gửi request: tự chèn Authorization nếu có accessToken trong cookie
-apiClient.interceptors.request.use((config) => {
-  const accessToken = Cookies.get("accessToken");
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+// Request interceptor - Tự động thêm token vào headers
+apiClient.interceptors.request.use(
+  (config) => {
+    const userType = getUserType(config.url);
+    const accessToken = getAccessTokenByType(userType);
+    
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
-// Interceptor sau khi nhận response (hoặc error)
+// Response interceptor - Xử lý lỗi 401 và refresh token
 apiClient.interceptors.response.use(
-  (response) => response, // thành công thì trả về luôn
+  (response) => response,
   async (error) => {
     const { config: originalRequest, response } = error;
 
-    // Nếu không có response.status (VD: lỗi mạng), hoặc request không hợp lệ,
-    // hoặc đã retry rồi (_retry = true) thì trả lỗi luôn.
+    // Nếu không có response hoặc request không hợp lệ, hoặc đã retry rồi
     if (!response?.status || !originalRequest || originalRequest._retry) {
       return Promise.reject(error);
     }
 
-    // Chỉ xử lý luồng refresh khi gặp 401 (Unauthorized)
+    // Chỉ xử lý khi gặp 401 (Unauthorized)
     if (response.status === 401) {
-      originalRequest._retry = true; // tránh vòng lặp vô hạn
+      originalRequest._retry = true;
 
-      const refreshToken = Cookies.get("refreshToken");
+      const userType = getUserType(originalRequest.url);
+      const refreshToken = getRefreshTokenByType(userType);
+
       if (!refreshToken) {
         // Không có refresh token => đăng nhập lại
-        clearTokens();
+        clearTokensByType(userType);
+        const loginPath = getLoginPath(userType);
+        window.location.href = loginPath;
         return Promise.reject(error);
       }
 
-      // Nếu đang refresh rồi: đưa request hiện tại vào hàng đợi chờ refresh xong
+      // Nếu đang refresh rồi: đưa request vào hàng đợi
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           pendingQueue.push({ resolve, reject, originalRequest });
@@ -83,35 +179,75 @@ apiClient.interceptors.response.use(
       try {
         isRefreshing = true;
 
-        // DÙNG axios gốc (không phải apiClient) để gọi refresh,
-        // nhằm tránh interceptor đụng phải 401 lặp lại.
-        const { data } = await axios.post(`${BASE_URL}/dangnhap/refresh`, { refreshToken });
-        const newAccessToken = data?.accessToken;
+        const refreshEndpoint = getRefreshEndpoint(userType);
+        
+        // Gọi API refresh token
+        const { data } = await axios.post(
+          `${BASE_URL}${refreshEndpoint}`,
+          { refreshToken },
+          {
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
 
-        if (!newAccessToken) throw new Error("No accessToken in response");
+        const newAccessToken = data?.accessToken;
+        const newRefreshToken = data?.refreshToken;
+
+        if (!newAccessToken) {
+          throw new Error("No accessToken in response");
+        }
 
         // Lưu token mới
-        Cookies.set("accessToken", newAccessToken);
+        setTokensByType(userType, newAccessToken, newRefreshToken);
 
-        // Chạy lại các request đang chờ với token mới
+        // Xử lý các request đang chờ
         processQueue(newAccessToken, null);
 
-        // Gắn token mới cho request ban đầu và chạy lại
+        // Retry request ban đầu với token mới
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return apiClient(originalRequest);
+
       } catch (err) {
-        // Refresh thất bại: xóa token và thông báo lỗi cho toàn bộ request đang chờ
-        clearTokens();
+        // Refresh thất bại: xóa token và redirect
+        clearTokensByType(userType);
         processQueue(null, err);
+        
+        const loginPath = getLoginPath(userType);
+        window.location.href = loginPath;
+        
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
       }
     }
 
-    // Các lỗi khác ngoài 401: trả về như bình thường
+    // Các lỗi khác
     return Promise.reject(error);
   }
 );
+
+/**
+ * Helper function để login và lưu token
+ */
+export const loginAndSetTokens = (userType, accessToken, refreshToken) => {
+  setTokensByType(userType, accessToken, refreshToken);
+};
+
+/**
+ * Helper function để logout
+ */
+export const logoutAndClearTokens = (userType) => {
+  clearTokensByType(userType);
+  const loginPath = getLoginPath(userType);
+  window.location.href = loginPath;
+};
+
+/**
+ * Kiểm tra xem user đã đăng nhập chưa
+ */
+export const isAuthenticated = (userType) => {
+  const accessToken = getAccessTokenByType(userType);
+  return !!accessToken;
+};
 
 export default apiClient;

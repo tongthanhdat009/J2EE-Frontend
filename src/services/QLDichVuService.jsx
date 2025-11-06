@@ -158,3 +158,29 @@ export const fetchOptionImageByName = (imageName) => {
         throw error;
     }
 }
+
+// Lấy danh sách dịch vụ đã đặt theo mã đặt chỗ
+export const getDichVuByMaDatCho = (maDatCho) => {
+    try{
+        const response = apiClient.get(`/admin/dashboard/datcho/${maDatCho}/dichvu`);
+        return response;
+    }
+    catch(error){
+        console.error("Error fetching booked services:", error);
+        throw error;
+    }
+}
+
+// Lấy ảnh dịch vụ cung cấp
+export const fetchServiceImageByName = (imageName) => {
+    try{
+        const response = apiClient.get(`/admin/dashboard/dichvu/anh/${imageName}`, {
+            responseType: 'blob',
+        });
+        return response;
+    }
+    catch(error){
+        console.error("Error fetching service image:", error);
+        throw error;
+    }
+}

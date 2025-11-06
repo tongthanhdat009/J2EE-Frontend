@@ -125,12 +125,25 @@ const QuanLyKhachHang = () => {
         }
     };
 
+    // Helper function: Điều chỉnh trang sau khi xóa
+    const adjustPageAfterDelete = (totalItemsAfterDelete) => {
+        const newTotalPages = Math.ceil(totalItemsAfterDelete / itemsPerPage);
+        if (currentPage > newTotalPages && newTotalPages > 0) {
+            setCurrentPage(newTotalPages);
+        }
+    };
+
     const handleDelete = async (id) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa khách hàng này?')) {
             try {
                 await deleteKhachHang(id);
                 showToast('Xóa khách hàng thành công!', 'success');
                 await fetchCustomers();
+                
+                // Điều chỉnh trang sau khi xóa
+                const remainingItems = filteredCustomers.length - 1;
+                adjustPageAfterDelete(remainingItems);
+                
             } catch (err) {
                 console.error('Error deleting customer:', err);
                 
