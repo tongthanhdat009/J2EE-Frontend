@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FaCheckCircle, FaExclamationCircle, FaTimes } from 'react-icons/fa';
+import { FaCheckCircle, FaExclamationCircle, FaTimes, FaInfoCircle } from 'react-icons/fa';
 
 const Toast = ({ message, type = 'success', isVisible, onClose, duration = 3000 }) => {
     useEffect(() => {
@@ -27,7 +27,14 @@ const Toast = ({ message, type = 'success', isVisible, onClose, duration = 3000 
             icon: 'text-red-500',
             text: 'text-red-800',
             iconComponent: FaExclamationCircle
-        }
+        },
+        info: {
+            bg: 'bg-blue-50',
+            border: 'border-blue-500',
+            icon: 'text-blue-500',
+            text: 'text-blue-800',
+            iconComponent: FaInfoCircle
+        },
     };
 
     const style = styles[type] || styles.success;
