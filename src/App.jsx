@@ -23,6 +23,7 @@ import ThongTinCaNhan from "./pages/KhachHang/ThongTinTaiKhoan/ThongTinCaNhan"
 import ThongTinTaiKhoan from "./pages/KhachHang/ThongTinTaiKhoan/ThongTinTaiKhoan"
 import LichSuGiaoDich from "./pages/KhachHang/ThongTinTaiKhoan/LichSuGiaoDich"
 import SignupClient from "./pages/KhachHang/DangKy"
+import QuenMatKhau from "./pages/KhachHang/QuenMatKhau"
 import HoTro from "./pages/KhachHang/HoTro"
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
           <Route path="/dang-nhap-admin" element={<LoginAdmin/>}/>
           <Route path="/dang-nhap-client" element={<LoginClient/>}/>
           <Route path="/dang-ky-client" element={<SignupClient/>}/>
+          <Route path="/quen-mat-khau" element={<QuenMatKhau/>}/>
           <Route path="/chuyen-bay-cua-toi" element={<LoginClient/>}/>
           <Route path="/dich-vu-chuyen-bay" element={<DichVuChuyenBay/>}/>
           <Route path="/dich-vu-khac" element={<DichVuKhac/>}/>
