@@ -27,6 +27,8 @@ import LichSuGiaoDich from "./pages/KhachHang/ThongTinTaiKhoan/LichSuGiaoDich"
 import SignupClient from "./pages/KhachHang/DangKy"
 import QuenMatKhau from "./pages/KhachHang/QuenMatKhau"
 import HoTro from "./pages/KhachHang/HoTro"
+// import CaNhan from "./pages/KhachHang/CaNhan"
+import VerifyEmail from "./pages/KhachHang/VerifyEmail"
 
 function App() {
   return (
@@ -46,6 +48,12 @@ function App() {
           <Route path="/dich-vu-chuyen-bay" element={<DichVuChuyenBay/>}/>
           <Route path="/dich-vu-khac" element={<DichVuKhac/>}/>
           <Route path="/ho-tro" element={<HoTro/>}/>
+          
+          {/* Trang cá nhân
+          <Route path="/ca-nhan" element={<CaNhan/>}/> */}
+          
+          {/* Xác thực email */}
+          <Route path="/verify-email" element={<VerifyEmail/>}/>
           
           {/* Trang đặt vé */}
           <Route path="/chon-chuyen-bay" element={<DichVuKhac/>}/>

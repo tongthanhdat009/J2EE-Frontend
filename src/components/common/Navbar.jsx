@@ -42,10 +42,13 @@ function Navbar() {
           {isLoggedIn ? (
             <>
               <span className="text-white/80">|</span>
-              <span className="text-white flex items-center gap-1">
+              <Link 
+                to="/ca-nhan" 
+                className="text-white hover:text-yellow-400 transition-colors flex items-center gap-1"
+              >
                 <span>👤</span>
                 <span className="font-medium">{userName}</span>
-              </span>
+              </Link>
               <span className="text-white/80">|</span>
               <button 
                 onClick={handleLogout}
@@ -169,9 +172,13 @@ function Navbar() {
               
               {isLoggedIn ? (
                 <>
-                  <div className="text-white py-2 px-3 bg-white/10 rounded">
+                  <Link
+                    to="/ca-nhan"
+                    className="text-white py-2 px-3 bg-white/10 rounded hover:bg-white/20 transition-colors"
+                    onClick={closeMobileMenu}
+                  >
                     👤 {userName}
-                  </div>
+                  </Link>
                   <button 
                     onClick={handleLogout}
                     className="text-white py-2 px-3 rounded hover:bg-white/10 transition-colors text-left"
