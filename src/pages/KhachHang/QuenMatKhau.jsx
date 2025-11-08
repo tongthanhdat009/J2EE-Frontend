@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
+import { ForgotPasswordService } from "../../services/ForgotPasswordService";
 
 function QuenMatKhau() {
   const navigate = useNavigate();
@@ -35,14 +36,9 @@ function QuenMatKhau() {
 
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/api/forgot-password/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) throw new Error("Không thể gửi mã OTP");
-
+      // Kiểm tra email có tồn tại trong DB và gửi OTP
+      await ForgotPasswordService.sendResetPasswordEmail(email);
+      
       setMessage("✅ Mã OTP đã được gửi đến email của bạn");
       setStep(2);
       setCountdown(60);
@@ -77,14 +73,8 @@ function QuenMatKhau() {
 
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/api/forgot-password/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: otpCode }),
-      });
-
-      if (!response.ok) throw new Error("Mã OTP không hợp lệ");
-
+      await ForgotPasswordService.verifyOTP(email, otpCode);
+      
       setMessage("✅ Xác thực thành công");
       setStep(3);
     } catch (err) {
@@ -114,18 +104,8 @@ function QuenMatKhau() {
 
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/api/forgot-password/reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          email, 
-          otp: otp.join(""), 
-          newPassword: matKhauMoi 
-        }),
-      });
-
-      if (!response.ok) throw new Error("Không thể đặt lại mật khẩu");
-
+      await ForgotPasswordService.resetPassword(email, otp.join(""), matKhauMoi);
+      
       setMessage("✅ Đặt lại mật khẩu thành công!");
       
       setTimeout(() => {
@@ -172,8 +152,9 @@ function QuenMatKhau() {
         <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden relative z-10">
           <div className="p-12 md:p-16">
             <div className="max-w-md mx-auto">
-              <h1 className="text-4xl font-bold text-gray-800 mb-2.5">Quên mật khẩu</h1>
-              <p className="text-base text-gray-600 mb-8">
+              {/* Tiêu đề căn giữa và to hơn */}
+              <h1 className="text-5xl font-bold text-gray-800 mb-3 text-center">Quên mật khẩu</h1>
+              <p className="text-base text-gray-600 mb-8 text-center">
                 {step === 1 && "Nhập email để nhận mã xác thực 📧"}
                 {step === 2 && "Nhập mã OTP đã được gửi đến email 🔐"}
                 {step === 3 && "Đặt mật khẩu mới cho tài khoản 🔑"}
@@ -300,7 +281,7 @@ function QuenMatKhau() {
                   {error && <div className="py-3 px-4 rounded-lg text-sm mb-5 font-medium bg-red-50 text-red-700 border border-red-200">{error}</div>}
                   {message && <div className="py-3 px-4 rounded-lg text-sm mb-5 font-medium bg-green-50 text-green-800 border border-green-300">{message}</div>}
 
-                  <button type="submit" className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white border-none rounded-xl text-base font-semibold cursor-pointer transition-all shadow-[0_4px_15px_rgba(227,6,19,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(227,6,19,0.4)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
+                  <button type="submit" className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white border-none rounded-xl text-base font-semibold cursor-pointer transition-all shadow-[0_0_0_3px_rgba(227,6,19,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(227,6,19,0.4)] disabled:opacity-60 disabled:cursor-not-allowed" disabled={isLoading}>
                     {isLoading ? "Đang xử lý..." : "Đặt lại mật khẩu"}
                   </button>
                 </form>

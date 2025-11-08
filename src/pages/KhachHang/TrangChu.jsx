@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../../components/common/Navbar";
+import Footer from "../../components/common/Footer";
 
 function TrangChu() {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ function TrangChu() {
     <>
       <Navbar />
       <div 
-        className="min-h-screen pt-16 bg-cover bg-center bg-no-repeat bg-fixed relative"
+        className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed relative"
         style={{ backgroundImage: 'url(/background/home/bgBannerHomePage.72a61446.webp)' }}
       >
         {/* Overlay để content dễ đọc hơn */}
@@ -86,14 +87,14 @@ function TrangChu() {
             ))}
 
             {/* Floating Booking Form - Positioned absolutely */}
-            <div className="absolute top-1/2 right-8 lg:right-20 -translate-y-1/2 z-20 w-[600px] max-w-[90vw]">
-              <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8">
-                <form onSubmit={handleSearchFlight} className="space-y-5">
-                  <div className="flex gap-4">
+            <div className="absolute top-1/2 right-8 lg:right-20 -translate-y-1/2 z-20 w-[500px] max-w-[90vw]">
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-5">
+                <form onSubmit={handleSearchFlight} className="space-y-3">
+                  <div className="flex gap-3">
                     <button
                       type="button"
                       onClick={() => setTripType("roundtrip")}
-                      className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                      className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-all ${
                         tripType === "roundtrip"
                           ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -104,7 +105,7 @@ function TrangChu() {
                     <button
                       type="button"
                       onClick={() => setTripType("oneway")}
-                      className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                      className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-all ${
                         tripType === "oneway"
                           ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -114,9 +115,9 @@ function TrangChu() {
                     </button>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-2.5">
                     <div className="relative">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                         Điểm khởi hành
                       </label>
                       <input
@@ -124,12 +125,12 @@ function TrangChu() {
                         value={departureCity}
                         onChange={(e) => setDepartureCity(e.target.value)}
                         placeholder="TP. Hồ Chí Minh"
-                        className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-red-600 focus:outline-none transition-all"
+                        className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
                       />
                     </div>
 
                     <div className="relative">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                         Điểm đến
                       </label>
                       <input
@@ -137,45 +138,45 @@ function TrangChu() {
                         value={arrivalCity}
                         onChange={(e) => setArrivalCity(e.target.value)}
                         placeholder="Hà Nội"
-                        className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-red-600 focus:outline-none transition-all"
+                        className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                           Ngày đi
                         </label>
                         <input
                           type="date"
                           value={departureDate}
                           onChange={(e) => setDepartureDate(e.target.value)}
-                          className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-red-600 focus:outline-none transition-all"
+                          className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
                         />
                       </div>
                       {tripType === "roundtrip" && (
                         <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                             Ngày về
                           </label>
                           <input
                             type="date"
                             value={returnDate}
                             onChange={(e) => setReturnDate(e.target.value)}
-                            className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-red-600 focus:outline-none transition-all"
+                            className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
                           />
                         </div>
                       )}
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                         Hành khách
                       </label>
                       <select
                         value={passengers}
                         onChange={(e) => setPassengers(Number(e.target.value))}
-                        className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-red-600 focus:outline-none transition-all"
+                        className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
                       >
                         {[1, 2, 3, 4, 5, 6].map(num => (
                           <option key={num} value={num}>{num} người lớn</option>
@@ -186,7 +187,7 @@ function TrangChu() {
 
                   <button
                     type="submit"
-                    className="w-full py-4 bg-yellow-400 hover:bg-yellow-500 text-gray-900 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+                    className="w-full py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 rounded-lg font-bold text-base shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
                   >
                     🔍 Tìm chuyến bay
                   </button>
@@ -231,6 +232,104 @@ function TrangChu() {
                 <h3 className="text-xl font-bold text-gray-800 mb-3">Hỗ trợ 24/7</h3>
                 <p className="text-gray-600">Đội ngũ chăm sóc khách hàng luôn sẵn sàng hỗ trợ bạn</p>
               </div>
+            </div>
+          </div>
+
+          {/* Quick Services Section */}
+          <div className="bg-white/90 backdrop-blur-sm py-16">
+            <div className="container mx-auto px-4 lg:px-20">
+              <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
+                Dịch vụ tiện ích
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                <a href="/chuyen-bay" className="flex flex-col items-center p-6 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                    <span className="text-3xl">✈️</span>
+                  </div>
+                  <span className="text-white font-bold text-center">Đặt chuyến bay</span>
+                </a>
+
+                <a href="/dich-vu-chuyen-bay" className="flex flex-col items-center p-6 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                    <span className="text-3xl">🎒</span>
+                  </div>
+                  <span className="text-white font-bold text-center">Mua hành lý, suất ăn, chỗ...</span>
+                </a>
+
+                <a href="/online-check-in" className="flex flex-col items-center p-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                    <span className="text-3xl">⏰</span>
+                  </div>
+                  <span className="text-white font-bold text-center">Ưu tiên làm thủ tục nhanh</span>
+                </a>
+
+                <a href="/dich-vu-khac" className="flex flex-col items-center p-6 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                    <span className="text-3xl">🎁</span>
+                  </div>
+                  <span className="text-white font-bold text-center">Hàng miễn thuế</span>
+                </a>
+
+                <a href="/dich-vu-khac" className="flex flex-col items-center p-6 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                    <span className="text-3xl">🛡️</span>
+                  </div>
+                  <span className="text-white font-bold text-center">Bảo hiểm</span>
+                </a>
+
+                <a href="/dich-vu-khac" className="flex flex-col items-center p-6 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+                    <span className="text-3xl">🏨</span>
+                  </div>
+                  <span className="text-white font-bold text-center">Sky Holidays</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Promotions Banner Section */}
+          <div className="container mx-auto px-4 lg:px-20 py-16">
+            <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
+              Khuyến mãi & Ưu đãi
+            </h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all">
+                <div className="text-5xl mb-4">🎟️</div>
+                <h3 className="text-2xl font-bold mb-3">CHỌN MUA VÉ VIETJET</h3>
+                <p className="mb-6">Đã bao gồm hiểm KH và 7KG hành lý xách tay</p>
+                <button className="px-6 py-3 bg-yellow-400 text-gray-900 rounded-xl font-bold hover:bg-yellow-500 transition-colors">
+                  Xem ngay
+                </button>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all">
+                <div className="text-5xl mb-4">💳</div>
+                <h3 className="text-2xl font-bold mb-3">Gói hàng nhanh</h3>
+                <p className="mb-6">Vận chuyển Bắc - Trung - Nam siêu tốc, giảm giá đến 24/7</p>
+                <button className="px-6 py-3 bg-yellow-400 text-gray-900 rounded-xl font-bold hover:bg-yellow-500 transition-colors">
+                  Mua ngay
+                </button>
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all">
+                <div className="text-5xl mb-4">🎁</div>
+                <h3 className="text-2xl font-bold mb-3">Bay càng thử HiBank Vietjet</h3>
+                <p className="mb-6">Ưu đãi danh dự cả tháng chỉ với một bay danh và cả của hàng thẻ</p>
+                <button className="px-6 py-3 bg-yellow-400 text-gray-900 rounded-xl font-bold hover:bg-yellow-500 transition-colors">
+                  Ưu đãi danh sở cà thẻ mới
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Special Offers Section */}
+          <div className="bg-gradient-to-r from-red-600 to-pink-600 py-16">
+            <div className="container mx-auto px-4 lg:px-20 text-center text-white">
+              <h2 className="text-4xl font-bold mb-6">🎉 Ưu đãi lên đến 30%</h2>
+              <p className="text-xl mb-8">Hãng miễn thuế tại nhà - Nhập ngày hôm nay</p>
+              <button className="px-12 py-4 bg-yellow-400 text-gray-900 rounded-xl font-bold text-lg hover:bg-yellow-500 transition-colors shadow-2xl">
+                Duyệt.vn/vietjet
+              </button>
             </div>
           </div>
         </div>
@@ -308,6 +407,9 @@ function TrangChu() {
           )}
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </>
   );
 }

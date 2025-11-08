@@ -19,6 +19,8 @@ import QuanLyThanhToan from "./pages/QuanLy/QuanLyThanhToan"
 import QuanLyGiaBay from "./pages/QuanLy/QuanLyGiaBay"
 import DichVuChuyenBay from "./pages/KhachHang/DichVuChuyenBay"
 import DichVuKhac from "./pages/KhachHang/DichVuKhac"
+import ChuyenBayCuaToi from "./pages/KhachHang/ChuyenBayCuaToi"
+import OnlineCheckIn from "./pages/KhachHang/OnlineCheckIn"
 import ThongTinCaNhan from "./pages/KhachHang/ThongTinTaiKhoan/ThongTinCaNhan"
 import ThongTinTaiKhoan from "./pages/KhachHang/ThongTinTaiKhoan/ThongTinTaiKhoan"
 import LichSuGiaoDich from "./pages/KhachHang/ThongTinTaiKhoan/LichSuGiaoDich"
@@ -39,7 +41,8 @@ function App() {
           <Route path="/dang-nhap-client" element={<LoginClient/>}/>
           <Route path="/dang-ky-client" element={<SignupClient/>}/>
           <Route path="/quen-mat-khau" element={<QuenMatKhau/>}/>
-          <Route path="/chuyen-bay-cua-toi" element={<LoginClient/>}/>
+          <Route path="/chuyen-bay" element={<ChuyenBayCuaToi/>}/>
+          <Route path="/online-check-in" element={<OnlineCheckIn/>}/>
           <Route path="/dich-vu-chuyen-bay" element={<DichVuChuyenBay/>}/>
           <Route path="/dich-vu-khac" element={<DichVuKhac/>}/>
           <Route path="/ho-tro" element={<HoTro/>}/>
