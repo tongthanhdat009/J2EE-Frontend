@@ -2,15 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
+import Chatbot from "../../components/common/Chatbot";
 
 function TrangChu() {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatMessage, setChatMessage] = useState("");
-  const [messages, setMessages] = useState([
-    { type: 'bot', text: 'Xin chào! Tôi có thể giúp gì cho bạn?' }
-  ]);
   const [tripType, setTripType] = useState("roundtrip");
   const [departureCity, setDepartureCity] = useState("");
   const [arrivalCity, setArrivalCity] = useState("");
@@ -39,16 +35,6 @@ function TrangChu() {
     }, 5000);
     return () => clearInterval(timer);
   }, []);
-
-  const handleSendMessage = () => {
-    if (chatMessage.trim()) {
-      setMessages([...messages, 
-        { type: 'user', text: chatMessage },
-        { type: 'bot', text: 'Cảm ơn bạn đã liên hệ! Nhân viên hỗ trợ sẽ phản hồi trong giây lát.' }
-      ]);
-      setChatMessage("");
-    }
-  };
 
   const handleSearchFlight = (e) => {
     e.preventDefault();
@@ -334,78 +320,8 @@ function TrangChu() {
           </div>
         </div>
 
-        {/* Floating Chat Button */}
-        <div className="fixed bottom-6 right-6 z-50">
-          {chatOpen ? (
-            <div className="bg-white rounded-3xl shadow-2xl w-96 h-[500px] flex flex-col overflow-hidden animate-float">
-              {/* Chat Header */}
-              <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center overflow-hidden">
-                    <img src="/chatbot/logo-vj.png" alt="VietJet AI" className="w-full h-full object-cover" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold">Chat với AI</h3>
-                    <p className="text-sm opacity-90">Trợ lý ảo VietJet</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setChatOpen(false)}
-                  className="text-2xl hover:scale-110 transition-transform"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {/* Chat Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-                {messages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[80%] px-4 py-3 rounded-2xl ${
-                        msg.type === 'user'
-                          ? 'bg-red-600 text-white rounded-br-sm'
-                          : 'bg-white text-gray-800 shadow-md rounded-bl-sm'
-                      }`}
-                    >
-                      {msg.text}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Chat Input */}
-              <div className="p-4 bg-white border-t">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={chatMessage}
-                    onChange={(e) => setChatMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    placeholder="Nhập tin nhắn..."
-                    className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-600 focus:outline-none"
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
-                  >
-                    Gửi
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <button
-              onClick={() => setChatOpen(true)}
-              className="w-16 h-16 bg-white rounded-full shadow-2xl hover:scale-110 transition-all flex items-center justify-center overflow-hidden p-2"
-            >
-              <img src="/chatbot/logo-vj.png" alt="Chat AI" className="w-full h-full object-contain" />
-            </button>
-          )}
-        </div>
+        {/* Chatbot Component - Thay thế phần chat cũ */}
+        <Chatbot />
       </div>
 
       {/* Footer */}
