@@ -27,7 +27,7 @@ const getUserType = (url) => {
   if (Cookies.get('admin_access_token')) {
     return 'admin';
   }
-  if (Cookies.get('user_access_token')) {
+  if (Cookies.get('accessToken')) {
     return 'customer';
   }
   return null;
@@ -40,7 +40,7 @@ const getAccessTokenByType = (userType) => {
   if (userType === 'admin') {
     return Cookies.get('admin_access_token');
   } else if (userType === 'customer') {
-    return Cookies.get('user_access_token');
+    return Cookies.get('accessToken'); // Sửa từ 'user_access_token' thành 'accessToken'
   }
   return null;
 };
@@ -52,7 +52,7 @@ const getRefreshTokenByType = (userType) => {
   if (userType === 'admin') {
     return Cookies.get('admin_refresh_token');
   } else if (userType === 'customer') {
-    return Cookies.get('user_refresh_token');
+    return Cookies.get('refreshToken'); // Sửa từ 'user_refresh_token' thành 'refreshToken'
   }
   return null;
 };
@@ -67,9 +67,9 @@ const setTokensByType = (userType, accessToken, refreshToken) => {
       Cookies.set('admin_refresh_token', refreshToken, { expires: 30 }); // 30 days
     }
   } else if (userType === 'customer') {
-    Cookies.set('user_access_token', accessToken, { expires: 1 });
+    Cookies.set('accessToken', accessToken, { expires: 7, path: '/', sameSite: 'strict' }); // 7 days
     if (refreshToken) {
-      Cookies.set('user_refresh_token', refreshToken, { expires: 30 });
+      Cookies.set('refreshToken', refreshToken, { expires: 30, path: '/', sameSite: 'strict' }); // 30 days
     }
   }
 };
@@ -82,8 +82,8 @@ const clearTokensByType = (userType) => {
     Cookies.remove('admin_access_token');
     Cookies.remove('admin_refresh_token');
   } else if (userType === 'customer') {
-    Cookies.remove('user_access_token');
-    Cookies.remove('user_refresh_token');
+    Cookies.remove('accessToken', { path: '/' });
+    Cookies.remove('refreshToken', { path: '/' });
   }
 };
 
@@ -106,9 +106,9 @@ const getLoginPath = (userType) => {
   if (userType === 'admin') {
     return '/admin/login';
   } else if (userType === 'customer') {
-    return '/customer/login';
+    return '/dang-nhap-client';
   }
-  return '/login';
+  return '/dang-nhap-client';
 };
 
 /**
@@ -164,8 +164,13 @@ apiClient.interceptors.response.use(
       if (!refreshToken) {
         // Không có refresh token => đăng nhập lại
         clearTokensByType(userType);
-        const loginPath = getLoginPath(userType);
-        window.location.href = loginPath;
+        
+        // Kiểm tra nếu có flag skipRedirect (dùng cho test)
+        if (!originalRequest.skipRedirect) {
+          const loginPath = getLoginPath(userType);
+          window.location.href = loginPath;
+        }
+        
         return Promise.reject(error);
       }
 

@@ -1,5 +1,5 @@
 import apiClient from './apiClient';
-import { setAuthToken, setUserInfo, clearAuthCookies } from '../utils/cookieUtils';
+import { setAdminAuthToken, setAdminUserInfo, clearAdminAuthCookies } from '../utils/cookieUtils';
 
 const AUTH_API_URL = '/admin/dangnhap';
 
@@ -13,14 +13,14 @@ export const loginAdmin = async (credentials) => {
         
         // Lưu token vào cookie
         if (response.data.accessToken) {
-            setAuthToken(response.data.accessToken, response.data.refreshToken);
+            setAdminAuthToken(response.data.accessToken, response.data.refreshToken);
             
             // Lưu thông tin user
             const userInfo = {
                 username: credentials.username,
                 role: 'ADMIN'
             };
-            setUserInfo(userInfo);
+            setAdminUserInfo(userInfo);
         }
         
         return response.data;
@@ -34,10 +34,10 @@ export const loginAdmin = async (credentials) => {
 export const logout = async () => {
     try {
         // Không cần gọi API logout vì backend dùng JWT stateless
-        clearAuthCookies();
+        clearAdminAuthCookies();
     } catch (error) {
         console.error("Error logging out:", error);
-        clearAuthCookies();
+        clearAdminAuthCookies();
     }
 };
 
@@ -51,22 +51,22 @@ export const refreshToken = async (refreshToken) => {
         });
         
         if (response.data.accessToken) {
-            setAuthToken(response.data.accessToken, refreshToken);
+            setAdminAuthToken(response.data.accessToken, refreshToken);
         }
         
         return response.data;
     } catch (error) {
         console.error("Error refreshing token:", error);
-        clearAuthCookies();
+        clearAdminAuthCookies();
         throw error;
     }
 };
 
-// Lấy thông tin user hiện tại từ cookie
-export const getCurrentUser = () => {
+// Lấy thông tin user hiện tại từ backend
+export const getCurrentUser = async () => {
     try {
-        const userInfo = JSON.parse(localStorage.getItem('user_info'));
-        return userInfo;
+        const response = await apiClient.get('/admin/current-user');
+        return response.data;
     } catch (error) {
         console.error("Error getting current user:", error);
         return null;

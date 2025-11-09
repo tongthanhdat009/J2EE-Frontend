@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import { ForgotPasswordService } from "../../services/ForgotPasswordService";
+import { getClientAccessToken } from "../../utils/cookieUtils";
 
 function QuenMatKhau() {
   const navigate = useNavigate();
@@ -14,6 +15,17 @@ function QuenMatKhau() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Kiểm tra nếu đã đăng nhập thì chuyển về trang chủ
+  React.useEffect(() => {
+    const accessToken = getClientAccessToken();
+    if (accessToken) {
+      navigate("/", { replace: true });
+    } else {
+      setIsCheckingAuth(false);
+    }
+  }, [navigate]);
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -138,6 +150,21 @@ function QuenMatKhau() {
       if (prevInput) prevInput.focus();
     }
   };
+
+  // Hiển thị loading khi đang kiểm tra authentication
+  if (isCheckingAuth) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-[calc(100vh-70px)] flex items-center justify-center bg-gradient-to-br from-pink-50 via-yellow-50 to-white">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4"></div>
+            <p className="text-gray-600 font-medium">Đang kiểm tra...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
 import Navbar from "../../components/common/Navbar";
 import { DangNhapClientServices } from "../../services/DangNhapClientServices";
+import { getClientAccessToken, setClientAuthToken, setClientUserEmail } from "../../utils/cookieUtils";
 
 function DangNhap() {
   const [showPass, setShowPass] = React.useState(false);
@@ -13,6 +13,17 @@ function DangNhap() {
   const [error, setError] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = React.useState(true);
+
+  // Kiểm tra nếu đã đăng nhập thì chuyển về trang chủ
+  React.useEffect(() => {
+    const accessToken = getClientAccessToken();
+    if (accessToken) {
+      navigate("/", { replace: true });
+    } else {
+      setIsCheckingAuth(false);
+    }
+  }, [navigate]);
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,15 +53,9 @@ function DangNhap() {
       const userData = { email, matKhau };
       const { accessToken, refreshToken, message } = await DangNhapClientServices(userData);
       
-      // Lưu tokens vào cookies (expires sau 7 ngày)
-      Cookies.set("accessToken", accessToken, { expires: 7, secure: true, sameSite: 'strict' });
-      Cookies.set("refreshToken", refreshToken, { expires: 7, secure: true, sameSite: 'strict' });
-      Cookies.set("userEmail", email, { expires: 7, secure: true, sameSite: 'strict' });
-      
-      // Vẫn giữ trong localStorage cho compatibility
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("userEmail", email);
+      // Lưu tokens vào cookies sử dụng cookieUtils
+      setClientAuthToken(accessToken, refreshToken);
+      setClientUserEmail(email);
       
       setMessage(message || "🎉 Đăng nhập thành công!");
       setEmail("");
@@ -69,6 +74,21 @@ function DangNhap() {
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
   };
+
+  // Hiển thị loading khi đang kiểm tra authentication
+  if (isCheckingAuth) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-[calc(100vh-70px)] flex items-center justify-center bg-gradient-to-br from-pink-50 via-yellow-50 to-white">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4"></div>
+            <p className="text-gray-600 font-medium">Đang kiểm tra...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

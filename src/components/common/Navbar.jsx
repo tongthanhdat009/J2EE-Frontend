@@ -1,15 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { clearClientAuthCookies, getClientAccessToken, getClientUserEmail } from "../../utils/cookieUtils";
+import Cookies from "js-cookie";
 
 function Navbar() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const email = localStorage.getItem("userEmail");
+    const token = getClientAccessToken();
+    const email = getClientUserEmail();
     if (token && email) {
       setIsLoggedIn(true);
       setUserName(email);
@@ -17,9 +19,7 @@ function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("userEmail");
+    clearClientAuthCookies();
     setIsLoggedIn(false);
     navigate("/");
     setMobileMenuOpen(false);
