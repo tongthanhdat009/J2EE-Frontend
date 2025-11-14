@@ -16,7 +16,7 @@ function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="hover:text-red-500 transition-colors">Điều lệ vận chuyển</Link></li>
               <li><Link to="/" className="hover:text-red-500 transition-colors">Điều kiện vé</Link></li>
-              <li><Link to="/" className="hover:text-red-500 transition-colors">Vietjet e-Voucher</Link></li>
+              <li><Link to="/" className="hover:text-red-500 transition-colors">SGU e-Voucher</Link></li>
               <li><Link to="/" className="hover:text-red-500 transition-colors">Phiếu quà tặng trực tuyến (e-Forms)</Link></li>
               <li><Link to="/" className="hover:text-red-500 transition-colors">Thông tin bồi thường</Link></li>
               <li><Link to="/" className="hover:text-red-500 transition-colors">Phí và lệ phí</Link></li>
@@ -54,7 +54,7 @@ function Footer() {
 
             <h3 className="text-red-500 font-bold mb-4 mt-6 flex items-center gap-2">
               <span>✈️</span>
-              Vé Vietjet
+              Vé SGU Airline
             </h3>
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="hover:text-red-500 transition-colors">Giới thiệu công ty</Link></li>
@@ -138,7 +138,7 @@ function Footer() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-xl font-bold mb-4">Hướng dẫn đặt chuyến bay</h3>
-              <p className="text-gray-400 mb-4">Tải ứng dụng di động VietJet Air</p>
+              <p className="text-gray-400 mb-4">Tải ứng dụng di động SGU Airline</p>
               <div className="flex gap-4">
                 <a href="#" className="hover:opacity-80 transition-opacity">
                   <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store" className="h-10" />
@@ -160,7 +160,7 @@ function Footer() {
         <div className="border-t border-gray-700 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-400">Kết nối với Vietjet</span>
+              <span className="text-sm text-gray-400">Kết nối với SGU Airline</span>
               <div className="flex gap-3">
                 {/* Facebook */}
                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
@@ -207,8 +207,8 @@ function Footer() {
             </div>
             
             <div className="text-center md:text-right">
-              <p className="text-sm text-gray-400 mb-2">
-                <strong>CÔNG TY CỔ PHẦN HÀNG KHÔNG VIETJET</strong>
+                <p className="text-sm text-gray-400 mb-2">
+                <strong>CÔNG TY CỔ PHẦN HÀNG KHÔNG SGU AIRLINE</strong>
               </p>
               <p className="text-xs text-gray-500">
                 302/3 Phố Kim Mã, Phường Ngọc Hà, TP. Hà Nội, Việt Nam.
@@ -225,7 +225,7 @@ function Footer() {
 
         {/* Copyright */}
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-500">
-          <p>&copy; 2025 VietJet Air. All rights reserved. Developed by SkyJoy Team</p>
+          <p>&copy; 2025 SGU Airline. All rights reserved. Developed by SkyJoy Team</p>
         </div>
       </div>
     </footer>

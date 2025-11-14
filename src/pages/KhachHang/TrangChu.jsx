@@ -244,6 +244,7 @@ function TrangChu() {
               {/* Banner 2 - Khách sạn */}
               <div className="relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 group">
                 <img src="/artboard/artboard216418031278341695094349731-1715833806513.webp" alt="..." className="inset-0 -z-10 h-full w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
             </div>
           </div>
@@ -252,7 +253,7 @@ function TrangChu() {
           <div className="container mx-auto px-4 lg:px-20 py-5">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-800 mb-4">
-                Tại sao chọn <span className="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent text-4xl">VietJet Air?</span>
+                Tại sao chọn <span className="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent text-4xl">SGU Airline?</span>
               </h2>
               <p className="text-lg text-gray-600 max-w-1xl mx-auto">
                 Chúng tôi cam kết mang đến trải nghiệm bay tốt nhất với dịch vụ chuyên nghiệp và giá cả hợp lý
@@ -335,12 +336,12 @@ function TrangChu() {
             <div className="grid md:grid-cols-3 gap-6">
               {/* Card 1 - Với ảnh nền */}
               <div className="relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all h-[280px] group">
-                <img src="/artboard/1200x600vn1647922449867-1695094342588.webp" alt="Vé VietJet" className="absolute inset-0 w-full h-full object-cover" />
+                <img src="/artboard/1200x600vn1647922449867-1695094342588.webp" alt="Vé SGU Airline" className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-br from-red-500/90 to-pink-600/90 group-hover:from-red-500/80 group-hover:to-pink-600/80 transition-all"></div>
                 <div className="relative h-full p-6 text-white flex flex-col justify-between">
                   <div>
                     <div className="text-4xl mb-3">🎟️</div>
-                    <h3 className="text-xl font-bold mb-2">CHỌN MUA VÉ VIETJET</h3>
+                    <h3 className="text-xl font-bold mb-2">CHỌN MUA VÉ SGU AIRLINE</h3>
                     <p className="text-sm mb-4">Đã bao gồm bảo hiểm KH và 7KG hành lý xách tay</p>
                   </div>
                   <button className="px-6 py-2 bg-yellow-400 text-gray-900 rounded-xl font-bold hover:bg-yellow-500 transition-colors w-full">
@@ -372,7 +373,7 @@ function TrangChu() {
                 <div className="relative h-full p-6 text-white flex flex-col justify-between">
                   <div>
                     <div className="text-4xl mb-3">🎁</div>
-                    <h3 className="text-xl font-bold mb-2">Thẻ HiBank Vietjet</h3>
+                    <h3 className="text-xl font-bold mb-2">Thẻ HiBank SGU Airline</h3>
                     <p className="text-sm mb-4">Ưu đãi cả tháng khi bay và mua sắm với thẻ</p>
                   </div>
                   <button className="px-6 py-2 bg-yellow-400 text-gray-900 rounded-xl font-bold hover:bg-yellow-500 transition-colors w-full">
@@ -699,7 +700,7 @@ function TrangChu() {
       {/* Footer */}
       <Footer />
     </>
-  );
+  )
 }
 
-export default TrangChu;
+export default TrangChu

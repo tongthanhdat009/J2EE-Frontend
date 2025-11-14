@@ -93,7 +93,7 @@ function Navbar() {
         <Link to="/" className="flex items-center gap-2.5" onClick={closeMobileMenu}>
           <img 
             src="/logo/white.png" 
-            alt="VietJet Air Logo" 
+            alt="SGU Airline Logo" 
             className="h-50 sm:h-12 w-auto object-contain"
           />
         </Link>

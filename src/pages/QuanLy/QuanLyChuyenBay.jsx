@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Card from '../../components/QuanLy/CardChucNang';
-import { FaPlus, FaSearch, FaPlane, FaEdit } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaPlane, FaEdit, FaEye } from 'react-icons/fa';
 import { getAllChuyenBay, createChuyenBay, updateChuyenBay, updateTrangThaiChuyenBay, updateDelay, updateCancel } from '../../services/QLChuyenBayService';
 import { getAllTuyenBay } from '../../services/QLTuyenBayService';
 import { getActiveSanBay } from '../../services/QLSanBayService';
 import EditFlightModal from '../../components/QuanLy/QuanLyChuyenBay/EditFlightModal';
 import DelayFlightModal from '../../components/QuanLy/QuanLyChuyenBay/DelayFlightModal';
 import CancelFlightModal from '../../components/QuanLy/QuanLyChuyenBay/CancelFlightModal';
+import FlightDetailModal from '../../components/QuanLy/QuanLyChuyenBay/FlightDetailModal';
 import Toast from '../../components/common/Toast';
 import useWebSocket from '../../hooks/useWebSocket';
 
@@ -29,10 +30,12 @@ const QuanLyChuyenBay = () => {
     const [cancelData, setCancelData] = useState({ lyDoHuy: '' });
     const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' });
     const [currentPage, setCurrentPage] = useState(1);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [selectedFlight, setSelectedFlight] = useState(null);
     const itemsPerPage = 5;
 
     // --- WEBSOCKET ---
-    const { flightUpdates, isConnected } = useWebSocket();
+    const { flightUpdates } = useWebSocket();
 
     // --- FETCH DATA ---
     useEffect(() => {
@@ -151,26 +154,58 @@ const QuanLyChuyenBay = () => {
         setToast({ ...toast, isVisible: false });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e, loaiChuyenBay) => {
         e.preventDefault();
         try {
-            const { maTuyenBay, ...restFormData } = formData;
-            const formattedData = {
-                ...restFormData,
-                gioDi: restFormData.gioDi ? `${restFormData.gioDi}` : '',
-                gioDen: restFormData.gioDen ? `${restFormData.gioDen}` : ''
+            const { ...restFormData } = formData;
+            const selectedRoute = routes.find(r => r.maTuyenBay === parseInt(formData.maTuyenBay));
+            
+            // Tạo chuyến bay đi
+            const flightDataDi = {
+                soHieuChuyenBay: restFormData.soHieuChuyenBay,
+                ngayDi: restFormData.ngayDi,
+                gioDi: restFormData.gioDi,
+                ngayDen: restFormData.ngayDen,
+                gioDen: restFormData.gioDen,
+                tuyenBay: selectedRoute
             };
-            const flightData = {
-                ...formattedData,
-                tuyenBay: routes.find(r => r.maTuyenBay === parseInt(formData.maTuyenBay))
-            };
+            
             if (currentFlight) {
-                await updateChuyenBay(flightData);
+                await updateChuyenBay(flightDataDi);
                 showToast('Cập nhật chuyến bay thành công!', 'success');
             } else {
-                await createChuyenBay(flightData);
-                showToast('Thêm mới chuyến bay thành công!', 'success');
+                // Tạo chuyến bay đi
+                await createChuyenBay(flightDataDi);
+                
+                // Nếu là khứ hồi, tạo thêm chuyến bay về
+                if (loaiChuyenBay === 'khu-hoi') {
+                    // Tìm tuyến bay ngược lại
+                    const returnRoute = routes.find(r => 
+                        r.sanBayDi?.maSanBay === selectedRoute.sanBayDen?.maSanBay &&
+                        r.sanBayDen?.maSanBay === selectedRoute.sanBayDi?.maSanBay
+                    );
+                    
+                    if (!returnRoute) {
+                        showToast('Không tìm thấy tuyến bay ngược lại!', 'error');
+                        return;
+                    }
+                    
+                    const flightDataVe = {
+                        soHieuChuyenBay: restFormData.soHieuChuyenBayVe,
+                        ngayDi: restFormData.ngayDiVe,
+                        gioDi: restFormData.gioDiVe,
+                        ngayDen: restFormData.ngayDenVe,
+                        gioDen: restFormData.gioDenVe,
+                        tuyenBay: returnRoute
+                    };
+                    
+                    await createChuyenBay(flightDataVe);
+                    showToast('Thêm mới chuyến bay khứ hồi thành công!', 'success');
+                } else {
+                    showToast('Thêm mới chuyến bay thành công!', 'success');
+                }
             }
+            
             // Refresh data
             const flightsRes = await getAllChuyenBay();
             setFlights(flightsRes.data.data || []);
@@ -275,6 +310,16 @@ const QuanLyChuyenBay = () => {
             console.error('Error canceling flight:', err);
             showToast('Có lỗi xảy ra khi hủy chuyến bay. Vui lòng thử lại.', 'error');
         }
+    };
+
+    const handleOpenDetailModal = (flight) => {
+        setSelectedFlight(flight);
+        setIsDetailModalOpen(true);
+    };
+
+    const handleCloseDetailModal = () => {
+        setIsDetailModalOpen(false);
+        setSelectedFlight(null);
     };
 
     if (loading) return <div className="flex justify-center items-center h-64"><div className="text-lg">Đang tải...</div></div>;
@@ -397,9 +442,16 @@ const QuanLyChuyenBay = () => {
                                     <td className="px-6 py-4">
                                         <div className="flex justify-center gap-2">
                                             <button 
+                                                onClick={() => handleOpenDetailModal(flight)}
+                                                className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" 
+                                                title="Xem chi tiết"
+                                            >
+                                                <FaEye size={16} />
+                                            </button>
+                                            <button 
                                                 onClick={() => handleOpenModal(flight)} 
                                                 disabled={['Đã hủy', 'Đã bay'].includes(flight.trangThai)}
-                                                className={`p-2 rounded-lg transition-colors ${['Đã hủy', 'Đã bay'].includes(flight.trangThai) ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100'}`} 
+                                                className={`p-2 rounded-lg transition-colors ${['Đã hủy', 'Đã bay'].includes(flight.trangThai) ? 'text-gray-400 cursor-not-allowed' : 'text-orange-600 hover:bg-orange-100'}`} 
                                                 title={flight.trangThai === 'Delay' ? 'Cập nhật thông tin delay' : 'Chỉnh sửa'}
                                             >
                                                 <FaEdit size={16} />
@@ -476,6 +528,15 @@ const QuanLyChuyenBay = () => {
 
             {/* Cancel Modal */}
             <CancelFlightModal isOpen={isCancelModalOpen} onClose={handleCancelClose} onSubmit={handleCancelSubmit} cancelData={cancelData} onCancelDataChange={setCancelData} />
+
+            {/* Flight Detail Modal */}
+            <FlightDetailModal 
+                isOpen={isDetailModalOpen} 
+                onClose={handleCloseDetailModal} 
+                flight={selectedFlight} 
+                getRouteInfo={getRouteInfo} 
+                showToast={showToast} 
+            />
         </Card>
     );
 };

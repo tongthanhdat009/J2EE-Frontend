@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // VietjetAir color scheme
+        // SGU Airline color scheme
         primary: {
           DEFAULT: "#E30613",
           dark: "#C40511",
@@ -15,7 +15,7 @@ export default {
           dark: "#E6C000",
           light: "#FFED4E",
         },
-        vietjet: {
+        sguAirline: {
           red: "#E30613",
           yellow: "#FFD500",
           pink: "#FFE5E7",
@@ -38,7 +38,7 @@ export default {
         },
       },
       backgroundImage: {
-        "gradient-vietjet":
+        "gradient-sguairline":
           "linear-gradient(135deg, #FFE5E7 0%, #FFF5E6 50%, #FFFFFF 100%)",
         "gradient-red": "linear-gradient(135deg, #E30613 0%, #C40511 100%)",
       },

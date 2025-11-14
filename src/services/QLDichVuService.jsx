@@ -1,7 +1,7 @@
 import apiClient from "./apiClient";
-export const getAllServices = () => {
+export const getAllServices = async () => {
     try{
-        const response = apiClient.get('/admin/dashboard/dichvu');
+        const response = await apiClient.get('/admin/dashboard/dichvu');
         return response;
     }catch(error){
         console.error("Error fetching services:", error);
@@ -9,9 +9,9 @@ export const getAllServices = () => {
     }
 }
 
-export const fetchImageByName = (imageName) => {
+export const fetchImageByName = async (imageName) => {
     try{
-        const response = apiClient.get(`/admin/dashboard/dichvu/anh/${imageName}`, {
+        const response = await apiClient.get(`/admin/dashboard/dichvu/anh/${imageName}`, {
             responseType: 'blob', // Đảm bảo nhận dữ liệu dưới dạng blob
         });
         return response;
@@ -22,9 +22,9 @@ export const fetchImageByName = (imageName) => {
     }
 }
 
-export const getServiceOptions = (maDichVu) => {
+export const getServiceOptions = async (maDichVu) => {
     try{
-        const response = apiClient.get(`/admin/dashboard/dichvu/${maDichVu}/luachon`);
+        const response = await apiClient.get(`/admin/dashboard/dichvu/${maDichVu}/luachon`);
         return response;
     }catch(error){
         console.error("Error fetching service options:", error);
@@ -32,9 +32,9 @@ export const getServiceOptions = (maDichVu) => {
     }
 }
 
-export const createServiceOption = (maDichVu, optionData) => {
+export const createServiceOption = async (maDichVu, optionData) => {
     try{
-        const response = apiClient.post(`/admin/dashboard/dichvu/${maDichVu}/luachon`, optionData);
+        const response = await apiClient.post(`/admin/dashboard/dichvu/${maDichVu}/luachon`, optionData);
         return response;
     }catch(error){
         console.error("Error creating service option:", error);
@@ -42,9 +42,9 @@ export const createServiceOption = (maDichVu, optionData) => {
     }
 }
 
-export const createService = (serviceData) => {
+export const createService = async (serviceData) => {
     try{
-        const response = apiClient.post('/admin/dashboard/dichvu', serviceData);
+        const response = await apiClient.post('/admin/dashboard/dichvu', serviceData);
         return response;
     }
     catch(error){
@@ -53,11 +53,11 @@ export const createService = (serviceData) => {
     }
 }
 
-export const uploadImage = (imageFile) => {
+export const uploadImage = async (imageFile) => {
     try{
         const formData = new FormData();
         formData.append('file', imageFile);
-        const response = apiClient.post('/admin/dashboard/dichvu/anh/upload', formData, {
+        const response = await apiClient.post('/admin/dashboard/dichvu/anh/upload', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -70,11 +70,11 @@ export const uploadImage = (imageFile) => {
     }
 }
 
-export const updateServiceImage = (maDichVu, imageFile) => {
+export const updateServiceImage = async (maDichVu, imageFile) => {
     try{
         const formData = new FormData();
         formData.append('anh', imageFile);
-        const response = apiClient.post(`/admin/dashboard/dichvu/${maDichVu}/anh`, formData, {
+        const response = await apiClient.post(`/admin/dashboard/dichvu/${maDichVu}/anh`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -87,9 +87,9 @@ export const updateServiceImage = (maDichVu, imageFile) => {
     }
 }
 
-export const updateService = (maDichVu, serviceData) => {
+export const updateService = async (maDichVu, serviceData) => {
     try{
-        const response = apiClient.put(`/admin/dashboard/dichvu/${maDichVu}`, serviceData);
+        const response = await apiClient.put(`/admin/dashboard/dichvu/${maDichVu}`, serviceData);
         return response;
     }catch(error){
         console.error("Error updating service:", error);
@@ -97,9 +97,9 @@ export const updateService = (maDichVu, serviceData) => {
     }
 }
 
-export const deleteService = (maDichVu) => {
+export const deleteService = async (maDichVu) => {
     try{
-        const response = apiClient.delete(`/admin/dashboard/dichvu/${maDichVu}`);
+        const response = await apiClient.delete(`/admin/dashboard/dichvu/${maDichVu}`);
         return response;
     }
     catch(error){
@@ -108,9 +108,9 @@ export const deleteService = (maDichVu) => {
     }
 }
 
-export const updateOption = (maDichVu, maLuaChon, optionData) => {
+export const updateOption = async (maDichVu, maLuaChon, optionData) => {
     try{
-        const response = apiClient.put(`/admin/dashboard/dichvu/${maDichVu}/luachon/${maLuaChon}`, optionData);
+        const response = await apiClient.put(`/admin/dashboard/dichvu/${maDichVu}/luachon/${maLuaChon}`, optionData);
         return response;
     }catch(error){
         console.error("Error updating service option:", error);
@@ -118,9 +118,9 @@ export const updateOption = (maDichVu, maLuaChon, optionData) => {
     }
 }
 
-export const deleteOption = (maDichVu, maLuaChon) => {
+export const deleteOption = async (maDichVu, maLuaChon) => {
     try{
-        const response = apiClient.delete(`/admin/dashboard/dichvu/${maDichVu}/luachon/${maLuaChon}`);
+        const response = await apiClient.delete(`/admin/dashboard/dichvu/${maDichVu}/luachon/${maLuaChon}`);
         return response;
     }
     catch(error){
@@ -129,11 +129,11 @@ export const deleteOption = (maDichVu, maLuaChon) => {
     }
 }
 
-export const updateOptionImage = (maDichVu, maLuaChon, imageFile) => {
+export const updateOptionImage = async (maDichVu, maLuaChon, imageFile) => {
     try{
         const formData = new FormData();
         formData.append('anh', imageFile);
-        const response = apiClient.post(`/admin/dashboard/dichvu/${maDichVu}/luachon/${maLuaChon}/anh`, formData, {
+        const response = await apiClient.post(`/admin/dashboard/dichvu/${maDichVu}/luachon/${maLuaChon}/anh`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -146,9 +146,9 @@ export const updateOptionImage = (maDichVu, maLuaChon, imageFile) => {
     }
 }
 
-export const fetchOptionImageByName = (imageName) => {
+export const fetchOptionImageByName = async (imageName) => {
     try{
-        const response = apiClient.get(`/admin/dashboard/dichvu/luachon/anh/${imageName}`, {
+        const response = await apiClient.get(`/admin/dashboard/dichvu/luachon/anh/${imageName}`, {
             responseType: 'blob', // Đảm bảo nhận dữ liệu dưới dạng blob
         });
         return response;
@@ -160,9 +160,9 @@ export const fetchOptionImageByName = (imageName) => {
 }
 
 // Lấy danh sách dịch vụ đã đặt theo mã đặt chỗ
-export const getDichVuByMaDatCho = (maDatCho) => {
+export const getDichVuByMaDatCho = async (maDatCho) => {
     try{
-        const response = apiClient.get(`/admin/dashboard/datcho/${maDatCho}/dichvu`);
+        const response = await apiClient.get(`/admin/dashboard/datcho/${maDatCho}/dichvu`);
         return response;
     }
     catch(error){
@@ -172,9 +172,9 @@ export const getDichVuByMaDatCho = (maDatCho) => {
 }
 
 // Lấy ảnh dịch vụ cung cấp
-export const fetchServiceImageByName = (imageName) => {
+export const fetchServiceImageByName = async (imageName) => {
     try{
-        const response = apiClient.get(`/admin/dashboard/dichvu/anh/${imageName}`, {
+        const response = await apiClient.get(`/admin/dashboard/dichvu/anh/${imageName}`, {
             responseType: 'blob',
         });
         return response;
