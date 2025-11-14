@@ -21,14 +21,13 @@ import DichVuChuyenBay from "./pages/KhachHang/DichVuChuyenBay"
 import DichVuKhac from "./pages/KhachHang/DichVuKhac"
 import ChuyenBayCuaToi from "./pages/KhachHang/ChuyenBayCuaToi"
 import OnlineCheckIn from "./pages/KhachHang/OnlineCheckIn"
-import ThongTinCaNhan from "./pages/KhachHang/ThongTinTaiKhoan/ThongTinCaNhan"
-import ThongTinTaiKhoan from "./pages/KhachHang/ThongTinTaiKhoan/ThongTinTaiKhoan"
-import LichSuGiaoDich from "./pages/KhachHang/ThongTinTaiKhoan/LichSuGiaoDich"
 import SignupClient from "./pages/KhachHang/DangKy"
 import QuenMatKhau from "./pages/KhachHang/QuenMatKhau"
 import HoTro from "./pages/KhachHang/HoTro"
 import OAuth2Callback from "./pages/OAuth2Callback"
 import CaNhan from "./pages/KhachHang/CaNhan"
+import QuanLyChuyenBayClient from "./pages/KhachHang/QuanLyChuyenBay"
+import LichSuGiaoDich from "./pages/KhachHang/LichSuGiaoDich"
 import VerifyEmail from "./pages/KhachHang/VerifyEmail"
 import HoanThienThongTin from "./pages/KhachHang/HoanThienThongTin"
 import RequireCompleteProfile from "./components/common/RequireCompleteProfile"
@@ -37,7 +36,7 @@ function App() {
   return (
     <Router>
       {/* <Header /> */}
-      <main>
+      <main >
         <Routes>
           {/*public Routes */}
           <Route path="/" element={<Home />} />
@@ -61,6 +60,20 @@ function App() {
             </RequireCompleteProfile>
           }/>
           
+          {/* Quản lý chuyến bay */}
+          <Route path="/quan-ly-chuyen-bay" element={
+            <RequireCompleteProfile>
+              <QuanLyChuyenBayClient/>
+            </RequireCompleteProfile>
+          }/>
+          
+          {/* Lịch sử giao dịch */}
+          <Route path="/lich-su-giao-dich" element={
+            <RequireCompleteProfile>
+              <LichSuGiaoDich/>
+            </RequireCompleteProfile>
+          }/>
+          
           {/* Xác thực email */}
           <Route path="/verify-email" element={<VerifyEmail/>}/>
           
@@ -69,12 +82,6 @@ function App() {
           <Route path="/thong-tin-hanh-khach" element={<DichVuKhac/>}/>
           <Route path="/chon-dich-vu" element={<DichVuKhac/>}/>
           <Route path="/thanh-toan" element={<DichVuKhac/>}/>
-          
-          {/* Trang Thông tin khách hàng*/}
-          <Route path="/thong-tin-tai-khoan" element={<ThongTinTaiKhoan/>}/>
-          <Route path="/thong-tin-tai-khoan/quan-ly-chuyen-bay" element={<QuanLyChuyenBay/>}/>
-          <Route path="/thong-tin-tai-khoan/lich-su-giao-dich" element={<LichSuGiaoDich/>}/>
-          <Route path="/thong-tin-tai-khoan/thong-tin-ca-nhan" element={<ThongTinCaNhan/>}/>
           
           {/*test api*/}
           <Route path="/test-api" element={<TestAPI/>}/>

@@ -33,6 +33,12 @@ function HoanThienThongTin() {
         }
 
         const response = await TaiKhoanService.getTaiKhoanByEmail(email);
+        // Nếu đã có đủ thông tin, redirect về trang chủ
+        if (response.data.hanhKhach?.soDienThoai && response.data.hanhKhach?.ngaySinh) {
+            navigate('/');
+        }
+        console.log("Account info for profile completion:", response);
+        
         setAccountInfo(response.data);
         
         // Pre-fill tất cả thông tin từ database nếu có
@@ -46,25 +52,17 @@ function HoanThienThongTin() {
             quocGia: response.data.hanhKhach.quocGia || 'Vietnam'
           }));
         }
-        // Nếu đã có đủ thông tin, redirect về trang chủ
-        if (response.data.hanhKhach?.soDienThoai && response.data.hanhKhach?.ngaySinh) {
-            navigate('/');
-        }
-        console.log("Account info for profile completion:", response);
       } catch (error) {
         console.error('Lỗi khi lấy thông tin:', error);
         setError('Không thể tải thông tin tài khoản');
       }
+      finally {
+        setPageLoading(false);
+      }
     };
     
-    const checkAccountInfo = async () => {
-        if(accountInfo?.data.hanhKhach?.soDienThoai && accountInfo?.data.hanhKhach?.ngaySinh) {
-            navigate('/');
-        }
-    };
     setPageLoading(true);
     fetchAccountInfo();
-    // checkAccountInfo();
   }, [navigate]);
 
   const handleChange = (e) => {

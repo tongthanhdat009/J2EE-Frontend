@@ -15,14 +15,10 @@ function CaNhan() {
     hoVaTen: '',
     gioiTinh: '',
     ngaySinh: '',
-    quocGia: '',
     email: '',
     soDienThoai: '',
-    maDinhDanh: '',
-    diaChi: ''
   });
   
-  // Đổi mật khẩu
   const [passwordData, setPasswordData] = useState({
     oldPassword: '',
     newPassword: '',
@@ -30,15 +26,6 @@ function CaNhan() {
   });
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
-  
-  // Quản lý chuyến bay filters
-  const [flightFilters, setFlightFilters] = useState({
-    status: 'all',
-    dateFrom: '',
-    dateTo: '',
-    departure: '',
-    arrival: ''
-  });
 
   useEffect(() => {
     const fetchAccountInfo = async () => {
@@ -52,17 +39,14 @@ function CaNhan() {
         }
 
         const response = await TaiKhoanService.getTaiKhoanByEmail(email);
-        console.log('Account Info Response:', response);
         setAccountInfo(response.data);
-        console.log('Account Info Set:', response.data);
         
-        // Điền dữ liệu vào form
         if (response.data.hanhKhach) {
           setFormData({
             hoVaTen: response.data.hanhKhach.hoVaTen || '',
             gioiTinh: response.data.hanhKhach.gioiTinh || '',
             ngaySinh: response.data.hanhKhach.ngaySinh ? response.data.hanhKhach.ngaySinh.split('T')[0] : '',
-            email: response.data.email || response.email || '',
+            email: response.data.email || '',
             soDienThoai: response.data.hanhKhach.soDienThoai || '',
           });
         }
@@ -148,9 +132,8 @@ function CaNhan() {
           {/* Left Sidebar - Profile Card */}
           <div className="lg:w-80 flex-shrink-0">
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden border-t-4 border-red-600">
-              {/* Profile Header with gradient */}
+              {/* Profile Header */}
               <div className="relative bg-gradient-to-br from-red-500 via-red-600 to-orange-600 h-32">
-                {/* Decorative pattern overlay */}
                 <div className="absolute inset-0 opacity-10">
                   <div className="absolute inset-0" style={{
                     backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.1) 10px, rgba(255,255,255,.1) 20px)`
@@ -187,20 +170,40 @@ function CaNhan() {
                   </div>
                 </div>
 
-                {/* Stats */}
-                <div className="mt-6 space-y-3">
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-600 text-sm">Chuyến bay đã đặt</span>
-                    <span className="text-orange-500 font-bold text-lg">32</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-600 text-sm">Chuyến bay hoàn thành</span>
-                    <span className="text-green-500 font-bold text-lg">26</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-gray-600 text-sm">Chuyến bay sắp tới</span>
-                    <span className="text-blue-500 font-bold text-lg">6</span>
-                  </div>
+                {/* Quick Actions */}
+                <div className="mt-6 space-y-2">
+                  <button
+                    onClick={() => navigate('/quan-ly-chuyen-bay')}
+                    className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition shadow-md"
+                  >
+                    <span className="text-xl">✈️</span>
+                    <div className="text-left flex-1">
+                      <p className="font-semibold">Chuyến bay của tôi</p>
+                      <p className="text-xs opacity-90">Quản lý đặt chỗ</p>
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={() => navigate('/lich-su-giao-dich')}
+                    className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition shadow-md"
+                  >
+                    <span className="text-xl">💳</span>
+                    <div className="text-left flex-1">
+                      <p className="font-semibold">Lịch sử giao dịch</p>
+                      <p className="text-xs opacity-90">Xem hóa đơn</p>
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={() => navigate('/dat-ve')}
+                    className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition shadow-md"
+                  >
+                    <span className="text-xl">🎫</span>
+                    <div className="text-left flex-1">
+                      <p className="font-semibold">Đặt vé mới</p>
+                      <p className="text-xs opacity-90">Tìm chuyến bay</p>
+                    </div>
+                  </button>
                 </div>
               </div>
             </div>
@@ -238,153 +241,112 @@ function CaNhan() {
                       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600"></div>
                     )}
                   </button>
-                  <button
-                    onClick={() => setActiveTab('flights')}
-                    className={`px-6 py-4 font-semibold text-sm transition-all relative ${
-                      activeTab === 'flights'
-                        ? 'text-red-600 bg-white'
-                        : 'text-gray-600 hover:text-red-600 hover:bg-white/50'
-                    }`}
-                  >
-                    Quản lý chuyến bay
-                    {activeTab === 'flights' && (
-                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600"></div>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('history')}
-                    className={`px-6 py-4 font-semibold text-sm transition-all relative ${
-                      activeTab === 'history'
-                        ? 'text-red-600 bg-white'
-                        : 'text-gray-600 hover:text-red-600 hover:bg-white/50'
-                    }`}
-                  >
-                    Lịch sử
-                    {activeTab === 'history' && (
-                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600"></div>
-                    )}
-                  </button>
                 </div>
               </div>
 
               {/* Tab Content */}
               <div className="p-8">
-                {/* Tab Thông tin cá nhân */}
                 {activeTab === 'personal' && (
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-6">Thông tin cá nhân</h3>
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">Thông tin cá nhân</h3>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Họ và tên */}
                       <div>
-                        <label className="block text-gray-700 font-medium mb-2 text-sm">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Họ và tên
                         </label>
                         <input
                           type="text"
                           value={formData.hoVaTen}
                           disabled
-                          className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 text-sm"
-                          placeholder="Nguyễn Văn A"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
                         />
                       </div>
-
-                      {/* Giới tính */}
+                      
                       <div>
-                        <label className="block text-gray-700 font-medium mb-2 text-sm">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Giới tính
                         </label>
                         <input
                           type="text"
                           value={formData.gioiTinh}
                           disabled
-                          className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 text-sm"
-                          placeholder="Nam"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
                         />
                       </div>
-
-                      {/* Ngày sinh */}
+                      
                       <div>
-                        <label className="block text-gray-700 font-medium mb-2 text-sm">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Ngày sinh
                         </label>
                         <input
-                          type="text"
+                          type="date"
                           value={formData.ngaySinh}
                           disabled
-                          className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 text-sm"
-                          placeholder="01/01/1990"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
                         />
                       </div>
-
-                      {/* Email */}
+                      
                       <div>
-                        <label className="block text-gray-700 font-medium mb-2 text-sm">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Email
                         </label>
                         <input
                           type="email"
                           value={formData.email}
                           disabled
-                          className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 text-sm"
-                          placeholder="toiladat2004@gmail.com"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
                         />
                       </div>
-
-                      {/* Số điện thoại */}
+                      
                       <div>
-                        <label className="block text-gray-700 font-medium mb-2 text-sm">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Số điện thoại
                         </label>
                         <input
                           type="tel"
                           value={formData.soDienThoai}
                           disabled
-                          className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 text-sm"
-                          placeholder="(084) 3956-32027"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
                         />
                       </div>
                     </div>
                     
-                    <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-sm text-red-800">
-                        ℹ️ Thông tin cá nhân không thể chỉnh sửa. Vui lòng liên hệ hỗ trợ nếu cần thay đổi.
+                    <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-blue-800">
+                        <strong>Lưu ý:</strong> Để cập nhật thông tin cá nhân, vui lòng liên hệ bộ phận chăm sóc khách hàng.
                       </p>
                     </div>
                   </div>
                 )}
 
-                {/* Tab Tài khoản - Đổi mật khẩu */}
                 {activeTab === 'account' && (
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-6">Đổi mật khẩu</h3>
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">Cài đặt tài khoản</h3>
                     
-                    {accountInfo?.oauth2Provider ? (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-                        <div className="text-5xl mb-4">🔐</div>
-                        <p className="text-gray-700 text-lg">
-                          Tài khoản của bạn đăng nhập qua <span className="font-bold">{accountInfo.oauth2Provider}</span>
-                        </p>
-                        <p className="text-gray-600 mt-2">
-                          Không thể đổi mật khẩu cho tài khoản liên kết với mạng xã hội
-                        </p>
+                    <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                      <h4 className="font-semibold text-gray-900 mb-4">Thông tin đăng nhập</h4>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Email:</span>
+                          <span className="font-medium">{accountInfo?.email}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Phương thức đăng nhập:</span>
+                          <span className="font-medium">
+                            {accountInfo?.oauth2Provider || 'Tài khoản thường'}
+                          </span>
+                        </div>
                       </div>
-                    ) : (
-                      <div className="max-w-md mx-auto">
-                        {passwordError && (
-                          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-red-800 text-sm">❌ {passwordError}</p>
-                          </div>
-                        )}
-                        
-                        {passwordSuccess && (
-                          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                            <p className="text-green-800 text-sm">✅ {passwordSuccess}</p>
-                          </div>
-                        )}
+                    </div>
 
+                    {!accountInfo?.oauth2Provider && (
+                      <div className="bg-white border border-gray-200 rounded-lg p-6">
+                        <h4 className="font-semibold text-gray-900 mb-4">Đổi mật khẩu</h4>
+                        
                         <div className="space-y-4">
                           <div>
-                            <label className="block text-gray-700 font-medium mb-2 text-sm">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                               Mật khẩu hiện tại
                             </label>
                             <input
@@ -392,12 +354,13 @@ function CaNhan() {
                               name="oldPassword"
                               value={passwordData.oldPassword}
                               onChange={handlePasswordChange}
-                              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:border-red-600 focus:ring-2 focus:ring-red-100"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                               placeholder="Nhập mật khẩu hiện tại"
                             />
                           </div>
+                          
                           <div>
-                            <label className="block text-gray-700 font-medium mb-2 text-sm">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                               Mật khẩu mới
                             </label>
                             <input
@@ -405,12 +368,13 @@ function CaNhan() {
                               name="newPassword"
                               value={passwordData.newPassword}
                               onChange={handlePasswordChange}
-                              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:border-red-600 focus:ring-2 focus:ring-red-100"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                               placeholder="Nhập mật khẩu mới"
                             />
                           </div>
+                          
                           <div>
-                            <label className="block text-gray-700 font-medium mb-2 text-sm">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                               Xác nhận mật khẩu mới
                             </label>
                             <input
@@ -418,145 +382,40 @@ function CaNhan() {
                               name="confirmPassword"
                               value={passwordData.confirmPassword}
                               onChange={handlePasswordChange}
-                              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:border-red-600 focus:ring-2 focus:ring-red-100"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                               placeholder="Nhập lại mật khẩu mới"
                             />
                           </div>
-                          <button 
+
+                          {passwordError && (
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                              <p className="text-sm text-red-800">{passwordError}</p>
+                            </div>
+                          )}
+
+                          {passwordSuccess && (
+                            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                              <p className="text-sm text-green-800">{passwordSuccess}</p>
+                            </div>
+                          )}
+
+                          <button
                             onClick={handleChangePassword}
-                            className="w-full bg-gradient-to-r from-red-600 to-orange-600 text-white py-3 rounded-lg hover:from-red-700 hover:to-orange-700 transition-all font-semibold shadow-lg shadow-red-500/30"
+                            className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition font-semibold"
                           >
-                            🔄 Đổi mật khẩu
+                            Đổi mật khẩu
                           </button>
                         </div>
                       </div>
                     )}
-                  </div>
-                )}
 
-                {/* Tab Quản lý chuyến bay */}
-                {activeTab === 'flights' && (
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-6">Quản lý chuyến bay</h3>
-                    
-                    {/* Filters */}
-                    <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-6 mb-6 border border-red-100">
-                      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                        <div>
-                          <label className="block text-gray-700 font-medium mb-2 text-sm">
-                            Trạng thái
-                          </label>
-                          <select
-                            value={flightFilters.status}
-                            onChange={(e) => setFlightFilters({...flightFilters, status: e.target.value})}
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:border-red-600 focus:ring-2 focus:ring-red-100 bg-white"
-                          >
-                            <option value="all">Tất cả</option>
-                            <option value="upcoming">Sắp bay</option>
-                            <option value="completed">Đã hoàn thành</option>
-                            <option value="cancelled">Đã hủy</option>
-                          </select>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-gray-700 font-medium mb-2 text-sm">
-                            Từ ngày
-                          </label>
-                          <input
-                            type="date"
-                            value={flightFilters.dateFrom}
-                            onChange={(e) => setFlightFilters({...flightFilters, dateFrom: e.target.value})}
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:border-red-600 focus:ring-2 focus:ring-red-100 bg-white"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-gray-700 font-medium mb-2 text-sm">
-                            Đến ngày
-                          </label>
-                          <input
-                            type="date"
-                            value={flightFilters.dateTo}
-                            onChange={(e) => setFlightFilters({...flightFilters, dateTo: e.target.value})}
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:border-red-600 focus:ring-2 focus:ring-red-100 bg-white"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-gray-700 font-medium mb-2 text-sm">
-                            Điểm đi
-                          </label>
-                          <input
-                            type="text"
-                            value={flightFilters.departure}
-                            onChange={(e) => setFlightFilters({...flightFilters, departure: e.target.value})}
-                            placeholder="VD: HAN"
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:border-red-600 focus:ring-2 focus:ring-red-100 bg-white"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-gray-700 font-medium mb-2 text-sm">
-                            Điểm đến
-                          </label>
-                          <input
-                            type="text"
-                            value={flightFilters.arrival}
-                            onChange={(e) => setFlightFilters({...flightFilters, arrival: e.target.value})}
-                            placeholder="VD: SGN"
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:border-red-600 focus:ring-2 focus:ring-red-100 bg-white"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4 flex gap-3">
-                        <button className="px-6 py-2.5 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-lg hover:from-red-700 hover:to-orange-700 transition-all font-semibold text-sm shadow-lg shadow-red-500/30">
-                          🔍 Tìm kiếm
-                        </button>
-                        <button 
-                          onClick={() => setFlightFilters({status: 'all', dateFrom: '', dateTo: '', departure: '', arrival: ''})}
-                          className="px-6 py-2.5 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-sm border border-gray-200"
-                        >
-                          🔄 Đặt lại
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Flight List */}
-                    <div className="space-y-4">
-                      {/* Empty State */}
-                      <div className="text-center py-16">
-                        <div className="text-7xl mb-4">✈️</div>
-                        <h4 className="text-xl font-semibold text-gray-700 mb-2">
-                          Chưa có chuyến bay nào
-                        </h4>
-                        <p className="text-gray-500 mb-6">
-                          Bạn chưa đặt chuyến bay nào. Hãy bắt đầu hành trình của bạn!
+                    {accountInfo?.oauth2Provider && (
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-sm text-yellow-800">
+                          <strong>Lưu ý:</strong> Tài khoản của bạn đăng nhập qua {accountInfo.oauth2Provider}, không thể đổi mật khẩu.
                         </p>
-                        <button 
-                          onClick={() => navigate('/')}
-                          className="px-8 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all font-semibold shadow-lg shadow-red-500/30 transform hover:scale-105"
-                        >
-                          🎫 Đặt vé ngay
-                        </button>
                       </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab Lịch sử */}
-                {activeTab === 'history' && (
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-6">Lịch sử giao dịch</h3>
-                    <div className="text-center py-16">
-                      <div className="text-7xl mb-4">📜</div>
-                      <h4 className="text-xl font-semibold text-gray-700 mb-2">
-                        Chưa có giao dịch nào
-                      </h4>
-                      <p className="text-gray-500">
-                        Lịch sử giao dịch của bạn sẽ hiển thị tại đây
-                      </p>
-                    </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -564,6 +423,8 @@ function CaNhan() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

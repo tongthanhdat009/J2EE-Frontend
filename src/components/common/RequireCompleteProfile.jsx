@@ -39,7 +39,6 @@ function RequireCompleteProfile({ children }) {
         // Kiểm tra xem đã có đủ thông tin chưa
         const hasPhone = response.data.hanhKhach?.soDienThoai && response.data.hanhKhach.soDienThoai.trim() !== '';
         const hasDob = response.data.hanhKhach?.ngaySinh;
-        console.log("Profile info - hasPhone:", hasPhone, "hasDob:", hasDob);
         if (!hasPhone || !hasDob) {
           // Thiếu thông tin -> redirect sang trang hoàn thiện
           navigate('/hoan-thien-thong-tin', { 
