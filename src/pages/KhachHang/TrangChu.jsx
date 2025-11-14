@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
 import Chatbot from "../../components/common/Chatbot";
+import ProfileCompleteBanner from "../../components/common/ProfileCompleteBanner";
 
 function TrangChu() {
   const navigate = useNavigate();
@@ -46,6 +47,9 @@ function TrangChu() {
   return (
     <>
       <Navbar />
+      
+      {/* Profile Complete Banner */}
+      <ProfileCompleteBanner />
       
       {/* Announcement Banner */}
       {showBanner && (

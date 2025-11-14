@@ -28,8 +28,10 @@ import SignupClient from "./pages/KhachHang/DangKy"
 import QuenMatKhau from "./pages/KhachHang/QuenMatKhau"
 import HoTro from "./pages/KhachHang/HoTro"
 import OAuth2Callback from "./pages/OAuth2Callback"
-// import CaNhan from "./pages/KhachHang/CaNhan"
+import CaNhan from "./pages/KhachHang/CaNhan"
 import VerifyEmail from "./pages/KhachHang/VerifyEmail"
+import HoanThienThongTin from "./pages/KhachHang/HoanThienThongTin"
+import RequireCompleteProfile from "./components/common/RequireCompleteProfile"
 
 function App() {
   return (
@@ -45,14 +47,19 @@ function App() {
           <Route path="/dang-ky-client" element={<SignupClient/>}/>
           <Route path="/quen-mat-khau" element={<QuenMatKhau/>}/>
           <Route path="/oauth2/callback" element={<OAuth2Callback/>}/>
+          <Route path="/hoan-thien-thong-tin" element={<HoanThienThongTin/>}/>
           <Route path="/chuyen-bay" element={<ChuyenBayCuaToi/>}/>
           <Route path="/online-check-in" element={<OnlineCheckIn/>}/>
           <Route path="/dich-vu-chuyen-bay" element={<DichVuChuyenBay/>}/>
           <Route path="/dich-vu-khac" element={<DichVuKhac/>}/>
           <Route path="/ho-tro" element={<HoTro/>}/>
           
-          {/* Trang cá nhân
-          <Route path="/ca-nhan" element={<CaNhan/>}/> */}
+          {/* Trang cá nhân - Yêu cầu hoàn thiện thông tin */}
+          <Route path="/ca-nhan" element={
+            <RequireCompleteProfile>
+              <CaNhan/>
+            </RequireCompleteProfile>
+          }/>
           
           {/* Xác thực email */}
           <Route path="/verify-email" element={<VerifyEmail/>}/>

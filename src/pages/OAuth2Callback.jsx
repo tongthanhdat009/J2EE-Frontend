@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { setClientAuthToken, setClientUserEmail } from '../utils/cookieUtils';
+import TaiKhoanService from '../services/TaiKhoanService';
 
 function OAuth2Callback() {
     const [searchParams] = useSearchParams();
@@ -8,34 +9,56 @@ function OAuth2Callback() {
     const [message, setMessage] = useState('Đang xử lý đăng nhập...');
 
     useEffect(() => {
-        const accessToken = searchParams.get('accessToken');
-        const refreshToken = searchParams.get('refreshToken');
-        const email = searchParams.get('email');
-        const error = searchParams.get('error');
+        const handleOAuth2Callback = async () => {
+            const accessToken = searchParams.get('accessToken');
+            const refreshToken = searchParams.get('refreshToken');
+            const email = searchParams.get('email');
+            const error = searchParams.get('error');
 
-        if (error) {
-            setMessage('❌ Đăng nhập thất bại! ' + (searchParams.get('message') || ''));
-            setTimeout(() => {
-                navigate('/dang-nhap');
-            }, 2000);
-            return;
-        }
+            if (error) {
+                setMessage('❌ Đăng nhập thất bại! ' + (searchParams.get('message') || ''));
+                setTimeout(() => {
+                    navigate('/dang-nhap-client');
+                }, 2000);
+                return;
+            }
 
-        if (accessToken && refreshToken && email) {
-            // Lưu tokens vào cookies
-            setClientAuthToken(accessToken, refreshToken);
-            setClientUserEmail(email);
-            
-            setMessage('✅ Đăng nhập thành công! Đang chuyển hướng...');
-            setTimeout(() => {
-                navigate('/');
-            }, 1500);
-        } else {
-            setMessage('❌ Thông tin đăng nhập không hợp lệ!');
-            setTimeout(() => {
-                navigate('/dang-nhap');
-            }, 2000);
-        }
+            if (accessToken && refreshToken && email) {
+                // Lưu tokens vào cookies
+                setClientAuthToken(accessToken, refreshToken);
+                setClientUserEmail(email);
+                
+                setMessage('✅ Đăng nhập thành công! Đang kiểm tra thông tin...');
+                
+                // Kiểm tra xem đã có đủ thông tin chưa
+                try {
+                    const accountInfo = await TaiKhoanService.getTaiKhoanByEmail(email);
+                    
+                    // Nếu thiếu thông tin cơ bản (số điện thoại hoặc ngày sinh), redirect sang trang hoàn thiện
+                    if (!accountInfo.hanhKhach?.soDienThoai || !accountInfo.hanhKhach?.ngaySinh) {
+                        setTimeout(() => {
+                            navigate('/hoan-thien-thong-tin');
+                        }, 1500);
+                    } else {
+                        setTimeout(() => {
+                            navigate('/');
+                        }, 1500);
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi kiểm tra thông tin:', error);
+                    setTimeout(() => {
+                        navigate('/');
+                    }, 1500);
+                }
+            } else {
+                setMessage('❌ Thông tin đăng nhập không hợp lệ!');
+                setTimeout(() => {
+                    navigate('/dang-nhap-client');
+                }, 2000);
+            }
+        };
+
+        handleOAuth2Callback();
     }, [searchParams, navigate]);
 
     return (

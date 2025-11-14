@@ -10,6 +10,8 @@ function DangKy() {
   const [showPass, setShowPass] = React.useState(false);
   const [hoVaTen, setHoVaTen] = React.useState("");
   const [email, setEmail] = React.useState("");
+  const [soDienThoai, setSoDienThoai] = React.useState("");
+  const [ngaySinh, setNgaySinh] = React.useState("");
   const [matKhau, setMatKhau] = React.useState("");
   const [xacNhanMatKhau, setXacNhanMatKhau] = React.useState("");
   const [error, setError] = React.useState("");
@@ -50,6 +52,18 @@ function DangKy() {
       setError("Định dạng email không hợp lệ!");
       return;
     }
+    if (!soDienThoai.trim()) {
+      setError("Số điện thoại không được để trống!");
+      return;
+    }
+    if (!/^[0-9]{10,11}$/.test(soDienThoai)) {
+      setError("Số điện thoại không hợp lệ (10-11 số)!");
+      return;
+    }
+    if (!ngaySinh.trim()) {
+      setError("Ngày sinh không được để trống!");
+      return;
+    }
     if (!matKhau.trim()) {
       setError("Mật khẩu không được để trống!");
       return;
@@ -65,7 +79,7 @@ function DangKy() {
 
     setIsLoading(true);
     try {
-      const userData = { hoVaTen, email, matKhau };
+      const userData = { hoVaTen, email, soDienThoai, ngaySinh, matKhau };
       const response = await DangKyClientServices(userData);
       setMessage("🎉 Đăng ký thành công!" + response);
       
@@ -202,6 +216,41 @@ function DangKy() {
                         className="w-full py-2.5 pr-10 pl-10 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(227,6,19,0.1)]"
                         placeholder="email@example.com"
                         autoComplete="email"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <label htmlFor="phone" className="block text-xs font-semibold text-gray-800 mb-1.5">
+                      Số điện thoại
+                    </label>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3 text-base pointer-events-none">📱</span>
+                      <input
+                        value={soDienThoai}
+                        onChange={(e) => setSoDienThoai(e.target.value)}
+                        id="phone"
+                        type="tel"
+                        className="w-full py-2.5 pr-10 pl-10 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(227,6,19,0.1)]"
+                        placeholder="0912345678"
+                        autoComplete="tel"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <label htmlFor="dob" className="block text-xs font-semibold text-gray-800 mb-1.5">
+                      Ngày sinh
+                    </label>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3 text-base pointer-events-none">🎂</span>
+                      <input
+                        value={ngaySinh}
+                        onChange={(e) => setNgaySinh(e.target.value)}
+                        id="dob"
+                        type="date"
+                        className="w-full py-2.5 pr-10 pl-10 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(227,6,19,0.1)]"
+                        autoComplete="bday"
                       />
                     </div>
                   </div>
