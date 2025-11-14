@@ -27,6 +27,7 @@ import LichSuGiaoDich from "./pages/KhachHang/ThongTinTaiKhoan/LichSuGiaoDich"
 import SignupClient from "./pages/KhachHang/DangKy"
 import QuenMatKhau from "./pages/KhachHang/QuenMatKhau"
 import HoTro from "./pages/KhachHang/HoTro"
+import OAuth2Callback from "./pages/OAuth2Callback"
 // import CaNhan from "./pages/KhachHang/CaNhan"
 import VerifyEmail from "./pages/KhachHang/VerifyEmail"
 
@@ -43,6 +44,7 @@ function App() {
           <Route path="/dang-nhap-client" element={<LoginClient/>}/>
           <Route path="/dang-ky-client" element={<SignupClient/>}/>
           <Route path="/quen-mat-khau" element={<QuenMatKhau/>}/>
+          <Route path="/oauth2/callback" element={<OAuth2Callback/>}/>
           <Route path="/chuyen-bay" element={<ChuyenBayCuaToi/>}/>
           <Route path="/online-check-in" element={<OnlineCheckIn/>}/>
           <Route path="/dich-vu-chuyen-bay" element={<DichVuChuyenBay/>}/>
