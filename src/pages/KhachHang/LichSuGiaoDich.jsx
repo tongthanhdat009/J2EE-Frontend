@@ -4,6 +4,7 @@ import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
 import TaiKhoanService from '../../services/TaiKhoanService';
 import DatChoService from '../../services/DatChoService';
+import VNPayService from '../../services/VNPayService';
 import { getClientUserEmail, getClientAccessToken } from '../../utils/cookieUtils';
 
 function LichSuGiaoDich() {
@@ -109,7 +110,7 @@ function LichSuGiaoDich() {
     }
   };
 
-  const handleCancelTransaction = async (maDatCho, maThanhToan) => {
+  const handleCancelTransaction = async (maDatCho) => {
     if (!window.confirm('Bạn có chắc chắn muốn hủy giao dịch này? Điều này sẽ hủy đặt chỗ và xoá toàn bộ thông tin liên quan.')) {
       return;
     }
@@ -124,6 +125,21 @@ function LichSuGiaoDich() {
     } catch (error) {
       console.error('Lỗi khi hủy giao dịch:', error);
       alert('Có lỗi xảy ra khi hủy giao dịch');
+    }
+  };
+
+  const handlePayment = async (maThanhToan) => {
+    try {
+      const response = await VNPayService.createPayment(maThanhToan);
+      if (response.success && response.data.paymentUrl) {
+        // Chuyển hướng đến trang thanh toán VNPay
+        window.location.href = response.data.paymentUrl;
+      } else {
+        alert('Không thể tạo URL thanh toán: ' + response.message);
+      }
+    } catch (error) {
+      console.error('Lỗi khi tạo thanh toán:', error);
+      alert('Có lỗi xảy ra khi tạo thanh toán');
     }
   };
 
@@ -426,15 +442,15 @@ function LichSuGiaoDich() {
                     ) : (
                       <>
                         <button
-                          onClick={() => navigate('/thanh-toan', { state: { maThanhToan: payment.maThanhToan } })}
+                          onClick={() => handlePayment(payment.maThanhToan)}
                           className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition whitespace-nowrap"
                         >
-                          💳 Thanh toán
+                          💳 Thanh toán VNPay
                         </button>
                         {payment.datCho?.chiTietGhe?.chiTietChuyenBay?.trangThai !== 'Đã bay' && 
                          payment.datCho?.chiTietGhe?.chiTietChuyenBay?.trangThai !== 'Đã hủy' && (
                           <button
-                            onClick={() => handleCancelTransaction(payment.datCho.maDatCho, payment.maThanhToan)}
+                            onClick={() => handleCancelTransaction(payment.datCho.maDatCho)}
                             className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition whitespace-nowrap"
                           >
                             ❌ Hủy giao dịch
@@ -629,13 +645,10 @@ function LichSuGiaoDich() {
                 </button>
               ) : selectedPayment.daThanhToan === 'H' ? null : (
                 <button
-                  onClick={() => {
-                    setShowDetailModal(false);
-                    navigate('/thanh-toan', { state: { maThanhToan: selectedPayment.maThanhToan } });
-                  }}
+                  onClick={() => handlePayment(selectedPayment.maThanhToan)}
                   className="px-4 sm:px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm sm:text-base"
                 >
-                  💳 Thanh toán
+                  💳 Thanh toán VNPay
                 </button>
               )}
             </div>

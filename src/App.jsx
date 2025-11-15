@@ -29,6 +29,7 @@ import CaNhan from "./pages/KhachHang/CaNhan"
 import QuanLyChuyenBayClient from "./pages/KhachHang/QuanLyChuyenBay"
 import LichSuGiaoDich from "./pages/KhachHang/LichSuGiaoDich"
 import VerifyEmail from "./pages/KhachHang/VerifyEmail"
+import PaymentResult from "./pages/KhachHang/PaymentResult"
 import HoanThienThongTin from "./pages/KhachHang/HoanThienThongTin"
 import RequireCompleteProfile from "./components/common/RequireCompleteProfile"
 
@@ -71,6 +72,13 @@ function App() {
           <Route path="/lich-su-giao-dich" element={
             <RequireCompleteProfile>
               <LichSuGiaoDich/>
+            </RequireCompleteProfile>
+          }/>
+          
+          {/* Kết quả thanh toán VNPay */}
+          <Route path="/payment-result" element={
+            <RequireCompleteProfile>
+              <PaymentResult/>
             </RequireCompleteProfile>
           }/>
           
