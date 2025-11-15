@@ -19,7 +19,7 @@ import QuanLyThanhToan from "./pages/QuanLy/QuanLyThanhToan"
 import QuanLyGiaBay from "./pages/QuanLy/QuanLyGiaBay"
 import DichVuChuyenBay from "./pages/KhachHang/DichVuChuyenBay"
 import DichVuKhac from "./pages/KhachHang/DichVuKhac"
-import ChuyenBayCuaToi from "./pages/KhachHang/ChuyenBayCuaToi"
+import TraCuuChuyenBay from "./pages/KhachHang/TraCuuChuyenBay"
 import OnlineCheckIn from "./pages/KhachHang/OnlineCheckIn"
 import SignupClient from "./pages/KhachHang/DangKy"
 import QuenMatKhau from "./pages/KhachHang/QuenMatKhau"
@@ -47,7 +47,7 @@ function App() {
           <Route path="/quen-mat-khau" element={<QuenMatKhau/>}/>
           <Route path="/oauth2/callback" element={<OAuth2Callback/>}/>
           <Route path="/hoan-thien-thong-tin" element={<HoanThienThongTin/>}/>
-          <Route path="/chuyen-bay" element={<ChuyenBayCuaToi/>}/>
+          <Route path="/tra-cuu-chuyen-bay" element={<TraCuuChuyenBay/>}/>
           <Route path="/online-check-in" element={<OnlineCheckIn/>}/>
           <Route path="/dich-vu-chuyen-bay" element={<DichVuChuyenBay/>}/>
           <Route path="/dich-vu-khac" element={<DichVuKhac/>}/>

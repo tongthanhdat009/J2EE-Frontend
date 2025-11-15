@@ -24,6 +24,17 @@ const DatChoService = {
     return response.data;
   },
 
+  // Tìm kiếm đặt chỗ theo mã đặt chỗ và tên hành khách
+  searchDatCho: async (maDatCho, tenHanhKhach) => {
+    const response = await apiClient.get(`/client/datcho/search`, {
+      params: {
+        maDatCho,
+        tenHanhKhach
+      }
+    });
+    return response.data;
+  },
+
   // Lấy lịch sử thanh toán của khách hàng
   getLichSuThanhToan: async (maHanhKhach) => {
     const token = getClientAccessToken();

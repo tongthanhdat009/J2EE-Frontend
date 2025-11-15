@@ -109,14 +109,45 @@ function LichSuGiaoDich() {
     }
   };
 
+  const handleCancelTransaction = async (maDatCho, maThanhToan) => {
+    if (!window.confirm('Bạn có chắc chắn muốn hủy giao dịch này? Điều này sẽ hủy đặt chỗ và xoá toàn bộ thông tin liên quan.')) {
+      return;
+    }
+
+    try {
+      await DatChoService.huyDatCho(maDatCho);
+      alert('Hủy giao dịch thành công!');
+      // Refresh danh sách
+      const response = await DatChoService.getLichSuThanhToan(accountInfo.hanhKhach.maHanhKhach);
+      console.log('Updated payment history:', response.data);
+      setPaymentHistory(response.data || []);
+    } catch (error) {
+      console.error('Lỗi khi hủy giao dịch:', error);
+      alert('Có lỗi xảy ra khi hủy giao dịch');
+    }
+  };
+
   const getStatusBadge = (daThanhToan) => {
-    const isPaid = daThanhToan === 'Y';
+    if (daThanhToan === 'Y') {
+      return (
+        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          <span>✓</span>
+          Đã thanh toán
+        </span>
+      );
+    }
+    if (daThanhToan === 'H') {
+      return (
+        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          <span>❌</span>
+          Đã hủy
+        </span>
+      );
+    }
     return (
-      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
-        isPaid ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-      }`}>
-        <span>{isPaid ? '✓' : '⏱'}</span>
-        {isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+        <span>⏱</span>
+        Chưa thanh toán
       </span>
     );
   };
@@ -151,7 +182,8 @@ function LichSuGiaoDich() {
   const filteredPayments = paymentHistory.filter(payment => {
     const matchStatus = filters.status === 'all' || 
       (filters.status === 'paid' && payment.daThanhToan === 'Y') ||
-      (filters.status === 'unpaid' && payment.daThanhToan !== 'Y');
+      (filters.status === 'unpaid' && payment.daThanhToan === 'N') ||
+      (filters.status === 'cancelled' && payment.daThanhToan === 'H');
     
     const matchSearch = !filters.search || 
       payment.datCho?.chiTietGhe?.chiTietChuyenBay?.soHieuChuyenBay?.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -177,6 +209,89 @@ function LichSuGiaoDich() {
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left Sidebar - Profile Card */}
+          <div className="lg:w-80 flex-shrink-0">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border-t-4 border-red-600">
+              {/* Profile Header */}
+              <div className="relative bg-gradient-to-br from-red-500 via-red-600 to-orange-600 h-32">
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute inset-0" style={{
+                    backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.1) 10px, rgba(255,255,255,.1) 20px)`
+                  }}></div>
+                </div>
+              </div>
+              
+              {/* Avatar */}
+              <div className="relative px-6 pb-6">
+                <div className="flex flex-col items-center -mt-16">
+                  <div className="relative">
+                    <div className="w-32 h-32 rounded-full bg-white p-1 shadow-xl">
+                      <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-5xl">
+                        👤
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 text-center">
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      {accountInfo?.hanhKhach?.hoVaTen || 'Chưa cập nhật'}
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {accountInfo?.oauth2Provider ? (
+                        <span className="inline-flex items-center gap-1 bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-medium">
+                          🔐 {accountInfo.oauth2Provider}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs">
+                          Hành khách thường xuyên
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="mt-6 space-y-2">
+                  <button
+                    onClick={() => navigate('/ca-nhan')}
+                    className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition shadow-md"
+                  >
+                    <span className="text-xl">👤</span>
+                    <div className="text-left flex-1">
+                      <p className="font-semibold">Thông tin cá nhân</p>
+                      <p className="text-xs opacity-90">Quản lý tài khoản</p>
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={() => navigate('/quan-ly-chuyen-bay')}
+                    className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition shadow-md"
+                  >
+                    <span className="text-xl">✈️</span>
+                    <div className="text-left flex-1">
+                      <p className="font-semibold">Chuyến bay của tôi</p>
+                      <p className="text-xs opacity-90">Quản lý đặt chỗ</p>
+                    </div>
+                  </button>
+                  
+                  <button
+                    onClick={() => navigate('/dat-ve')}
+                    className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition shadow-md"
+                  >
+                    <span className="text-xl">🎫</span>
+                    <div className="text-left flex-1">
+                      <p className="font-semibold">Đặt vé mới</p>
+                      <p className="text-xs opacity-90">Tìm chuyến bay</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Content */}
+          <div className="flex-1">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Lịch sử giao dịch</h1>
@@ -196,6 +311,7 @@ function LichSuGiaoDich() {
                 <option value="all">Tất cả</option>
                 <option value="paid">Đã thanh toán</option>
                 <option value="unpaid">Chưa thanh toán</option>
+                <option value="cancelled">Đã hủy</option>
               </select>
             </div>
             
@@ -296,12 +412,36 @@ function LichSuGiaoDich() {
                     >
                       Xem chi tiết
                     </button>
-                    <button
-                      onClick={() => handleDownloadPDF(payment.maThanhToan)}
-                      className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition whitespace-nowrap"
-                    >
-                      📄 Tải PDF
-                    </button>
+                    {payment.daThanhToan === 'Y' ? (
+                      <button
+                        onClick={() => handleDownloadPDF(payment.maThanhToan)}
+                        className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition whitespace-nowrap"
+                      >
+                        📄 Tải PDF
+                      </button>
+                    ) : payment.daThanhToan === 'H' ? (
+                      <div className="px-6 py-2 bg-gray-300 text-gray-600 rounded-lg text-center whitespace-nowrap cursor-not-allowed">
+                        Đã hủy
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => navigate('/thanh-toan', { state: { maThanhToan: payment.maThanhToan } })}
+                          className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition whitespace-nowrap"
+                        >
+                          💳 Thanh toán
+                        </button>
+                        {payment.datCho?.chiTietGhe?.chiTietChuyenBay?.trangThai !== 'Đã bay' && 
+                         payment.datCho?.chiTietGhe?.chiTietChuyenBay?.trangThai !== 'Đã hủy' && (
+                          <button
+                            onClick={() => handleCancelTransaction(payment.datCho.maDatCho, payment.maThanhToan)}
+                            className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition whitespace-nowrap"
+                          >
+                            ❌ Hủy giao dịch
+                          </button>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -480,17 +620,30 @@ function LichSuGiaoDich() {
               >
                 Đóng
               </button>
-              <button
-                onClick={() => handleDownloadPDF(selectedPayment.maThanhToan)}
-                className="px-4 sm:px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm sm:text-base"
-              >
-                📄 Tải PDF
-              </button>
+              {selectedPayment.daThanhToan === 'Y' ? (
+                <button
+                  onClick={() => handleDownloadPDF(selectedPayment.maThanhToan)}
+                  className="px-4 sm:px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm sm:text-base"
+                >
+                  📄 Tải PDF
+                </button>
+              ) : selectedPayment.daThanhToan === 'H' ? null : (
+                <button
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    navigate('/thanh-toan', { state: { maThanhToan: selectedPayment.maThanhToan } });
+                  }}
+                  className="px-4 sm:px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm sm:text-base"
+                >
+                  💳 Thanh toán
+                </button>
+              )}
             </div>
           </div>
         </div>
       )}
-
+          </div>
+        </div>
       <Footer />
     </div>
   );

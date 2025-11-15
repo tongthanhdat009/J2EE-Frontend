@@ -81,7 +81,8 @@ function DangKy() {
     try {
       const userData = { hoVaTen, email, soDienThoai, ngaySinh, matKhau };
       const response = await DangKyClientServices(userData);
-      setMessage("🎉 Đăng ký thành công!" + response);
+      console.log("Registration response:", response);
+      setMessage("🎉" + response.message);
       
       // Hiển thị prompt xác thực email
       setShowVerificationPrompt(true);

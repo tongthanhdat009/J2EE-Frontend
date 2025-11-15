@@ -102,10 +102,10 @@ function Navbar() {
         <ul className="hidden lg:flex list-none gap-8 m-0 p-0 items-center">
           <li>
             <Link 
-              to="/chuyen-bay" 
+              to="/tra-cuu-chuyen-bay" 
               className="text-white no-underline font-semibold text-sm uppercase tracking-wide hover:text-yellow-400 transition-colors"
             >
-              CHUYẾN BAY CỦA TÔI
+              Tra cứu chuyến bay
             </Link>
           </li>
           <li>
