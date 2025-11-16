@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo} from "react";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 
 function DanhSachNgayBay({ ngayChon, onSelect = () => {} }) {
@@ -9,16 +9,20 @@ function DanhSachNgayBay({ ngayChon, onSelect = () => {} }) {
   const scrollRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const today = new Date();
-  const days = Array.from({ length: soNgay }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    const weekday = d.toLocaleDateString("vi-VN", { weekday: "long" });
-    const day = d.getDate();
-    const month = d.getMonth() + 1;
-    const dateStr = d.toISOString().split("T")[0]; // "YYYY-MM-DD"
-    return { weekday, day, month, dateStr };
-  });
+  const [startDate] = useState(() => new Date(ngayChon || new Date()));
+
+  const days = useMemo(() => {
+    return Array.from({ length: soNgay }, (_, i) => {
+      const d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
+      return {
+        weekday: d.toLocaleDateString("vi-VN", { weekday: "long" }),
+        day: d.getDate(),
+        month: d.getMonth() + 1,
+        dateStr: d.toISOString().split("T")[0],
+      };
+    });
+  }, [startDate]);
 
   const totalItemWidth = itemWidth + gap;
   const leadingPlaceholders = 2;
@@ -37,11 +41,8 @@ function DanhSachNgayBay({ ngayChon, onSelect = () => {} }) {
     setSelectedIndex(index);
     scrollToIndex(index);
     try {
-      const selectedDay = days[index];
-      const selectedDate = new Date();
-      selectedDate.setDate(
-        today.getDate() + index
-      );
+      const selectedDate = new Date(startDate);
+      selectedDate.setDate(startDate.getDate() + index);
       onSelect(selectedDate);
     } catch (error) {
       console.error("Lỗi khi gọi hàm onSelect:", error);
@@ -54,18 +55,17 @@ function DanhSachNgayBay({ ngayChon, onSelect = () => {} }) {
 
   // Xử lý ngày truyền vào (props)
   useEffect(() => {
-  if (!ngayChon) return; 
+    if (!ngayChon) return;
 
-    const ngayProp =
-      typeof ngayChon === "string" ? new Date(ngayChon) : new Date(ngayChon);
+    const ngayProp = new Date(ngayChon);
     const ngayStr = ngayProp.toISOString().split("T")[0];
-
     const foundIndex = days.findIndex((d) => d.dateStr === ngayStr);
-    const indexToSelect = foundIndex !== -1 ? foundIndex : 0;
 
-    setSelectedIndex(indexToSelect);
-    scrollToIndex(indexToSelect);
-  }, [ngayChon]);
+    if (foundIndex !== -1 && foundIndex !== selectedIndex) {
+      setSelectedIndex(foundIndex);
+      scrollToIndex(foundIndex);
+    }
+  }, [ngayChon, days]);
 
   return (
     <div className="relative flex items-center justify-center mt-3 px-38">

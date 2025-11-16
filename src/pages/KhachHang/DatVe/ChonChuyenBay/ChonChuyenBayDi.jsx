@@ -1,6 +1,7 @@
-import { useLocation } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { useState, useEffect } from 'react';
 import { getSanBayByThanhPhoSanBay, searchChuyenBay, getGiaVe } from "../../../../services/datVeServices"
+import { formatCurrency, formatCurrencyWithCommas,formatDate, formatDateType, formatTime, calcFlightDuration } from "../../../../services/utils";
 import { FaLongArrowAltRight, FaLongArrowAltLeft} from 'react-icons/fa';
 import { MdAirplanemodeInactive } from 'react-icons/md';
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -15,14 +16,21 @@ import HeaderTimKiemChuyen from "../../../../components/KhachHang/HeaderTimKiemC
 import ThongTinThanhToan from "../../../../components/KhachHang/ThongTinThanhToan"
 import Header from "../../../../components/KhachHang/Header"
 import DanhSachNgayBay from "../../../../components/KhachHang/DanhSachNgayBay";
+
 function ChonChuyenBay() {
+    const navigate = useNavigate();
     const location = useLocation();
     const [formData, setFormData] = useState(location.state);
     const [sanBayDi, setSanBayDi] = useState(null);
     const [sanBayDen, setSanBayDen] = useState(null);
     const [chuyenBays, setChuyenBays] = useState([]);
     const [expanded, setExpanded] = useState({ id: null, type: null });
-    const [giaVes, setGiaVes] = useState({}); 
+    const [giaVes, setGiaVes] = useState({});
+    const [selectedTuyenBayDi, setSelectedTuyenBayDi] = useState(null);
+    
+    const tiepTucOnClick = () => {
+        navigate("/chon-chuyen-bay-ve", { state: { ...formData, selectedTuyenBayDi: selectedTuyenBayDi, totalPrice: calcTotalPrice()} });
+    };
     
     const SoldOutIcon = ({ size = 18 }) => (
         <div className="flex flex-col items-center">
@@ -31,84 +39,33 @@ function ChonChuyenBay() {
             </span>
         </div>
     );
-    const formatCurrency = (v, dropThreeZeros = true) => {
-        if (v == null) return "";
-        if (!dropThreeZeros) {
-            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v);
-        }
-        // bỏ 3 số 000: chia cho 1000 và hiển thị theo định dạng Việt Nam, thêm hậu tố "K" hoặc " nghìn"
-        const thousands = Math.floor(v / 1000);
-        // trả về dạng "1.234K" — nếu muốn "1.234 nghìn" thay 'K' bằng ' nghìn'
-        return `${new Intl.NumberFormat('vi-VN').format(thousands)}`;
-    };
 
-    const formatDate = (date) => {
-        if (!date) return "";
-        const d = new Date(date);
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, "0");
-        const day = String(d.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`; // yyyy-MM-dd
-    };
-    const formatDateType = (date) => {
-        if (!date) return "";
-        if (typeof date === "string" && /^\d{4}-\d{2}-\d{2}/.test(date)) {
-            const [year, month, day] = date.split('-');
-            return `${day.padStart(2, '0')}-${month.padStart(2, '0')}-${year}`;
-        }
-    };
-    const formatTime = (time) => {
-        if (!time) return "";
-        if (typeof time !== "string") return String(time);
-        const parts = time.split(":");
-        return parts.length >= 2
-            ? `${parts[0].padStart(2, "0")}:${parts[1].padStart(2, "0")}`
-            : time;
-    };
+    const calcTotalPrice = () => {
+        if(!selectedTuyenBayDi.hangVe) return 0;
+        const giaVe = selectedTuyenBayDi.hangVe.giaVe || 0;
+        const thuePhi = 583000;
+        const dichVu =  0;
+        return giaVe * formData.passengers + thuePhi + dichVu;
+    }
 
-    const calcFlightDuration = (gioDi, ngayDi, gioDen, ngayDen) => {
-        if (!gioDi || !gioDen) return "";
-        const toDate = (dateStr, timeStr) => {
-            const [hh, mm] = (timeStr || "00:00").split(":").map(n => Number(n || 0));
-            if (typeof dateStr === "string" && /^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
-                const [y, m, d] = dateStr.split("-").map(Number);
-                return new Date(y, m - 1, d, hh, mm, 0);
-            }
-            return new Date(1970,0,1, hh, mm, 0);
-        };
-
-        const start = toDate(ngayDi, gioDi);
-        const end = toDate(ngayDen || ngayDi, gioDen);
-
-        let diffMs = end - start;
-        // nếu end trước start -> cộng 1 ngày (chuyến qua đêm)
-        if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
-
-        const totalMinutes = Math.floor(diffMs / 60000);
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-
-        if (hours > 0 && minutes > 0) return `${hours} tiếng ${minutes} phút`;
-        if (hours > 0) return `${hours} tiếng`;
-        if (minutes > 0) return `${minutes} phút`;
-        return "0 phút";
-    };
-
-    const handleExpand = (id, type) => {
+    const handleExpand = (cb , id, type) => {
         if (expanded.id === id && expanded.type === type) {
             setExpanded({ id: null, type: null });
         } else {
             setExpanded({ id, type });
+            const key = `${id}_${type}`;
+            const hangVe= giaVes[key] || null;
+            setSelectedTuyenBayDi({...cb, hangVe: hangVe});
         }
     };
 
     const handleSelectNgay = (ngay) => {
-        console.log("Ngày được chọn:", ngay.toISOString());
         setFormData(prev => ({
             ...prev,
             startDate: ngay
         }));
     };
+
     useEffect(() => {
     const fetchSanBay = async () => {
         const di = await getSanBayByThanhPhoSanBay(formData.departure);
@@ -129,8 +86,6 @@ function ChonChuyenBay() {
         formattedDate
         );
         setChuyenBays(results.data);
-        console.log("Kết quả tìm kiếm chuyến bay:", formData);
-        console.log("Kết quả tìm kiếm chuyến bay:", results.data)
     };
     fetchChuyenBays();
     }, [sanBayDi, sanBayDen, formData.startDate]);
@@ -175,7 +130,7 @@ function ChonChuyenBay() {
         return (
             <div className={`flex flex-col items-center justify-center ${ hangVeId===1 ? '' : 'border-r-[1px]'} cursor-pointer transition-colors ${
                 expanded.id === cb.maChuyenBay && expanded.type === hangVeId ? getBackgroundColor(hangVeId) : 'bg-gray-100'
-                }`} onClick={() => handleExpand(cb.maChuyenBay, hangVeId)}>
+                }`} onClick={() => handleExpand(cb, cb.maChuyenBay, hangVeId)}>
                 <div className="flex flex-col items-center justify-center text-black font-bold">
                     <span className="text-3xl mt-4">{formatCurrency(gia.giaVe)}</span>
                     <span className="text-gray-500 text-xl">000 VND</span>
@@ -198,12 +153,21 @@ function ChonChuyenBay() {
         }
     };
 
+    const getHangVeName = (hangVeId) => {
+        switch (hangVeId) {
+            case 1: return "Eco";
+            case 2: return "Deluxe";
+            case 3: return "Business";
+            case 4: return "FirstClass";
+        }
+    };
+
     return (
         <div className="bg-blue-100 min-h-screen">
             <Header/>
             <HeaderTimKiemChuyen data={{...formData, sanBayDi, sanBayDen}}/>
             <div className="px-32 flex gap-8">
-                <div className="w-2/3 flex flex-col">
+                <div className="w-2/3 flex flex-col mb-50">
                     <div className="flex items-center justify-between bg-white px-50">
                         <div className="flex flex-col p-2 items-center max-w-[200px] min-w-[220px]">
                             <span className="font-bold text-2xl">{sanBayDi?.maIATA}</span>
@@ -220,7 +184,7 @@ function ChonChuyenBay() {
                             <span>{formData.arrival}</span>
                         </div>
                     </div>
-                    <DanhSachNgayBay ngayChon={chuyenBays[0]?.ngayDi && formatDate(chuyenBays[0].ngayDi)} onSelect={handleSelectNgay} />
+                    <DanhSachNgayBay ngayChon={formData.startDate?formatDate(formData.startDate):""} onSelect={handleSelectNgay} />
                     {Array.isArray(chuyenBays) && chuyenBays.length ? (
                         chuyenBays.map(cb => (
                             <div className="w-full" key={cb.maChuyenBay}>
@@ -240,14 +204,14 @@ function ChonChuyenBay() {
                                     <div className="bg-green-500 flex items-center justify-center text-white font-bold rounded-t-lg mx-[4px]">
                                         Economy
                                     </div>
-                                    <div className="bg-gradient-to-r from-yellow-500 to-yellow-300 flex flex-col items-center justify-center p-2 rounded-tl-lg text-center cursor-pointer" onClick={() => handleExpand(cb.maChuyenBay, 6)}>
+                                    <div className="bg-gradient-to-r from-yellow-500 to-yellow-300 flex flex-col items-center justify-center p-2 rounded-tl-lg text-center cursor-pointer" onClick={() => handleExpand(cb, cb.maChuyenBay, 6)}>
                                         <div className="text-[15px] mt-2">{cb.soHieuChuyenBay}</div>
                                         <div><span className="text-xl font-bold">{formatTime(cb.gioDi)}</span> <span className="font-[12px]">đến</span > <span className="text-xl font-bold">{formatTime(cb.gioDen)}</span></div>
                                         <div className="text-[12px] text-red-500 font-bold">Bay thẳng</div>
                                         {expanded.id === cb.maChuyenBay && expanded.type === 6 ? (
-                                            <MdKeyboardArrowUp className="text-gray-700 cursor-pointer mt-1" onClick={() => handleExpand(cb.maChuyenBay, 6)} />
+                                            <MdKeyboardArrowUp className="text-gray-700 cursor-pointer mt-1" onClick={() => handleExpand(cb, cb.maChuyenBay, 6)} />
                                         ) : (
-                                            <MdKeyboardArrowDown className="text-gray-700 cursor-pointer mt-1" onClick={() => handleExpand(cb.maChuyenBay, 6)} />
+                                            <MdKeyboardArrowDown className="text-gray-700 cursor-pointer mt-1" onClick={() => handleExpand(cb, cb.maChuyenBay, 6)} />
                                         )}
                                     </div>
                                         {hienThiGiaVe(cb.maChuyenBay, 3, cb)}  {/* Business */}
@@ -485,16 +449,21 @@ function ChonChuyenBay() {
                     )}
                 </div>
                 <div  className="my-10 mb-50">
-                    <ThongTinThanhToan cb={chuyenBays?.[0]} />
+                    {/* <ThongTinThanhToan cb={formData} tuyenBay={selectedTuyenBayDi?.hangVe ? selectedTuyenBayDi : null} /> */}
+                    <ThongTinThanhToan
+                    cb={{...formData, selectedTuyenBayDi}}
+                    onBackToChonChuyenDi={() => navigate("/chon-chuyen-bay", { state: { ...formData} })}
+                    onBackToChonChuyenVe={() => navigate("/chon-chuyen-bay-ve", { state: { ...formData } })}
+                    />
                 </div>
             </div>
             <div className="flex justify-between fixed bottom-0 left-0 w-full bg-white p-4 h-[80px] px-32 shadow-[0_-4px_20px_rgba(0,0,0,0.25)] items-center">
                 <div className="w-[400px]"></div>
                 <div className="flex flex-col text-black">
                     <span className="text-xl">Tổng tiền</span>
-                    <span className="text-2xl font-bold">0 VND</span>
+                    <span className="text-2xl font-bold">{selectedTuyenBayDi ? formatCurrencyWithCommas(calcTotalPrice())+ " VND" : "0 VND"}</span>
                 </div>
-                <span className="bg-gradient-to-bl from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center px-10 py-2 text-black cursor-pointer">Đi tiếp</span>
+                <span className="bg-gradient-to-bl from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center px-10 py-2 text-black cursor-pointer" onClick={() => tiepTucOnClick()}>Đi tiếp</span>
             </div>
         </div>
     )

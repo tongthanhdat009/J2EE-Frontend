@@ -21,9 +21,11 @@ import ThongTinTaiKhoan from "./pages/KhachHang/ThongTinTaiKhoan/ThongTinTaiKhoa
 import LichSuGiaoDich from "./pages/KhachHang/ThongTinTaiKhoan/LichSuGiaoDich"
 import HoTro from "./pages/KhachHang/HoTro"
 
-import ChonChuyenBay from "./pages/KhachHang/DatVe/ChonChuyenBay/ChonChuyenBayKhuHoi"
+import ChonChuyenBay from "./pages/KhachHang/DatVe/ChonChuyenBay/ChonChuyenBayDi"
+import ChonChuyenBayVe from "./pages/KhachHang/DatVe/ChonChuyenBay/ChonChuyenBayVe"
+import NhapThongTin from "./pages/KhachHang/DatVe/NhapThongTin"
 // import ThongTinHanhKhach from "./pages/KhachHang/DatVe/ThongTinHanhKhach"
-// import ChonDichVu from "./pages/KhachHang/DatVe/ChonDichVu"
+import ChonDichVu from "./pages/KhachHang/DatVe/ChonDichVu"
 // import ThanhToan from "./pages/KhachHang/DatVe/ThanhToan"
 
 function App() {
@@ -44,8 +46,9 @@ function App() {
           
           {/* Trang đặt vé */}
           <Route path="/chon-chuyen-bay" element={<ChonChuyenBay/>}/>
-          <Route path="/thong-tin-hanh-khach" element={<DichVuKhac/>}/>
-          <Route path="/chon-dich-vu" element={<DichVuKhac/>}/>
+          <Route path="/chon-chuyen-bay-ve" element={<ChonChuyenBayVe/>}/>
+          <Route path="/thong-tin-hanh-khach" element={<NhapThongTin/>}/>
+          <Route path="/chon-dich-vu" element={<ChonDichVu/>}/>
           <Route path="/thanh-toan" element={<DichVuKhac/>}/>
           
           {/* Trang Thông tin khách hàng*/}

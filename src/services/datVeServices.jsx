@@ -39,3 +39,33 @@ export const getGiaVe = async (chuyenBayId, hangVeId) => {
         throw error;
     }
 };
+
+export const getChiTietGheByGheId = async (gheId) => {
+    try {
+        const response = await apiClient.get(`/api/sanbay/chitiet/${gheId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy chi tiết ghế", error);
+        throw error;
+    }
+};
+
+export const getAllDichVuCungCapByChuyenBay = async (maChuyenBay) => {
+    try {
+        const response = await apiClient.get(`/api/sanbay/dichvu/${maChuyenBay}`);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy danh sách dịch vụ cung cấp", error);
+        throw error;
+    }
+};
+
+export const getLuaChonByDichVuId = async (dichVuId) => {
+    try {
+        const response = await apiClient.get(`/api/sanbay/chitietdichvu/${dichVuId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy lựa chọn dịch vụ theo dịch vụ ID", error);
+        throw error;
+    }
+};
