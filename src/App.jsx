@@ -27,14 +27,6 @@ import NhapThongTin from "./pages/KhachHang/DatVe/NhapThongTin"
 // import ThongTinHanhKhach from "./pages/KhachHang/DatVe/ThongTinHanhKhach"
 import ChonDichVu from "./pages/KhachHang/DatVe/ChonDichVu"
 // import ThanhToan from "./pages/KhachHang/DatVe/ThanhToan"
-import OAuth2Callback from "./pages/OAuth2Callback"
-import CaNhan from "./pages/KhachHang/CaNhan"
-import QuanLyChuyenBayClient from "./pages/KhachHang/QuanLyChuyenBay"
-import LichSuGiaoDich from "./pages/KhachHang/LichSuGiaoDich"
-import VerifyEmail from "./pages/KhachHang/VerifyEmail"
-import PaymentResult from "./pages/KhachHang/PaymentResult"
-import HoanThienThongTin from "./pages/KhachHang/HoanThienThongTin"
-import RequireCompleteProfile from "./components/common/RequireCompleteProfile"
 
 function App() {
   return (
@@ -51,37 +43,6 @@ function App() {
           <Route path="/dich-vu-chuyen-bay" element={<DichVuChuyenBay/>}/>
           <Route path="/dich-vu-khac" element={<DichVuKhac/>}/>
           <Route path="/ho-tro" element={<HoTro/>}/>
-          
-          {/* Trang cá nhân - Yêu cầu hoàn thiện thông tin */}
-          <Route path="/ca-nhan" element={
-            <RequireCompleteProfile>
-              <CaNhan/>
-            </RequireCompleteProfile>
-          }/>
-          
-          {/* Quản lý chuyến bay */}
-          <Route path="/quan-ly-chuyen-bay" element={
-            <RequireCompleteProfile>
-              <QuanLyChuyenBayClient/>
-            </RequireCompleteProfile>
-          }/>
-          
-          {/* Lịch sử giao dịch */}
-          <Route path="/lich-su-giao-dich" element={
-            <RequireCompleteProfile>
-              <LichSuGiaoDich/>
-            </RequireCompleteProfile>
-          }/>
-          
-          {/* Kết quả thanh toán VNPay */}
-          <Route path="/payment-result" element={
-            <RequireCompleteProfile>
-              <PaymentResult/>
-            </RequireCompleteProfile>
-          }/>
-          
-          {/* Xác thực email */}
-          <Route path="/verify-email" element={<VerifyEmail/>}/>
           
           {/* Trang đặt vé */}
           <Route path="/chon-chuyen-bay" element={<ChonChuyenBay/>}/>
