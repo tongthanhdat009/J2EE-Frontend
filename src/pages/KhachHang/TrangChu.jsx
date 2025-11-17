@@ -4,16 +4,13 @@ import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
 import Chatbot from "../../components/common/Chatbot";
 import ProfileCompleteBanner from "../../components/common/ProfileCompleteBanner";
+import Header from "../../components/KhachHang/Header"
+import TimChuyenBayForm from '../../components/KhachHang/TimChuyenBayForm'
+import HeaderTimKiemChuyen from '../../components/KhachHang/HeaderTimKiemChuyen'
 
 function TrangChu() {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [tripType, setTripType] = useState("roundtrip");
-  const [departureCity, setDepartureCity] = useState("");
-  const [arrivalCity, setArrivalCity] = useState("");
-  const [departureDate, setDepartureDate] = useState("");
-  const [returnDate, setReturnDate] = useState("");
-  const [passengers, setPassengers] = useState(1);
   const [showBanner, setShowBanner] = useState(true);
 
   const slides = [
@@ -38,11 +35,6 @@ function TrangChu() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleSearchFlight = (e) => {
-    e.preventDefault();
-    console.log({ tripType, departureCity, arrivalCity, departureDate, returnDate, passengers });
-    // Navigate to search results or handle search
-  };
 
   return (
     <>
@@ -126,112 +118,10 @@ function TrangChu() {
           </div>
 
           {/* Hero Content & Booking Form - BÊN DƯỚI SLIDER */}
-          <div className="container mx-auto px-4 lg:px-20 -mt-12 relative z-20">
+          <div className="container mx-auto px-4 lg:px-20 -mt-20 relative z-20">
             <div className="w-full">
-              {/* Booking Form Card */}
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
-                <form onSubmit={handleSearchFlight} className="space-y-4">
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setTripType("roundtrip")}
-                      className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
-                        tripType === "roundtrip"
-                          ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      ⚡ Khứ hồi
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTripType("oneway")}
-                      className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
-                        tripType === "oneway"
-                          ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      ✈️ Một chiều
-                    </button>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="relative">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Điểm khởi hành
-                      </label>
-                      <input
-                        type="text"
-                        value={departureCity}
-                        onChange={(e) => setDepartureCity(e.target.value)}
-                        placeholder="TP. Hồ Chí Minh"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Điểm đến
-                      </label>
-                      <input
-                        type="text"
-                        value={arrivalCity}
-                        onChange={(e) => setArrivalCity(e.target.value)}
-                        placeholder="Hà Nội"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Ngày đi
-                      </label>
-                      <input
-                        type="date"
-                        value={departureDate}
-                        onChange={(e) => setDepartureDate(e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
-                      />
-                    </div>
-                    {tripType === "roundtrip" && (
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Ngày về
-                        </label>
-                        <input
-                          type="date"
-                          value={returnDate}
-                          onChange={(e) => setReturnDate(e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
-                        />
-                      </div>
-                    )}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Hành khách
-                      </label>
-                      <select
-                        value={passengers}
-                        onChange={(e) => setPassengers(Number(e.target.value))}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
-                      >
-                        {[1, 2, 3, 4, 5, 6].map(num => (
-                          <option key={num} value={num}>{num} người lớn</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-4 bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-gray-900 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
-                  >
-                    🔍 Tìm chuyến bay
-                  </button>
-                </form>
+              <div className="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100">
+                <TimChuyenBayForm />
               </div>
             </div>
           </div>

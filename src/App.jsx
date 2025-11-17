@@ -33,6 +33,13 @@ import PaymentResult from "./pages/KhachHang/PaymentResult"
 import HoanThienThongTin from "./pages/KhachHang/HoanThienThongTin"
 import RequireCompleteProfile from "./components/common/RequireCompleteProfile"
 
+import ChonChuyenBay from "./pages/KhachHang/DatVe/ChonChuyenBay/ChonChuyenBayDi"
+import ChonChuyenBayVe from "./pages/KhachHang/DatVe/ChonChuyenBay/ChonChuyenBayVe"
+import NhapThongTin from "./pages/KhachHang/DatVe/NhapThongTin"
+// import ThongTinHanhKhach from "./pages/KhachHang/DatVe/ThongTinHanhKhach"
+import ChonDichVu from "./pages/KhachHang/DatVe/ChonDichVu"
+// import ThanhToan from "./pages/KhachHang/DatVe/ThanhToan"
+
 function App() {
   return (
     <Router>
@@ -86,9 +93,10 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmail/>}/>
           
           {/* Trang đặt vé */}
-          <Route path="/chon-chuyen-bay" element={<DichVuKhac/>}/>
-          <Route path="/thong-tin-hanh-khach" element={<DichVuKhac/>}/>
-          <Route path="/chon-dich-vu" element={<DichVuKhac/>}/>
+          <Route path="/chon-chuyen-bay" element={<ChonChuyenBay/>}/>
+          <Route path="/chon-chuyen-bay-ve" element={<ChonChuyenBayVe/>}/>
+          <Route path="/thong-tin-hanh-khach" element={<NhapThongTin/>}/>
+          <Route path="/chon-dich-vu" element={<ChonDichVu/>}/>
           <Route path="/thanh-toan" element={<DichVuKhac/>}/>
           
           {/*test api*/}
