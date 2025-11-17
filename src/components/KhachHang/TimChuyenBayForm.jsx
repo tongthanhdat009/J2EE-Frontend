@@ -14,7 +14,7 @@ function TimChuyenBayForm() {
     const [departureValue, setDepartureValue] = useState('');
     const [arrivalValue, setArrivalValue] = useState('');
     const [passengers, setPassengers] = useState('');
-    const [flightType, setFlightType] = useState('');
+    const [flightType, setFlightType] = useState('round');
     const [sanBayList, setSanBayList] = useState([]);
 
     const groupByCountry = (airport) => {
@@ -85,52 +85,47 @@ function TimChuyenBayForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col rounded-lg shadow-lg max-w-150 p-6 bg-white gap-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
             {/* Chọn loại vé */}
-            <div className="flex mb-4 justify-between">
-                <div className="flex gap-4">
-                    <label className="flex items-center cursor-pointer">
-                        <input 
-                            type="radio" 
-                            name="flightType"
-                            id="roundTrip"
-                            value="round"
-                            checked={flightType === 'round'}
-                            onChange={(e) => setFlightType(e.target.value)}
-                            className="appearance-none w-5 h-5 bg-gray-100 border-2 border-gray-300 rounded-full relative
-                                    before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:w-3 before:h-3 before:bg-blue-600 before:rounded-full before:transform before:-translate-x-1/2 before:-translate-y-1/2 before:opacity-0 before:transition-opacity
-                                    checked:before:opacity-100"
-                        />
-                        <span className="ml-2 text-gray-700">Vé khứ hồi</span>
-                    </label>
-                    <label className="flex items-center cursor-pointer">
-                        <input 
-                            type="radio"
-                            name="flightType"
-                            id="oneWay"
-                            value="one"
-                            checked={flightType === 'one'}
-                            onChange={(e) => setFlightType(e.target.value)}
-                            className="appearance-none w-5 h-5 bg-gray-100 border-2 border-gray-300 rounded-full relative
-                                    before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:w-3 before:h-3 before:bg-blue-600 before:rounded-full before:transform before:-translate-x-1/2 before:-translate-y-1/2 before:opacity-0 before:transition-opacity
-                                    checked:before:opacity-100"
-                        />
-                        <span className="ml-2 text-gray-700">Vé một chiều</span>
-                    </label>
-                </div>
-                <span>VND</span>
+            <div className="flex gap-3">
+                <button
+                    type="button"
+                    onClick={() => setFlightType('round')}
+                    className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                        flightType === 'round'
+                            ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                >
+                    ⚡ Khứ hồi
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setFlightType('one')}
+                    className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                        flightType === 'one'
+                            ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                >
+                    ✈️ Một chiều
+                </button>
             </div>
 
-            <div>
-                <div className="flex border border-gray-300 rounded-lg">
-                    <div className="flex items-center px-4 py-3 flex-1 relative">
-                        <FaPlaneDeparture className='mr-3 text-gray-500' />
+            {/* Điểm khởi hành và điểm đến */}
+            <div className="grid md:grid-cols-2 gap-4">
+                <div className="relative">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Điểm khởi hành
+                    </label>
+                    <div className="relative">
+                        <FaPlaneDeparture className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500' />
                         <select 
                             name="departure"
                             id="departure"
                             value={departureValue}
                             onChange={(e) => setDepartureValue(e.target.value)}
-                            className='outline-none border-none bg-transparent flex-1 appearance-none cursor-pointer'
+                            className='w-full pl-12 pr-10 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all appearance-none cursor-pointer'
                         >
                             <option value="">Chọn điểm xuất phát</option>
                             {Object.entries(grouped).map(([country, cities]) => (
@@ -143,33 +138,22 @@ function TimChuyenBayForm() {
                                 </optgroup>
                             ))}
                         </select>
-                        <FaChevronDown className='text-gray-400 ml-2' size={12} />
-                    </div>
-
-                    <div className="flex items-center px-4 py-3 flex-1 border-l border-gray-300">
-                        <DatePicker
-                            selected={startDate}
-                            onChange={(date) => setStartDate(date)}
-                            placeholderText="Chọn ngày đi"
-                            dateFormat="dd/MM/yyyy"
-                            minDate={new Date()}
-                            className="outline-none border-none bg-transparent w-full"
-                        />
+                        <FaChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400' size={12} />
                     </div>
                 </div>
-            </div>
 
-            <div>
-                <div className="flex border border-gray-300 rounded-lg">
-                    {/* Điểm đến */}
-                    <div className="flex items-center px-4 py-3 flex-1 relative">
-                        <FaPlaneArrival className='mr-3 text-gray-500' />
+                <div className="relative">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Điểm đến
+                    </label>
+                    <div className="relative">
+                        <FaPlaneArrival className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500' />
                         <select 
                             name="arrival"
                             id="arrival"
                             value={arrivalValue}
                             onChange={(e) => setArrivalValue(e.target.value)}
-                            className='outline-none border-none bg-transparent flex-1 appearance-none cursor-pointer'
+                            className='w-full pl-12 pr-10 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all appearance-none cursor-pointer'
                         >
                             <option value="">Chọn điểm đến</option>
                             {Object.entries(grouped).map(([country, cities]) => (
@@ -182,58 +166,70 @@ function TimChuyenBayForm() {
                                 </optgroup>
                             ))}
                         </select>
-                        <FaChevronDown className='text-gray-400 ml-2' size={12} />
-                    </div>
-
-                    {/* Ngày về */}
-                    <div className="flex items-center px-4 py-3 flex-1 border-l border-gray-300">
-                        {flightType === 'round' ? (
-                            <DatePicker
-                                selected={endDate}
-                                onChange={(date) => setEndDate(date)}
-                                placeholderText="Chọn ngày về"
-                                dateFormat="dd/MM/yyyy"
-                                minDate={startDate || new Date()}
-                                className="outline-none border-none bg-transparent w-full"
-                            />
-                        ) : (
-                            // Khung trống vẫn giữ chiều rộng
-                            <div className="w-full h-full bg-transparent"></div>
-                        )}
+                        <FaChevronDown className='absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400' size={12} />
                     </div>
                 </div>
             </div>
 
-
-            {/* Số hành khách */}
-            <div>
-                <div className='flex border border-gray-300 rounded-lg '>
-                    <div className='flex items-center px-4 py-3 flex-1 relative'>
-                        <HiUser className='mr-3 text-gray-500' />
-                        <input 
-                            type="number" 
-                            name="passengers" 
-                            id="passengers"
+            {/* Ngày đi, ngày về và số hành khách */}
+            <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Ngày đi
+                    </label>
+                    <DatePicker
+                        selected={startDate}
+                        onChange={(date) => setStartDate(date)}
+                        placeholderText="Chọn ngày đi"
+                        dateFormat="dd/MM/yyyy"
+                        minDate={new Date()}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
+                    />
+                </div>
+                
+                {flightType === 'round' && (
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Ngày về
+                        </label>
+                        <DatePicker
+                            selected={endDate}
+                            onChange={(date) => setEndDate(date)}
+                            placeholderText="Chọn ngày về"
+                            dateFormat="dd/MM/yyyy"
+                            minDate={startDate || new Date()}
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
+                        />
+                    </div>
+                )}
+                
+                <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Hành khách
+                    </label>
+                    <div className="relative">
+                        <HiUser className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500' />
+                        <select
                             value={passengers}
                             onChange={(e) => setPassengers(e.target.value)}
-                            placeholder='Số lượng hành khách'
-                            min="1"
-                            max="10"
-                            className='outline-none border-none bg-transparent flex-1'
-                        />
+                            className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
+                        >
+                            <option value="">Chọn số hành khách</option>
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                                <option key={num} value={num}>{num} người</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
             </div>
 
             {/* Nút tìm chuyến bay */}
-            <div>
-                <button 
-                    type="submit"
-                    className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                >
-                    <span>Tìm chuyến bay</span>
-                </button>
-            </div>
+            <button
+                type="submit"
+                className="w-full py-4 bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-gray-900 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+            >
+                🔍 Tìm chuyến bay
+            </button>
         </form>
     );
 }

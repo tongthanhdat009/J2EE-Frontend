@@ -9,6 +9,7 @@ import SlidePanel from "../../../components/KhachHang/SlidePanel";
 import ThongTinThanhToan from "../../../components/KhachHang/ThongTinThanhToan";
 import Header from "../../../components/KhachHang/Header";
 import HeaderTimKiemChuyen from "../../../components/KhachHang/HeaderTimKiemChuyen";
+import Navbar from "../../../components/common/Navbar";
 
 function ChonDichVu() {
     const location = useLocation();
@@ -103,7 +104,7 @@ function ChonDichVu() {
                 }}
             />
 
-            <Header />
+            <Navbar />
             <HeaderTimKiemChuyen data={{ ...formData }} />
 
             <div className="text-green-500 font-bold text-2xl px-32 pt-2">
