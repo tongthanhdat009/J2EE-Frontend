@@ -56,13 +56,15 @@ function ChonChuyenBayVe() {
     }
 
     const handleExpand = (cb , id, type) => {
-        if (expanded.id === id && expanded.type === type) {
+        if (expanded.id === id && expanded.type === type ) {
             setExpanded({ id: null, type: null });
         } else {
             setExpanded({ id, type });
-            const key = `${id}_${type}`;
-            const hangVe= giaVes[key] || null;
-            setSelectedTuyenBayVe({...cb, hangVe: hangVe});
+            if (type >= 1 && type <= 4) {
+                const key = `${id}_${type}`;
+                const hangVe = giaVes[key] || null;
+                setSelectedTuyenBayVe({ ...cb, hangVe: hangVe });
+            }
         }
     };
 
