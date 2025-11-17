@@ -27,6 +27,17 @@ function TimChuyenBayForm() {
             return acc;
         }, {});
     };
+    
+    useEffect(() => {
+        if (departureValue && departureValue === arrivalValue) {
+            setArrivalValue("");
+        }
+    }, [departureValue]);
+    useEffect(() => {
+        if (arrivalValue && arrivalValue === departureValue) {
+            setDepartureValue("");
+        }
+    }, [arrivalValue]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -131,7 +142,7 @@ function TimChuyenBayForm() {
                             {Object.entries(grouped).map(([country, cities]) => (
                                 <optgroup key={country} label={country}>
                                     {cities.map((city, index) => (
-                                        <option key={index} value={city}>
+                                        <option key={index} value={city} >
                                             {city}
                                         </option>
                                     ))}
@@ -159,7 +170,7 @@ function TimChuyenBayForm() {
                             {Object.entries(grouped).map(([country, cities]) => (
                                 <optgroup key={country} label={country}>
                                     {cities.map((city, index) => (
-                                        <option key={index} value={city}>
+                                        <option key={index} value={city} >
                                             {city}
                                         </option>
                                     ))}

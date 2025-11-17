@@ -83,6 +83,7 @@ function ChonChuyenBayVe() {
         try {
             const available = await kiemTraConGhe(cb.maChuyenBay, hangVeId, formData.passengers);
             gheMap[`${cb.maChuyenBay}_${hangVeId}`] = available.data;
+            console.log('So ghe con cho chuyen bay', cb.maChuyenBay, 'hang ve', hangVeId, ':', available.data);
         } catch {
             gheMap[`${cb.maChuyenBay}_${hangVeId}`] = false;
         }
@@ -125,16 +126,18 @@ function ChonChuyenBayVe() {
     const fetchTatCaGiaVe = async () => {
         const giaMap = {};
         for (const cb of chuyenBays) {
-        for (let hangVeId = 1; hangVeId <= 4; hangVeId++) {
-            try {
-            const res = await getGiaVe(cb.maChuyenBay, hangVeId);
-            if (res.success && res.data) {
-                giaMap[`${cb.maChuyenBay}_${hangVeId}`] = res.data;
+            for (let hangVeId = 1; hangVeId <= 4; hangVeId++) {
+                try {
+                    const res = await getGiaVe(cb.maChuyenBay, hangVeId);
+                    console.log('Gia ve response:', res.data);
+                    if (res.success && res.data) {
+                        console.log(`Gia ve cho chuyen ${cb.maChuyenBay}, hang ${hangVeId}:`, res.data);
+                        giaMap[`${cb.maChuyenBay}_${hangVeId}`] = res.data;
+                    }
+                } catch (err) {
+                console.error(`Lỗi lấy giá vé cho chuyến ${cb.maChuyenBay}, hạng ${hangVeId}`, err);
+                }
             }
-            } catch (err) {
-            console.error(`Lỗi lấy giá vé cho chuyến ${cb.maChuyenBay}, hạng ${hangVeId}`, err);
-            }
-        }
         }
 
         setGiaVes(giaMap);
@@ -481,7 +484,12 @@ function ChonChuyenBayVe() {
                 </div>
             </div>
             <div className="flex justify-between fixed bottom-0 left-0 w-full bg-white p-4 h-[80px] px-32 shadow-[0_-4px_20px_rgba(0,0,0,0.25)] items-center">
-                <div className="w-[400px]"></div>
+                <span 
+                    className="bg-gray-200 rounded-xl flex items-center justify-center px-10 py-2 text-black cursor-pointer hover:bg-gray-300 transition mr-100"
+                    onClick={() => navigate(-1)}
+                >
+                    Quay lại
+                </span>
                 <div className="flex flex-col text-black">
                     <span className="text-xl">Tổng tiền</span>
                     <span className="text-2xl font-bold">{selectedTuyenBayVe ? formatCurrencyWithCommas(calcTotalPrice())+" VND" : formatCurrencyWithCommas(formData.totalPrice)+" VND"}</span>

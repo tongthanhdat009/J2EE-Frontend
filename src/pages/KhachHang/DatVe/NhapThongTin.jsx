@@ -53,23 +53,57 @@ function NhapThongTin() {
         });
     };
 
-    // VALIDATION ĐẸP
+    // VALIDATION
     const validatePassengerInfo = () => {
         const newErrors = passengerInfo.map(() => ({}));
         let hasError = false;
         let firstErrorIndex = -1;
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^[0-9]{9,12}$/;
+        const nameRegex = /^[a-zA-ZÀ-ỹ\s'-]{2,}$/;
+        const countryRegex = /^[a-zA-ZÀ-ỹ\s]{2,}$/;
+        const idCardRegex = /^[A-Za-z0-9]{9,}$/;
+
         passengerInfo.forEach((p, i) => {
             const err = {};
 
+            // Giới tính
             if (!p.sex) err.sex = "Vui lòng chọn giới tính";
+
+            // Họ tên
             if (!p.firstName.trim()) err.firstName = "Vui lòng nhập họ";
+            else if (!nameRegex.test(p.firstName))
+                err.firstName = "Họ chỉ được chứa chữ cái và tối thiểu 2 ký tự";
+
             if (!p.lastName.trim()) err.lastName = "Vui lòng nhập tên";
+            else if (!nameRegex.test(p.lastName))
+                err.lastName = "Tên chỉ được chứa chữ cái và tối thiểu 2 ký tự";
+
+            // Ngày sinh
             if (!p.birthday) err.birthday = "Vui lòng nhập ngày sinh";
+
+            // Quốc gia
             if (!p.country.trim()) err.country = "Vui lòng nhập quốc gia";
+            else if (!countryRegex.test(p.country))
+                err.country = "Quốc gia chỉ chứa chữ và tối thiểu 2 ký tự";
+
+            // Số điện thoại
             if (!p.phone.trim()) err.phone = "Vui lòng nhập số điện thoại";
+            else if (!phoneRegex.test(p.phone))
+                err.phone = "Số điện thoại không hợp lệ (9-12 chữ số)";
+
+            // Email
             if (!p.email.trim()) err.email = "Vui lòng nhập email";
+            else if (!emailRegex.test(p.email))
+                err.email = "Email không hợp lệ";
+
+            // CCCD/Hộ chiếu
             if (!p.idCard.trim()) err.idCard = "Vui lòng nhập CCCD/Hộ chiếu";
+            else if (!idCardRegex.test(p.idCard))
+                err.idCard = "CCCD/Hộ chiếu không hợp lệ (ít nhất 9 ký tự, chỉ chữ và số)";
+
+            // Địa chỉ
             if (!p.address.trim()) err.address = "Vui lòng nhập địa chỉ";
 
             if (Object.keys(err).length > 0) {
@@ -81,7 +115,7 @@ function NhapThongTin() {
 
         setErrors(newErrors);
 
-        // SCROLL + MỞ PANEL CỦA HÀNH KHÁCH LỖI ĐẦU TIÊN
+        // Scroll đến hành khách lỗi đầu tiên
         if (hasError && firstErrorIndex !== -1) {
             setExpanded((prev) => {
                 const updated = [...prev];
@@ -430,7 +464,12 @@ function NhapThongTin() {
 
             {/* Footer */}
             <div className="flex justify-between fixed bottom-0 left-0 w-full bg-white p-4 h-[80px] px-32 shadow-[0_-4px_20px_rgba(0,0,0,0.25)] items-center">
-                <div className="w-[400px]" />
+                <span 
+                    className="bg-gray-200 rounded-xl flex items-center justify-center px-10 py-2 text-black cursor-pointer hover:bg-gray-300 transition mr-100"
+                    onClick={() => navigate(-1)}
+                >
+                    Quay lại
+                </span>
                 <div className="flex flex-col text-black">
                     <span className="text-xl">Tổng tiền</span>
                     <span className="text-2xl font-bold">

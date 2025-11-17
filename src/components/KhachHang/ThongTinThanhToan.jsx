@@ -68,7 +68,7 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
     }, [cb]);
 
     return (
-        <div className="min-w-[400px]">
+        <div className="w-[400px]">
             <div className="flex justify-start text-xl font-bold bg-red-600 text-white p-4 rounded-t-md">THÔNG TIN ĐẶT CHỖ</div>
             <div className="p-4 bg-white">
                 <div className="flex justify-between bg-gray-200 px-4 py-2 " onClick={() => toggleExpand("thongTinKhachHang")}>
@@ -163,10 +163,12 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
                             key={opt.maLuaChon}
                             className="flex justify-between bg-gray-100 px-4 py-2 rounded-b-md text-sm"
                             >
-                            <span>
-                                {opt.label} x {opt.quantity || 1}
-                            </span>
-                            <span>{formatCurrencyWithCommas(opt.price * (opt.quantity || 1))} VND</span>
+                                <span className="whitespace-normal break-words w-[70%]">
+                                    {opt.label} x {opt.quantity || 1}
+                                </span>
+                                <span className="text-right w-[30%]">
+                                    {formatCurrencyWithCommas(opt.price * (opt.quantity || 1))} VND
+                                </span>
                             </div>
                         ))
                     }
@@ -321,10 +323,12 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
                                     key={opt.maLuaChon}
                                     className="flex justify-between bg-gray-100 px-4 py-2 rounded-b-md text-sm"
                                     >
-                                    <span>
-                                        {opt.label} x {opt.quantity || 1}
-                                    </span>
-                                    <span>{formatCurrencyWithCommas(opt.price * (opt.quantity || 1))} VND</span>
+                                        <span className="whitespace-normal break-words w-[70%]">
+                                            {opt.label} x {opt.quantity || 1}
+                                        </span>
+                                        <span className="text-right w-[30%]">
+                                            {formatCurrencyWithCommas(opt.price * (opt.quantity || 1))} VND
+                                        </span>
                                     </div>
                                 ))
                             }
