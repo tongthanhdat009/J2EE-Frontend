@@ -1,8 +1,9 @@
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 
+import { formatCurrencyWithCommas } from "../../../services/utils";
 import { getAllDichVuCungCapByChuyenBay } from "../../../services/datVeServices";
 import SlidePanel from "../../../components/KhachHang/SlidePanel";
 import ThongTinThanhToan from "../../../components/KhachHang/ThongTinThanhToan";
@@ -12,11 +13,30 @@ import HeaderTimKiemChuyen from "../../../components/KhachHang/HeaderTimKiemChuy
 function ChonDichVu() {
     const location = useLocation();
     const formData = location.state || {};
-
+    const navigate = useNavigate();
     const [dichVuCungCapList, setDichVuCungCapList] = useState([]);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [selectedDichVu, setSelectedDichVu] = useState(null);
-    const [getAllServices, setGetAllServices] = useState(null);
+    const [selectedServices, setSelectedServices] = useState({});
+
+    const calculateTotal = () => {
+        let total = formData.totalPrice || 0;
+
+        ["di", "ve"].forEach(tabKey => {
+            const tabData = selectedServices[tabKey];
+            if (!tabData) return;
+
+            // OPTIONS
+            (tabData.options || []).forEach(opt => {
+            if (opt.quantity) {
+                total += opt.price * opt.quantity;
+            } else {
+                total += opt.price;
+            }
+            });
+        });
+        return total;
+    };
 
     const dichVuChonChoNgoi = {
         maDichVu: 99,
@@ -26,12 +46,23 @@ function ChonDichVu() {
     };
 
     const tiepTucOnClick = () => {
-        let allServiceData = {};
-        if (getAllServices) {
-            allServiceData = getAllServices();
+        const choNgoiDi = selectedServices.di?.selectedSeats?.length || 0;
+        const choNgoiVe = selectedServices.ve?.selectedSeats?.length || 0;
+        const soHanhKhach = Number(formData?.passengers ?? formData?.passengerInfo?.length ?? 1);
+
+        if (formData.flightType === "round") {
+            if (choNgoiDi !== soHanhKhach || choNgoiVe !== soHanhKhach) {
+                alert(`Vui lòng chọn đủ ${soHanhKhach} ghế cho cả chuyến đi và chuyến về!`);
+                return;
+            }
+        }else{
+            if (choNgoiDi !== soHanhKhach) {
+                alert(`Vui lòng chọn đủ ${soHanhKhach} ghế cho chuyến đi!`);
+                return;
+            }
         }
-        console.log("Dữ liệu dịch vụ:", allServiceData);
-    }
+        navigate("/thanh-toan", { state: { ...formData, dichVu: selectedServices, totalPrice: calculateTotal() } });
+    };
 
     useEffect(() => {
         const fetchDichVuCungCap = async () => {
@@ -41,7 +72,6 @@ function ChonDichVu() {
                 );
 
                 setDichVuCungCapList(res.data || []);
-                console.log("Dịch vụ cung cấp:", res.data);
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách dịch vụ cung cấp", error);
             }
@@ -68,7 +98,9 @@ function ChonDichVu() {
                 isOpen={isPanelOpen}
                 onClose={handleClosePanel}
                 dichVu={selectedDichVu}
-                getServiceData={(fn) => setGetAllServices(() => fn)}
+                onSave={(allServices) => {
+                    setSelectedServices(allServices);
+                }}
             />
 
             <Header />
@@ -126,7 +158,12 @@ function ChonDichVu() {
                     </div>
                 </div>
                 <div className="mb-64">
-                    <ThongTinThanhToan cb={formData} />
+                    <ThongTinThanhToan 
+                        cb={{...formData, dichVu:selectedServices, }} 
+                        onBackToThongTinKhachHang={() => navigate("/thong-tin-hanh-khach", { state: { ...formData } })}
+                        onBackToChonChuyenDi={() => navigate("/chon-chuyen-bay", { state: { ...formData } })}
+                        onBackToChonChuyenVe={() => navigate("/chon-chuyen-bay-ve", { state: { ...formData} })}
+                    />
                 </div>
             </div>
             {/* Footer */}
@@ -134,6 +171,7 @@ function ChonDichVu() {
                 <div className="w-[400px]" />
                 <div className="flex flex-col text-black">
                     <span className="text-xl">Tổng tiền</span>
+                    <span className="text-2xl font-bold">{formatCurrencyWithCommas(calculateTotal())+" VND"}</span>
                 </div>
                 <span
                     className="bg-gradient-to-bl from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center px-10 py-2 text-black cursor-pointer"

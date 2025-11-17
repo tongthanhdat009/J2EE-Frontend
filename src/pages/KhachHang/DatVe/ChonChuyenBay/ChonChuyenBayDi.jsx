@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom"
 import { useState, useEffect } from 'react';
-import { getSanBayByThanhPhoSanBay, searchChuyenBay, getGiaVe } from "../../../../services/datVeServices"
+import { getSanBayByThanhPhoSanBay, searchChuyenBay, getGiaVe, kiemTraConGhe} from "../../../../services/datVeServices"
 import { formatCurrency, formatCurrencyWithCommas,formatDate, formatDateType, formatTime, calcFlightDuration } from "../../../../services/utils";
 import { FaLongArrowAltRight, FaLongArrowAltLeft} from 'react-icons/fa';
 import { MdAirplanemodeInactive } from 'react-icons/md';
@@ -27,11 +27,20 @@ function ChonChuyenBay() {
     const [expanded, setExpanded] = useState({ id: null, type: null });
     const [giaVes, setGiaVes] = useState({});
     const [selectedTuyenBayDi, setSelectedTuyenBayDi] = useState(null);
-    
+    const [soGheCon, setSoGheCon] = useState({});
+
     const tiepTucOnClick = () => {
-        navigate("/chon-chuyen-bay-ve", { state: { ...formData, selectedTuyenBayDi: selectedTuyenBayDi, totalPrice: calcTotalPrice()} });
+        if (!selectedTuyenBayDi) {
+            alert("Vui lòng chọn chuyến bay trước khi tiếp tục!");
+            return;
+        }
+        if (formData.flightType === 'round') {
+            navigate("/chon-chuyen-bay-ve", { state: { ...formData, selectedTuyenBayDi: selectedTuyenBayDi, totalPrice: calcTotalPrice()} });
+        } else {
+            navigate("/thong-tin-hanh-khach", { state: { ...formData, selectedTuyenBayDi: selectedTuyenBayDi, totalPrice: calcTotalPrice()} });
+        }
     };
-    
+    console.log("formData in ChonChuyenBayDi: ", formData);
     const SoldOutIcon = ({ size = 18 }) => (
         <div className="flex flex-col items-center">
             <span className="inline-flex items-center justify-center w-8 h-8 rounded-full border-[2px] border-gray-400 text-gray-400">
@@ -65,6 +74,28 @@ function ChonChuyenBay() {
             startDate: ngay
         }));
     };
+
+    useEffect(() => {
+    if (!chuyenBays.length) return;
+
+    const fetchSoGhe = async () => {
+    const gheMap = {};
+    const requests = chuyenBays.flatMap(cb => 
+        [1,2,3,4].map(async hangVeId => {
+        try {
+            const available = await kiemTraConGhe(cb.maChuyenBay, hangVeId, formData.passengers);
+            gheMap[`${cb.maChuyenBay}_${hangVeId}`] = available.data;
+        } catch {
+            gheMap[`${cb.maChuyenBay}_${hangVeId}`] = false;
+        }
+        })
+    );
+    await Promise.all(requests);
+    setSoGheCon(gheMap);
+    };
+
+    fetchSoGhe();
+    }, [chuyenBays, formData.passengers]);
 
     useEffect(() => {
     const fetchSanBay = async () => {
@@ -117,9 +148,10 @@ function ChonChuyenBay() {
     const hienThiGiaVe = (maChuyenBay, hangVeId, cb) => {
         const key = `${maChuyenBay}_${hangVeId}`;
         const gia = giaVes[key];
-        if (!gia || !gia.giaVe) {
+        const hetCho = !gia || !gia.giaVe || soGheCon[key] === false;
+        if (hetCho) {
             return (
-            <div className="bg-gray-100 flex flex-col items-center justify-center border-r-[1px]">
+            <div className={`bg-gray-100 flex flex-col items-center justify-center ${ hangVeId===1 ? '' : 'border-r-[1px]'}`}>
                 <div className="flex flex-col items-center justify-center text-gray-400">
                     <SoldOutIcon />
                     HẾT CHỖ
@@ -150,15 +182,6 @@ function ChonChuyenBay() {
         case 2: return "bg-yellow-100";     // Premium
         case 3: return "bg-red-100";    // Business
         case 4: return "bg-orange-100";   // First
-        }
-    };
-
-    const getHangVeName = (hangVeId) => {
-        switch (hangVeId) {
-            case 1: return "Eco";
-            case 2: return "Deluxe";
-            case 3: return "Business";
-            case 4: return "FirstClass";
         }
     };
 
@@ -445,15 +468,17 @@ function ChonChuyenBay() {
                             </div>
                         ))
                     ):(
-                        <div>Không có chuyến bay</div>
+                        <div className="w-full flex justify-center items-center h-64">
+                        Không có chuyến bay
+                        </div>
                     )}
                 </div>
                 <div  className="my-10 mb-50">
                     {/* <ThongTinThanhToan cb={formData} tuyenBay={selectedTuyenBayDi?.hangVe ? selectedTuyenBayDi : null} /> */}
                     <ThongTinThanhToan
-                    cb={{...formData, selectedTuyenBayDi}}
-                    onBackToChonChuyenDi={() => navigate("/chon-chuyen-bay", { state: { ...formData} })}
-                    onBackToChonChuyenVe={() => navigate("/chon-chuyen-bay-ve", { state: { ...formData } })}
+                        cb={{...formData, selectedTuyenBayDi}}
+                        onBackToChonChuyenDi={() => navigate("/chon-chuyen-bay", { state: { ...formData} })}
+                        onBackToChonChuyenVe={() => navigate("/chon-chuyen-bay-ve", { state: { ...formData } })}
                     />
                 </div>
             </div>

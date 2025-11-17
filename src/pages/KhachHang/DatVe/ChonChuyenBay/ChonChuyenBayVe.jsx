@@ -1,6 +1,6 @@
 import { useNavigate, useLocation} from "react-router-dom"
 import { useState, useEffect } from 'react';
-import { getSanBayByThanhPhoSanBay, searchChuyenBay, getGiaVe } from "../../../../services/datVeServices"
+import { getSanBayByThanhPhoSanBay, searchChuyenBay, getGiaVe , kiemTraConGhe} from "../../../../services/datVeServices"
 import { formatCurrency, formatCurrencyWithCommas,formatDate, formatDateType, formatTime, calcFlightDuration } from "../../../../services/utils";
 import { FaLongArrowAltRight, FaLongArrowAltLeft} from 'react-icons/fa';
 import { MdAirplanemodeInactive } from 'react-icons/md';
@@ -27,8 +27,13 @@ function ChonChuyenBayVe() {
     const [expanded, setExpanded] = useState({ id: null, type: null });
     const [giaVes, setGiaVes] = useState({});
     const [selectedTuyenBayVe, setSelectedTuyenBayVe] = useState(null);
+    const [soGheCon, setSoGheCon] = useState({});
 
     const tiepTucOnClick = () => {
+        if (!selectedTuyenBayVe) {
+            alert("Vui lòng chọn chuyến bay trước khi tiếp tục!");
+            return;
+        }
         navigate("/thong-tin-hanh-khach", { state: { ...formData, selectedTuyenBayVe, totalPrice: calcTotalPrice() } });
     }
     
@@ -63,9 +68,31 @@ function ChonChuyenBayVe() {
     const handleSelectNgay = (ngay) => {
         setFormData(prev => ({
             ...prev,
-            startDate: ngay
+            endDate: ngay
         }));
     };
+
+    useEffect(() => {
+    if (!chuyenBays.length) return;
+
+    const fetchSoGhe = async () => {
+    const gheMap = {};
+    const requests = chuyenBays.flatMap(cb => 
+        [1,2,3,4].map(async hangVeId => {
+        try {
+            const available = await kiemTraConGhe(cb.maChuyenBay, hangVeId, formData.passengers);
+            gheMap[`${cb.maChuyenBay}_${hangVeId}`] = available.data;
+        } catch {
+            gheMap[`${cb.maChuyenBay}_${hangVeId}`] = false;
+        }
+        })
+    );
+    await Promise.all(requests);
+    setSoGheCon(gheMap);
+    };
+
+    fetchSoGhe();
+    }, [chuyenBays, formData.passengers]);
 
     useEffect(() => {
     const fetchSanBay = async () => {
@@ -89,7 +116,7 @@ function ChonChuyenBayVe() {
         setChuyenBays(results.data);
     };``
     fetchChuyenBays();
-    }, [sanBayDi, sanBayDen, formData.startDate]);
+    }, [sanBayDi, sanBayDen, formData.endDate]);
 
     useEffect(() => {
     if (!chuyenBays.length) return;
@@ -118,7 +145,8 @@ function ChonChuyenBayVe() {
     const hienThiGiaVe = (maChuyenBay, hangVeId, cb, isLast=false) => {
         const key = `${maChuyenBay}_${hangVeId}`;
         const gia = giaVes[key];
-        if (!gia || !gia.giaVe) {
+        const hetCho = !gia || !gia.giaVe || soGheCon[key] === false;
+        if (hetCho) {
             return (
             <div className={`bg-gray-100 flex flex-col items-center justify-center ${ isLast===true ? '' : 'border-r-[1px]'} `}>
                 <div className="flex flex-col items-center justify-center text-gray-400">
@@ -154,14 +182,6 @@ function ChonChuyenBayVe() {
         }
     };
 
-    const getHangVeName = (hangVeId) => {
-        switch (hangVeId) {
-            case 1: return "Eco";
-            case 2: return "Deluxe";
-            case 3: return "Business";
-            case 4: return "FirstClass";
-        }
-    };
     return (
         <div className="bg-blue-100 min-h-screen">
             <Header/>
@@ -445,7 +465,9 @@ function ChonChuyenBayVe() {
                             </div>
                         ))
                     ):(
-                        <div>Không có chuyến bay</div>
+                        <div className="w-full flex justify-center items-center h-64">
+                        Không có chuyến bay
+                        </div>
                     )}
                 </div>
                 <div  className="my-10 mb-50">

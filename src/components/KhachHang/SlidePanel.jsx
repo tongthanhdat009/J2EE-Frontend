@@ -7,94 +7,85 @@ function ChoNgoiPanel({
   width = "600px",
   formData = {},
   dichVu,
-  getServiceData,
+  onSave,
 }) {
   const [tab, setTab] = useState("di");
-
   const [serviceState, setServiceState] = useState({ di: {}, ve: {} });
   const [seatRows, setSeatRows] = useState({ di: [], ve: [] });
-  const isMountedRef = useRef(false);
+  const currentService = serviceState[tab]?.[dichVu?.maDichVu] || {};
 
-  // ================= EXTRACT SERVICE DATA =================
   const extractAllServiceData = useCallback((state) => {
-    const result = { di: { services: {}, totalCost: 0 }, ve: { services: {}, totalCost: 0 } };
+    const result = {};
 
-    ["di", "ve"].forEach((tabKey) => {
+    ["di", "ve"].forEach(tabKey => {
       const services = state?.[tabKey] || {};
-      let tabCost = 0; // tổng tiền theo tab (đi / về)
+      const tabResult = {};
 
-      Object.keys(services).forEach((serviceId) => {
+      Object.keys(services).forEach(serviceId => {
         const data = services[serviceId] || {};
         const numericId = parseInt(serviceId, 10);
 
-        // LƯU lại service gốc (không cost từng cái)
-        result[tabKey].services[serviceId] = data;
-
-        // ================== GHẾ ==================
-        if (numericId === 99) {
-          const seatPrice = data.seatPrice || 0;
-          const seatCount = (data.selectedSeats || []).length;
-          tabCost += seatCount * seatPrice;
+        // GHẾ
+        if (numericId === 99 && data.selectedSeats?.length > 0) {
+          tabResult.selectedSeats = data.selectedSeats.map(s => ({
+            id: s.id,
+            hangVe: s.hangVe
+          }));
         }
 
-        // =============== HÀNH LÝ HOẶC CHECKBOX ===============
-        else if (data.checked) {
-          Object.keys(data.checked).forEach((choiceId) => {
-            if (data.checked[choiceId]) {
-              const price =
-                data.options?.find(
-                  (o) => o.maLuaChon === parseInt(choiceId, 10)
-                )?.gia || 0;
-              tabCost += price;
-            }
-          });
+        // KHỞI TẠO MẢNG OPTIONS
+        tabResult.options = tabResult.options || [];
+
+        // CHECKBOX
+        if (data.checked) {
+          const picked = Object.keys(data.checked).filter(k => data.checked[k]);
+          if (picked.length > 0) {
+            tabResult.options = tabResult.options.concat(
+              picked.map(id => {
+                const opt = data.options.find(o => o.maLuaChon === parseInt(id));
+                return {
+                  maLuaChon: parseInt(id),
+                  label: opt?.tenLuaChon || "",
+                  price: opt?.gia || 0
+                };
+              })
+            );
+          }
         }
 
-        // =============== DỊCH VỤ SỐ LƯỢNG ===============
-        else if (data.quantities) {
-          Object.keys(data.quantities).forEach((choiceId) => {
-            const qty = data.quantities[choiceId] || 0;
-            const price =
-              data.options?.find(
-                (o) => o.maLuaChon === parseInt(choiceId, 10)
-              )?.gia || 0;
-
-            tabCost += qty * price;
-          });
-        }
-
-        // =============== DỊCH VỤ CÓ totalPrice ===============
-        else if (data.totalPrice !== undefined) {
-          tabCost += data.totalPrice;
+        // QUANTITY
+        if (data.quantities) {
+          const picked = Object.keys(data.quantities).filter(k => data.quantities[k] > 0);
+          if (picked.length > 0) {
+            tabResult.options = tabResult.options.concat(
+              picked.map(id => {
+                const qty = data.quantities[id];
+                const opt = data.options.find(o => o.maLuaChon === parseInt(id));
+                return {
+                  maLuaChon: parseInt(id),
+                  label: opt?.tenLuaChon || "",
+                  price: opt?.gia || 0,
+                  quantity: qty
+                };
+              })
+            );
+          }
         }
       });
 
-      result[tabKey].totalCost = tabCost;
+      if (Object.keys(tabResult).length > 0) {
+        result[tabKey] = tabResult;
+      }
     });
 
     return result;
   }, []);
 
-  // useRef để luôn trả hàm lấy dữ liệu mới nhất mà không gây re-subscribe liên tục cho parent
-  const getDataRef = useRef(() => extractAllServiceData(serviceState));
   useEffect(() => {
-    getDataRef.current = () => extractAllServiceData(serviceState);
-  }, [serviceState, extractAllServiceData]);
-
-  // Đăng ký 1 lần với parent: truyền 1 hàm tham chiếu ổn định (truy xuất từ ref)
-  useEffect(() => {
-    // chỉ đăng ký 1 lần (khi component mount)
-    if (!isMountedRef.current) {
-      if (typeof getServiceData === "function") {
-        // truyền hàm tham chiếu -> parent có thể gọi để lấy dữ liệu mới nhất
-        getServiceData(() => getDataRef.current());
-      }
-      isMountedRef.current = true;
+    if (isOpen) {
+      setTab("di"); // reset về tab đi mỗi khi panel mở
     }
-    // intentionally empty deps to avoid re-registering on each render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  }, [isOpen]);
   // ================= UPDATE SERVICE =================
   const updateService = useCallback((tabKey, serviceId, payload) => {
     setServiceState((prev) => ({
@@ -108,8 +99,6 @@ function ChoNgoiPanel({
       },
     }));
   }, []);
-
-  const currentService = serviceState[tab]?.[dichVu?.maDichVu] || {};
 
   // ================= FETCH SERVICE DATA =================
   const fetchServiceData = useCallback(async () => {
@@ -175,7 +164,6 @@ function ChoNgoiPanel({
       const optionsWithPrice = (res?.data || []).map((item) => ({
         ...item,
         totalPrice: item.gia || 0,
-        currency: "VND",
       }));
 
       updateService(tab, dichVu?.maDichVu, { options: optionsWithPrice });
@@ -266,36 +254,50 @@ function ChoNgoiPanel({
       [id]: num,
     };
 
-    let newTotal = 0;
-    if (currentService.options) {
-      Object.keys(newQuantities).forEach((k) => {
-        const p = currentService.options.find((o) => o.maLuaChon === parseInt(k, 10))?.gia || 0;
-        newTotal += (newQuantities[k] || 0) * p;
-      });
-    } else {
-      newTotal = num * price;
-    }
+    const allZero = Object.values(newQuantities).every(q => q === 0);
 
-    updateService(tab, dichVu?.maDichVu, {
-      quantities: newQuantities,
-      totalPrice: newTotal,
-      currency: "VND",
-    });
+    if (allZero) {
+      // Không còn lựa chọn -> xóa service khỏi state
+      updateService(tab, dichVu?.maDichVu, {});
+    } else {
+      let newTotal = 0;
+      if (currentService.options) {
+        Object.keys(newQuantities).forEach((k) => {
+          const p = currentService.options.find((o) => o.maLuaChon === parseInt(k, 10))?.gia || 0;
+          newTotal += (newQuantities[k] || 0) * p;
+        });
+      }
+      updateService(tab, dichVu?.maDichVu, {
+        quantities: newQuantities,
+        totalPrice: newTotal,
+        currency: "VND",
+      });
+    }
   };
 
   // ============================ CHECKBOX ============================
   const toggleCheckbox = (id) => {
     const checkedNow = !(currentService.checked?.[id] || false);
-    const price = currentService.options?.find((x) => x.maLuaChon === id)?.gia || 0;
+    const newChecked = {
+      ...(currentService.checked || {}),
+      [id]: checkedNow,
+    };
+
+    const totalPrice = Object.entries(newChecked).reduce((sum, [k, v]) => {
+      if (v) {
+        const price = currentService.options?.find(x => x.maLuaChon === parseInt(k))?.gia || 0;
+        return sum + price;
+      }
+      return sum;
+    }, 0);
+
     updateService(tab, dichVu?.maDichVu, {
-      checked: {
-        ...(currentService.checked || {}),
-        [id]: checkedNow,
-      },
-      totalPrice: checkedNow ? price : 0,
-      currency: "VND",
+      checked: newChecked,
+      totalPrice,
+      currency: "VND"
     });
   };
+
 
   const rowsToRender = seatRows[tab] || [];
 
@@ -329,14 +331,16 @@ function ChoNgoiPanel({
             >
               Chuyến đi
             </button>
-            <button
-              className={`flex-1 px-4 py-2 border-b-2 ${
-                tab === "ve" ? "border-red-500" : "border-transparent text-gray-500"
-              }`}
-              onClick={() => setTab("ve")}
-            >
-              Chuyến về
-            </button>
+            {formData.flightType === "round" && (
+              <button
+                className={`flex-1 px-4 py-2 border-b-2 ${
+                  tab === "ve" ? "border-red-500" : "border-transparent text-gray-500"
+                }`}
+                onClick={() => setTab("ve")}
+              >
+                Chuyến về
+              </button>
+            )}
           </div>
 
           {/* Hành khách */}
@@ -413,6 +417,32 @@ function ChoNgoiPanel({
                     ))}
                   </div>
                 ))}
+                {/* Legend */}
+              <div className="flex flex-wrap justify-center gap-4 mb-4 text-sm pt-5">
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-md border border-gray-300 bg-white"></div>
+                  <span>Economy</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-md border border-gray-300 bg-green-300"></div>
+                  <span>Deluxe</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-md border border-gray-300 bg-orange-300"></div>
+                  <span>Business</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-md border border-gray-300 bg-yellow-300"></div>
+                  <span>First Class</span>
+                </div>
+
+
+
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-md border border-gray-300 bg-blue-500"></div>
+                  <span>Đã chọn</span>
+                </div>
+              </div>
               </>
             ) : (
               (currentService.options || []).map((item) => (
@@ -465,37 +495,49 @@ function ChoNgoiPanel({
 
           {/* Footer */}
           <div className="p-4 border-t bg-gradient-to-b from-red-500 to-red-700 flex justify-between items-center text-white">
-            <div>
-              <span className="font-bold">Chuyến {tab === "di" ? "đi" : "về"}: </span>
-              {dichVu?.maDichVu === 99 ? (
-                <>
-                  <span className="text-yellow-200">
-                    {selectedSeats.length > 0
-                      ? selectedSeats.map((s) => `${s.id}-${s.hangVe}`).join(", ")
-                      : "Chưa chọn"}
-                  </span>
-                  ({selectedSeats.length}/{formData?.passengers ?? formData?.passengerInfo?.length ?? 0})
-                </>
-              ) : (
-                <span className="text-yellow-200">
-                  {currentService.totalPrice || 0} {currentService.currency || "VND"}
-                </span>
-              )}
-            </div>
+            {tab === "di" || formData.flightType === "round" ? (
+              <>
+                <div>
+                  <span className="font-bold">Chuyến {tab === "di" ? "đi" : "về"}: </span>
+                  {dichVu?.maDichVu === 99 ? (
+                    <>
+                      <span className="text-yellow-200">
+                        {selectedSeats.length > 0
+                          ? selectedSeats.map((s) => `${s.id}-${s.hangVe}`).join(", ")
+                          : "Chưa chọn"}
+                      </span>
+                      ({selectedSeats.length}/{formData?.passengers ?? formData?.passengerInfo?.length ?? 0})
+                    </>
+                  ) : (
+                    <span className="text-yellow-200">
+                      {currentService.totalPrice || 0} {currentService.currency || "VND"}
+                    </span>
+                  )}
+                </div>
 
-            <button
-              disabled={dichVu?.maDichVu === 99 && selectedSeats.length !== (formData?.passengers ?? formData?.passengerInfo?.length ?? 0)}
-              onClick={() => {
-                tab === "di" ? setTab("ve") : onClose();
-              }}
-              className={`px-6 py-2 rounded-lg font-semibold ${
-                dichVu?.maDichVu === 99 && selectedSeats.length !== (formData?.passengers ?? formData?.passengerInfo?.length ?? 0)
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-            >
-              Xác nhận
-            </button>
+                <button
+                  disabled={dichVu?.maDichVu === 99 && selectedSeats.length != (formData?.passengers ?? formData?.passengerInfo?.length ?? 0)}
+                  onClick={() => {
+                    if (onSave) {
+                      const allServices = extractAllServiceData(serviceState);
+                      onSave(allServices);
+                    }
+                    if (formData.flightType === "round" && tab === "di") {
+                      setTab("ve");
+                    } else {
+                      onClose();
+                    }
+                  }}
+                  className={`px-6 py-2 rounded-lg font-semibold ${
+                    dichVu?.maDichVu === 99 && selectedSeats.length != (formData?.passengers ?? formData?.passengerInfo?.length ?? 0)
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
+                >
+                  Xác nhận
+                </button>
+              </>
+            ) : null}
           </div>
         </div>
       </div>

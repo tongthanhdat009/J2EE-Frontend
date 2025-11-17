@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { FaPlaneDeparture, FaPlaneArrival, FaChevronDown } from 'react-icons/fa';
-import { HiUser, HiUsers } from 'react-icons/hi';
+import { HiUser } from 'react-icons/hi';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -41,10 +41,10 @@ function TimChuyenBayForm() {
         fetchData();
     }, []);
     
-    //Nhóm sân bay theo quốc gia
+    // Nhóm sân bay theo quốc gia
     const grouped = sanBayList.length > 0 ? groupByCountry(sanBayList) : {};
 
-    //Lấy tất cả dữ liệu form
+    // Lấy tất cả dữ liệu form
     const getFormData = () => {
         const formData = {
             flightType: flightType,
@@ -57,7 +57,7 @@ function TimChuyenBayForm() {
         return formData;
     };
 
-    //Hàm validate form
+    // Hàm validate form
     const validateForm = () => {
         const errors = [];
         
@@ -71,7 +71,7 @@ function TimChuyenBayForm() {
         return errors;
     };
 
-    //Hàm xử lý submit
+    // Hàm xử lý submit
     const handleSubmit = (e) => {
         e.preventDefault();
         
@@ -86,6 +86,7 @@ function TimChuyenBayForm() {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col rounded-lg shadow-lg max-w-150 p-6 bg-white gap-4">
+            {/* Chọn loại vé */}
             <div className="flex mb-4 justify-between">
                 <div className="flex gap-4">
                     <label className="flex items-center cursor-pointer">
@@ -120,7 +121,6 @@ function TimChuyenBayForm() {
                 <span>VND</span>
             </div>
 
-            {/*Điểm xuất phát + Ngày đi */}
             <div>
                 <div className="flex border border-gray-300 rounded-lg">
                     <div className="flex items-center px-4 py-3 flex-1 relative">
@@ -159,9 +159,9 @@ function TimChuyenBayForm() {
                 </div>
             </div>
 
-            {/*Điểm đến + Ngày về */}
             <div>
                 <div className="flex border border-gray-300 rounded-lg">
+                    {/* Điểm đến */}
                     <div className="flex items-center px-4 py-3 flex-1 relative">
                         <FaPlaneArrival className='mr-3 text-gray-500' />
                         <select 
@@ -185,19 +185,27 @@ function TimChuyenBayForm() {
                         <FaChevronDown className='text-gray-400 ml-2' size={12} />
                     </div>
 
+                    {/* Ngày về */}
                     <div className="flex items-center px-4 py-3 flex-1 border-l border-gray-300">
-                        <DatePicker
-                            selected={endDate}
-                            onChange={(date) => setEndDate(date)}
-                            placeholderText="Chọn ngày về"
-                            dateFormat="dd/MM/yyyy"
-                            minDate={startDate || new Date()}
-                            className="outline-none border-none bg-transparent w-full"
-                        />
+                        {flightType === 'round' ? (
+                            <DatePicker
+                                selected={endDate}
+                                onChange={(date) => setEndDate(date)}
+                                placeholderText="Chọn ngày về"
+                                dateFormat="dd/MM/yyyy"
+                                minDate={startDate || new Date()}
+                                className="outline-none border-none bg-transparent w-full"
+                            />
+                        ) : (
+                            // Khung trống vẫn giữ chiều rộng
+                            <div className="w-full h-full bg-transparent"></div>
+                        )}
                     </div>
                 </div>
             </div>
 
+
+            {/* Số hành khách */}
             <div>
                 <div className='flex border border-gray-300 rounded-lg '>
                     <div className='flex items-center px-4 py-3 flex-1 relative'>
@@ -217,6 +225,7 @@ function TimChuyenBayForm() {
                 </div>
             </div>
 
+            {/* Nút tìm chuyến bay */}
             <div>
                 <button 
                     type="submit"
@@ -229,4 +238,4 @@ function TimChuyenBayForm() {
     );
 }
 
-export default TimChuyenBayForm
+export default TimChuyenBayForm;

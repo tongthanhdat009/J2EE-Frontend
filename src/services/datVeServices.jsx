@@ -69,3 +69,13 @@ export const getLuaChonByDichVuId = async (dichVuId) => {
         throw error;
     }
 };
+
+export const kiemTraConGhe = async (maChuyenBay, maHangVe, soLuongNguoi) => {
+    try {
+        const response = await apiClient.get(`/api/sanbay/${maChuyenBay}/hang-ve/${maHangVe}/${soLuongNguoi}`);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi kiểm tra còn ghế", error);
+        throw error;
+    }
+};
