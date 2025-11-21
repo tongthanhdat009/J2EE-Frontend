@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import Navbar from '../../components/common/Navbar';
+import { useNavigate } from 'react-router-dom';
 import TaiKhoanService from '../../services/TaiKhoanService';
 import { getClientAccessToken, getClientUserEmail } from '../../utils/cookieUtils';
 
 function HoanThienThongTin() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState('');
@@ -130,7 +128,6 @@ function HoanThienThongTin() {
   if (pageLoading) {
     return (
       <>
-        <Navbar />
         <div 
           className="min-h-[calc(100vh-70px)] flex items-center justify-center py-8 px-4 bg-cover bg-center bg-no-repeat relative"
           style={{ backgroundImage: 'url(/background/auth/bg_footer.2f611c1f.webp)' }}
@@ -147,7 +144,6 @@ function HoanThienThongTin() {
 
   return (
     <>
-      <Navbar />
       <div 
         className="min-h-[calc(100vh-70px)] flex items-center justify-center py-8 px-4 bg-cover bg-center bg-no-repeat relative"
         style={{ backgroundImage: 'url(/background/auth/bg_footer.2f611c1f.webp)' }}

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
 import TaiKhoanService from '../../services/TaiKhoanService';
 import DatChoService from '../../services/DatChoService';
@@ -136,7 +135,6 @@ function QuanLyChuyenBay() {
   return (
     <div className="min-h-screen bg-cover bg-center bg-fixed" 
          style={{ backgroundImage: 'url(/background/home/bgBannerHomePage.72a61446.webp)' }}>
-      <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-6">

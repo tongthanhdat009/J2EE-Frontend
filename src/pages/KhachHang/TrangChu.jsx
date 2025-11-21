@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
 import Chatbot from "../../components/common/Chatbot";
 import ProfileCompleteBanner from "../../components/common/ProfileCompleteBanner";
-import Header from "../../components/KhachHang/Header"
 import TimChuyenBayForm from '../../components/KhachHang/TimChuyenBayForm'
-import HeaderTimKiemChuyen from '../../components/KhachHang/HeaderTimKiemChuyen'
 
 function TrangChu() {
-  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showBanner, setShowBanner] = useState(true);
 
@@ -38,8 +33,6 @@ function TrangChu() {
 
   return (
     <>
-      <Navbar />
-      
       {/* Profile Complete Banner */}
       <ProfileCompleteBanner />
       

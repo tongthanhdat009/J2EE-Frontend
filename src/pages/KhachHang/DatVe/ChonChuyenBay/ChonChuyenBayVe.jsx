@@ -14,7 +14,6 @@ import { GoGoal } from 'react-icons/go';
 
 import HeaderTimKiemChuyen from "../../../../components/KhachHang/HeaderTimKiemChuyen"
 import ThongTinThanhToan from "../../../../components/KhachHang/ThongTinThanhToan"
-import Header from "../../../../components/KhachHang/Header"
 import DanhSachNgayBay from "../../../../components/KhachHang/DanhSachNgayBay";
 import Navbar from "../../../../components/common/Navbar";
 

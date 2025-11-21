@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../components/common/Navbar";
 import { DangKyClientServices } from "../../services/DangKyClientServices";
 import { EmailVerificationService } from "../../services/EmailVerificationService";
 import { getClientAccessToken } from "../../utils/cookieUtils";
@@ -126,7 +125,6 @@ function DangKy() {
   if (isCheckingAuth) {
     return (
       <>
-        <Navbar />
         <div className="min-h-[calc(100vh-70px)] flex items-center justify-center bg-gradient-to-br from-pink-50 via-yellow-50 to-white">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4"></div>
@@ -139,7 +137,6 @@ function DangKy() {
 
   return (
     <>
-      <Navbar />
       <div 
         className="min-h-[calc(100vh-70px)] flex items-center justify-center py-2.5 px-4 bg-cover bg-center bg-no-repeat relative"
         style={{ backgroundImage: 'url(/background/auth/bg_footer.2f611c1f.webp)' }}

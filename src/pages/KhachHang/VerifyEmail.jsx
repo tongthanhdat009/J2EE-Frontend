@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
 import { EmailVerificationService } from "../../services/EmailVerificationService";
 
@@ -57,7 +56,6 @@ function VerifyEmail() {
 
   return (
     <>
-      <Navbar />
       <div 
         className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed relative flex items-center justify-center"
         style={{ backgroundImage: 'url(/background/auth/bg_footer.2f611c1f.webp)' }}

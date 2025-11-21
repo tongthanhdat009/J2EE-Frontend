@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
 
 function PaymentResult() {
@@ -72,7 +71,6 @@ function PaymentResult() {
   return (
     <div className="min-h-screen bg-cover bg-center bg-fixed" 
          style={{ backgroundImage: 'url(/background/home/bgBannerHomePage.72a61446.webp)' }}>
-      <Navbar />
       
       <div className="max-w-2xl mx-auto px-4 py-16">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">

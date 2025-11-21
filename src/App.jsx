@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import Header from "./components/KhachHang/Header"
 import Home from "./pages/KhachHang/TrangChu"
 import Admin from "./pages/QuanLy/TrangChuAdmin"
 import LoginAdmin from "./pages/QuanLy/DangNhap"
@@ -38,12 +37,15 @@ import ChonChuyenBayVe from "./pages/KhachHang/DatVe/ChonChuyenBay/ChonChuyenBay
 import NhapThongTin from "./pages/KhachHang/DatVe/NhapThongTin"
 // import ThongTinHanhKhach from "./pages/KhachHang/DatVe/ThongTinHanhKhach"
 import ChonDichVu from "./pages/KhachHang/DatVe/ChonDichVu"
-// import ThanhToan from "./pages/KhachHang/DatVe/ThanhToan"
+import ThanhToan from "./pages/KhachHang/DatVe/ThanhToan"
+import VNPayCallback from "./pages/KhachHang/DatVe/VNPayCallback"
+import Navbar from "./components/common/Navbar"
 
 function App() {
   return (
     <Router>
       {/* <Header /> */}
+      <Navbar />
       <main >
         <Routes>
           {/*public Routes */}
@@ -97,7 +99,8 @@ function App() {
           <Route path="/chon-chuyen-bay-ve" element={<ChonChuyenBayVe/>}/>
           <Route path="/thong-tin-hanh-khach" element={<NhapThongTin/>}/>
           <Route path="/chon-dich-vu" element={<ChonDichVu/>}/>
-          <Route path="/thanh-toan" element={<DichVuKhac/>}/>
+          <Route path="/thanh-toan" element={<ThanhToan/>}/>
+          <Route path="/vnpay-callback" element={<VNPayCallback/>}/>
           
           {/*test api*/}
           <Route path="/test-api" element={<TestAPI/>}/>

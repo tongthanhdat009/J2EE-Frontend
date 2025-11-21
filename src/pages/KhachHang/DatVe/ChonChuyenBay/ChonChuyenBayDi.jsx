@@ -14,7 +14,6 @@ import { GoGoal } from 'react-icons/go';
 
 import HeaderTimKiemChuyen from "../../../../components/KhachHang/HeaderTimKiemChuyen"
 import ThongTinThanhToan from "../../../../components/KhachHang/ThongTinThanhToan"
-import Header from "../../../../components/KhachHang/Header"
 import DanhSachNgayBay from "../../../../components/KhachHang/DanhSachNgayBay";
 import Navbar from "../../../../components/common/Navbar";
 
@@ -66,7 +65,7 @@ function ChonChuyenBay() {
             if (type >= 1 && type <= 4) {
                 const key = `${id}_${type}`;
                 const hangVe = giaVes[key] || null;
-                setSelectedTuyenBayVe({ ...cb, hangVe: hangVe });
+                setSelectedTuyenBayDi({ ...cb, hangVe: hangVe });
             }
         }
     };

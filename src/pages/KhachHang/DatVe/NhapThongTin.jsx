@@ -1,12 +1,14 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ThongTinThanhToan from "../../../components/KhachHang/ThongTinThanhToan";
 import { formatCurrencyWithCommas } from "../../../services/utils";
-import Header from "../../../components/KhachHang/Header";
 import HeaderTimKiemChuyen from "../../../components/KhachHang/HeaderTimKiemChuyen";
 
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { FaUser } from "react-icons/fa";
+import { getAllCountries } from "../../../services/CountryService";
+import TaiKhoanService from "../../../services/TaiKhoanService";
+import { getClientUserEmail } from "../../../utils/cookieUtils";
 
 function NhapThongTin() {
     const location = useLocation();
@@ -27,8 +29,7 @@ function NhapThongTin() {
     const [passengerInfo, setPassengerInfo] = useState(
         Array(Number(formData.passengers)).fill({
             sex: "",
-            firstName: "",
-            lastName: "",
+            fullName: "",
             birthday: "",
             country: "",
             phone: "",
@@ -37,6 +38,70 @@ function NhapThongTin() {
             address: ""
         })
     );
+
+    // State cho countries và account info
+    const [countries, setCountries] = useState([]);
+    const [accountInfo, setAccountInfo] = useState(null);
+    const [useAccountInfo, setUseAccountInfo] = useState(false);
+
+    // Load countries và account info khi component mount
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                // Load countries
+                const countriesData = await getAllCountries();
+                setCountries(countriesData);
+
+                // Load account info nếu đã đăng nhập
+                const email = getClientUserEmail();
+                if (email) {
+                    const accountData = await TaiKhoanService.getTaiKhoanByEmail(email);
+                    setAccountInfo(accountData.data);
+                    console.log('Loaded account info:', accountData.data);
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        };
+        loadData();
+    }, []);
+
+    // Xử lý khi chọn sử dụng thông tin tài khoản
+    useEffect(() => {
+        if (useAccountInfo && accountInfo && accountInfo.hanhKhach) {
+            const hanhKhach = accountInfo.hanhKhach;
+            setPassengerInfo((prev) => {
+                const updated = [...prev];
+                updated[0] = {
+                    sex: hanhKhach.gioiTinh === 'Nam' ? 'male' : hanhKhach.gioiTinh === 'Nữ' ? 'female' : 'other',
+                    fullName: hanhKhach.hoVaTen || '',
+                    birthday: hanhKhach.ngaySinh ? hanhKhach.ngaySinh.split('T')[0] : '',
+                    country: hanhKhach.quocGia || '',
+                    phone: hanhKhach.soDienThoai || '',
+                    email: hanhKhach.email || accountInfo.email || '',
+                    idCard: hanhKhach.cccd || '',
+                    address: hanhKhach.diaChi || ''
+                };
+                return updated;
+            });
+        } else if (!useAccountInfo) {
+            // Reset thông tin hành khách đầu tiên nếu bỏ chọn
+            setPassengerInfo((prev) => {
+                const updated = [...prev];
+                updated[0] = {
+                    sex: "",
+                    fullName: "",
+                    birthday: "",
+                    country: "",
+                    phone: "",
+                    email: "",
+                    idCard: "",
+                    address: ""
+                };
+                return updated;
+            });
+        }
+    }, [useAccountInfo, accountInfo]);
 
     const handleChange = (index, field, value) => {
         setPassengerInfo((prev) => {
@@ -62,7 +127,6 @@ function NhapThongTin() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const phoneRegex = /^[0-9]{9,12}$/;
         const nameRegex = /^[a-zA-ZÀ-ỹ\s'-]{2,}$/;
-        const countryRegex = /^[a-zA-ZÀ-ỹ\s]{2,}$/;
         const idCardRegex = /^[A-Za-z0-9]{9,}$/;
 
         passengerInfo.forEach((p, i) => {
@@ -71,22 +135,16 @@ function NhapThongTin() {
             // Giới tính
             if (!p.sex) err.sex = "Vui lòng chọn giới tính";
 
-            // Họ tên
-            if (!p.firstName.trim()) err.firstName = "Vui lòng nhập họ";
-            else if (!nameRegex.test(p.firstName))
-                err.firstName = "Họ chỉ được chứa chữ cái và tối thiểu 2 ký tự";
-
-            if (!p.lastName.trim()) err.lastName = "Vui lòng nhập tên";
-            else if (!nameRegex.test(p.lastName))
-                err.lastName = "Tên chỉ được chứa chữ cái và tối thiểu 2 ký tự";
+            // Họ và tên
+            if (!p.fullName.trim()) err.fullName = "Vui lòng nhập họ và tên";
+            else if (!nameRegex.test(p.fullName))
+                err.fullName = "Họ và tên chỉ được chứa chữ cái và tối thiểu 2 ký tự";
 
             // Ngày sinh
             if (!p.birthday) err.birthday = "Vui lòng nhập ngày sinh";
 
             // Quốc gia
-            if (!p.country.trim()) err.country = "Vui lòng nhập quốc gia";
-            else if (!countryRegex.test(p.country))
-                err.country = "Quốc gia chỉ chứa chữ và tối thiểu 2 ký tự";
+            if (!p.country.trim()) err.country = "Vui lòng chọn quốc gia";
 
             // Số điện thoại
             if (!p.phone.trim()) err.phone = "Vui lòng nhập số điện thoại";
@@ -137,12 +195,11 @@ function NhapThongTin() {
     const tiepTucOnClick = () => {
         if (!validatePassengerInfo()) return;
 
-        navigate("/chon-dich-vu", { state: { ...formData, passengerInfo, state: 2 } });
+        navigate("/chon-dich-vu", { state: { ...formData, passengerInfo, state: 2, useAccountInfo } });
     };
 
     return (
         <div className="bg-blue-100 min-h-screen">
-            <Header />
             <HeaderTimKiemChuyen data={{ ...formData, state: 1 }} />
 
             <div className="px-32 mt-4 text-xl font-semibold">Thông tin hành khách</div>
@@ -168,6 +225,18 @@ function NhapThongTin() {
                             >
                                 <FaUser className="mr-2" />
                                 <div className="text-lg font-semibold">Hành khách {index + 1}</div>
+                                {index === 0 && accountInfo && (
+                                    <label className="ml-4 flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={useAccountInfo}
+                                            onChange={(e) => setUseAccountInfo(e.target.checked)}
+                                            className="mr-2"
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                        <span className="text-sm">Sử dụng thông tin tài khoản hiện tại</span>
+                                    </label>
+                                )}
                                 {expanded[index] ? (
                                     <IoMdArrowDropup className="ml-auto" />
                                 ) : (
@@ -186,7 +255,7 @@ function NhapThongTin() {
                                                 errors[index]?.sex ? "text-red-500" : ""
                                             }`}
                                         >
-                                            <label className="mr-6">
+                                            <label className={`mr-6 ${index === 0 && useAccountInfo ? "cursor-not-allowed opacity-50" : ""}`}>
                                                 <input
                                                     type="radio"
                                                     name={`sex_${index}`}
@@ -195,11 +264,12 @@ function NhapThongTin() {
                                                     onChange={(e) =>
                                                         handleChange(index, "sex", e.target.value)
                                                     }
+                                                    disabled={index === 0 && useAccountInfo}
                                                     className="mr-2"
                                                 />
                                                 Nam
                                             </label>
-                                            <label className="mr-6">
+                                            <label className={`mr-6 ${index === 0 && useAccountInfo ? "cursor-not-allowed opacity-50" : ""}`}>
                                                 <input
                                                     type="radio"
                                                     name={`sex_${index}`}
@@ -208,11 +278,12 @@ function NhapThongTin() {
                                                     onChange={(e) =>
                                                         handleChange(index, "sex", e.target.value)
                                                     }
+                                                    disabled={index === 0 && useAccountInfo}
                                                     className="mr-2"
                                                 />
                                                 Nữ
                                             </label>
-                                            <label>
+                                            <label className={index === 0 && useAccountInfo ? "cursor-not-allowed opacity-50" : ""}>
                                                 <input
                                                     type="radio"
                                                     name={`sex_${index}`}
@@ -221,6 +292,7 @@ function NhapThongTin() {
                                                     onChange={(e) =>
                                                         handleChange(index, "sex", e.target.value)
                                                     }
+                                                    disabled={index === 0 && useAccountInfo}
                                                     className="mr-2"
                                                 />
                                                 Khác
@@ -233,60 +305,32 @@ function NhapThongTin() {
                                         )}
                                     </div>
 
-                                    {/* Họ tên */}
+                                    {/* Họ và tên */}
                                     <div>
                                         <div className="font-semibold mb-2">Thông tin cá nhân</div>
-                                        <div className="flex gap-6">
-                                            <div className="w-full">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Họ"
-                                                    value={passengerInfo[index].firstName}
-                                                    onChange={(e) =>
-                                                        handleChange(
-                                                            index,
-                                                            "firstName",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className={`text-lg border-b w-full focus:outline-none ${
-                                                        errors[index]?.firstName
-                                                            ? "border-red-500"
-                                                            : "border-gray-300 hover:border-gray-500"
-                                                    }`}
-                                                />
-                                                {errors[index]?.firstName && (
-                                                    <div className="text-red-500 text-sm mt-1">
-                                                        {errors[index].firstName}
-                                                    </div>
-                                                )}
+                                        <input
+                                            type="text"
+                                            placeholder="Họ và tên"
+                                            value={passengerInfo[index].fullName}
+                                            onChange={(e) =>
+                                                handleChange(
+                                                    index,
+                                                    "fullName",
+                                                    e.target.value
+                                                )
+                                            }
+                                            disabled={index === 0 && useAccountInfo}
+                                            className={`text-lg border-b w-full focus:outline-none ${
+                                                errors[index]?.fullName
+                                                    ? "border-red-500"
+                                                    : "border-gray-300 hover:border-gray-500"
+                                            } ${index === 0 && useAccountInfo ? "bg-gray-100 cursor-not-allowed" : ""}`}
+                                        />
+                                        {errors[index]?.fullName && (
+                                            <div className="text-red-500 text-sm mt-1">
+                                                {errors[index].fullName}
                                             </div>
-
-                                            <div className="w-full">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Tên đệm & tên"
-                                                    value={passengerInfo[index].lastName}
-                                                    onChange={(e) =>
-                                                        handleChange(
-                                                            index,
-                                                            "lastName",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className={`text-lg border-b w-full focus:outline-none ${
-                                                        errors[index]?.lastName
-                                                            ? "border-red-500"
-                                                            : "border-gray-300 hover:border-gray-500"
-                                                    }`}
-                                                />
-                                                {errors[index]?.lastName && (
-                                                    <div className="text-red-500 text-sm mt-1">
-                                                        {errors[index].lastName}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
+                                        )}
                                     </div>
 
                                     {/* Ngày sinh + Quốc gia */}
@@ -304,11 +348,12 @@ function NhapThongTin() {
                                                             e.target.value
                                                         )
                                                     }
+                                                    disabled={index === 0 && useAccountInfo}
                                                     className={`text-lg border-b w-full focus:outline-none ${
                                                         errors[index]?.birthday
                                                             ? "border-red-500"
                                                             : "border-gray-300 hover:border-gray-500"
-                                                    }`}
+                                                    } ${index === 0 && useAccountInfo ? "bg-gray-100 cursor-not-allowed" : ""}`}
                                                 />
                                                 {errors[index]?.birthday && (
                                                     <div className="text-red-500 text-sm mt-1">
@@ -318,9 +363,7 @@ function NhapThongTin() {
                                             </div>
 
                                             <div className="w-full">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Quốc gia"
+                                                <select
                                                     value={passengerInfo[index].country}
                                                     onChange={(e) =>
                                                         handleChange(
@@ -329,12 +372,19 @@ function NhapThongTin() {
                                                             e.target.value
                                                         )
                                                     }
-                                                    className={`text-lg border-b w-full focus:outline-none ${
+                                                    className={`text-lg border-b w-full focus:outline-none bg-white ${
                                                         errors[index]?.country
                                                             ? "border-red-500"
                                                             : "border-gray-300 hover:border-gray-500"
                                                     }`}
-                                                />
+                                                >
+                                                    <option value="">Chọn quốc gia</option>
+                                                    {countries.map((country, idx) => (
+                                                        <option key={idx} value={country.name || country}>
+                                                            {country.name || country}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                                 {errors[index]?.country && (
                                                     <div className="text-red-500 text-sm mt-1">
                                                         {errors[index].country}
@@ -356,11 +406,12 @@ function NhapThongTin() {
                                                     onChange={(e) =>
                                                         handleChange(index, "phone", e.target.value)
                                                     }
+                                                    disabled={index === 0 && useAccountInfo}
                                                     className={`text-lg border-b w-full focus:outline-none ${
                                                         errors[index]?.phone
                                                             ? "border-red-500"
                                                             : "border-gray-300 hover:border-gray-500"
-                                                    }`}
+                                                    } ${index === 0 && useAccountInfo ? "bg-gray-100 cursor-not-allowed" : ""}`}
                                                 />
                                                 {errors[index]?.phone && (
                                                     <div className="text-red-500 text-sm mt-1">
@@ -371,17 +422,18 @@ function NhapThongTin() {
 
                                             <div className="w-full">
                                                 <input
-                                                    type="text"
+                                                    type="email"
                                                     placeholder="Email"
                                                     value={passengerInfo[index].email}
                                                     onChange={(e) =>
                                                         handleChange(index, "email", e.target.value)
                                                     }
+                                                    disabled={index === 0 && useAccountInfo}
                                                     className={`text-lg border-b w-full focus:outline-none ${
                                                         errors[index]?.email
                                                             ? "border-red-500"
                                                             : "border-gray-300 hover:border-gray-500"
-                                                    }`}
+                                                    } ${index === 0 && useAccountInfo ? "bg-gray-100 cursor-not-allowed" : ""}`}
                                                 />
                                                 {errors[index]?.email && (
                                                     <div className="text-red-500 text-sm mt-1">

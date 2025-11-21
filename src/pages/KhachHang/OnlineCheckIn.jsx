@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Navbar from "../../components/common/Navbar";
 
 function OnlineCheckIn() {
   const [bookingCode, setBookingCode] = useState("");
@@ -12,7 +11,6 @@ function OnlineCheckIn() {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-yellow-50 to-white py-12 px-4">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
