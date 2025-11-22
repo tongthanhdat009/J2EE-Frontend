@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom"
 import Home from "./pages/KhachHang/TrangChu"
 import Admin from "./pages/QuanLy/TrangChuAdmin"
 import LoginAdmin from "./pages/QuanLy/DangNhap"
@@ -41,12 +41,13 @@ import ThanhToan from "./pages/KhachHang/DatVe/ThanhToan"
 import VNPayCallback from "./pages/KhachHang/DatVe/VNPayCallback"
 import Navbar from "./components/common/Navbar"
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  const showNavbar = !location.pathname.startsWith('/admin');
   return (
-    <Router>
-      {/* <Header /> */}
-      <Navbar />
-      <main >
+    <>
+      {showNavbar && <Navbar />}
+      <main>
         <Routes>
           {/*public Routes */}
           <Route path="/" element={<Home />} />
@@ -132,6 +133,14 @@ function App() {
           </Route>
         </Routes>
       </main>
+    </>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   )
 }

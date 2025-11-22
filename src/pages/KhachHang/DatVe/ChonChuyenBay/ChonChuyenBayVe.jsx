@@ -15,7 +15,6 @@ import { GoGoal } from 'react-icons/go';
 import HeaderTimKiemChuyen from "../../../../components/KhachHang/HeaderTimKiemChuyen"
 import ThongTinThanhToan from "../../../../components/KhachHang/ThongTinThanhToan"
 import DanhSachNgayBay from "../../../../components/KhachHang/DanhSachNgayBay";
-import Navbar from "../../../../components/common/Navbar";
 
 function ChonChuyenBayVe() {
     const location = useLocation();
@@ -189,7 +188,6 @@ function ChonChuyenBayVe() {
 
     return (
         <div className="bg-blue-100 min-h-screen">
-            <Navbar/>
             <HeaderTimKiemChuyen data={{...formData, sanBayDi, sanBayDen}}/>
             <div className="px-32 flex gap-8">
                 <div className="w-2/3 flex flex-col mb-50">
