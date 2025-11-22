@@ -187,7 +187,15 @@ function ChonChuyenBayVe() {
     };
 
     return (
-        <div className="bg-blue-100 min-h-screen">
+        <div 
+            className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed relative"
+            style={{ backgroundImage: 'url(/background/home/bgBannerHomePage.72a61446.webp)' }}
+        >
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/70 via-pink-50/60 to-yellow-50/60"></div>
+            
+            {/* Content wrapper */}
+            <div className="relative z-10">
             <HeaderTimKiemChuyen data={{...formData, sanBayDi, sanBayDen}}/>
             <div className="px-32 flex gap-8">
                 <div className="w-2/3 flex flex-col mb-50">
@@ -494,6 +502,7 @@ function ChonChuyenBayVe() {
                     <span className="text-2xl font-bold">{selectedTuyenBayVe ? formatCurrencyWithCommas(calcTotalPrice())+" VND" : formatCurrencyWithCommas(formData.totalPrice)+" VND"}</span>
                 </div>
                 <span className="bg-gradient-to-bl from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center px-10 py-2 text-black cursor-pointer" onClick={() => tiepTucOnClick()}>Đi tiếp</span>
+            </div>
             </div>
         </div>
     )

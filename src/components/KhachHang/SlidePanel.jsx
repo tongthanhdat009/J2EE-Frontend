@@ -450,7 +450,14 @@ function ChoNgoiPanel({
                   key={item.maLuaChon}
                   className="bg-gray-50 p-4 rounded shadow w-full flex items-center mb-4 hover:shadow-lg transition-shadow"
                 >
-                  <div>
+                  {item.anh && (
+                    <img
+                      src={`http://localhost:8080/admin/dashboard/dichvu/luachon/anh/${item.anh}`}
+                      alt={item.tenLuaChon}
+                      className="w-20 h-20 rounded-lg mr-4 object-cover"
+                    />
+                  )}
+                  <div className="flex-1">
                     <span className="font-bold text-xl">{item.tenLuaChon}</span>
                     <span className="text-red-500 text-2xl block">
                       {item.gia} {item.currency || "VND"}

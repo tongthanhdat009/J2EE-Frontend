@@ -199,10 +199,11 @@ function NhapThongTin() {
     };
 
     return (
-        <div className="bg-blue-100 min-h-screen">
+        <div className="bg-blue-100 min-h-screen bg-no-repeat bg-cover bg-fixed"
+        style={{ backgroundImage: 'url(/background/home/bgBannerHomePage.72a61446.webp)' }}>
             <HeaderTimKiemChuyen data={{ ...formData, state: 1 }} />
 
-            <div className="px-32 mt-4 text-xl font-semibold">Thông tin hành khách</div>
+            <div className="px-32 mt-4 text-xl font-semibold text-white drop-shadow-lg">Thông tin hành khách</div>
 
             <div className="flex justify-between gap-8 mt-4 px-32 mb-20">
                 <div className="w-full">

@@ -104,7 +104,15 @@ function ThanhToan() {
     };
 
     return (
-        <div className="bg-blue-100 min-h-screen">
+        <div 
+            className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed relative"
+            style={{ backgroundImage: 'url(/background/home/bgBannerHomePage.72a61446.webp)' }}
+        >
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/70 via-pink-50/60 to-yellow-50/60"></div>
+            
+            {/* Content wrapper */}
+            <div className="relative z-10">
             <Navbar />
             <HeaderTimKiemChuyen data={{ ...formData }} />
 
@@ -281,6 +289,7 @@ function ThanhToan() {
                         </button>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     );

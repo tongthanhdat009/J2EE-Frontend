@@ -42,7 +42,7 @@ function ChonDichVu() {
         maDichVu: 99,
         tenDichVu: "Chọn chỗ ngồi",
         moTa: "Chọn chỗ ngồi yêu thích của bạn trên chuyến bay",
-        anh: "/images/99.png",
+        anh: "public/service/select-service_favorite-seat.cc6498ae.svg",
     };
 
     const tiepTucOnClick = () => {
@@ -91,7 +91,15 @@ function ChonDichVu() {
     };
 
     return (
-        <div className="bg-blue-100">
+        <div 
+            className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed relative"
+            style={{ backgroundImage: 'url(/background/home/bgBannerHomePage.72a61446.webp)' }}
+        >
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/70 via-pink-50/60 to-yellow-50/60"></div>
+            
+            {/* Content wrapper */}
+            <div className="relative z-10">
             {/* Panel */}
             <SlidePanel
                 formData={formData}
@@ -118,12 +126,10 @@ function ChonDichVu() {
                             onClick={() => handleOpenPanel(dichVuChonChoNgoi)}
                         >
                             <img
-                                src={`http://localhost:8080${dichVuChonChoNgoi.anh}`}
-                                alt={dichVuChonChoNgoi.tenDichVu}
-                                className="w-20 h-20 rounded-xl mr-6 w-1/5"
-                            />
-
-                            <div className="flex flex-col max-h-20 w-4/5 overflow-auto text-ml hide-scrollbar">
+                                    src={dichVuChonChoNgoi.anh}
+                                    alt={dichVuChonChoNgoi.tenDichVu}
+                                    className="w-20 h-20 rounded-xl mr-6"
+                                />                            <div className="flex flex-col max-h-20 w-4/5 overflow-auto text-ml hide-scrollbar">
                                 <div className="text-xl font-semibold text-gray-800">
                                     {dichVuChonChoNgoi.tenDichVu}
                                 </div>
@@ -141,9 +147,9 @@ function ChonDichVu() {
                                 onClick={() => handleOpenPanel(dichVu)}
                             >
                                 <img
-                                    src={`http://localhost:8080/anhdichvucungcap/${dichVu.anh}`}
+                                    src={`http://localhost:8080/AnhDichVuCungCap/${dichVu.anh}`}
                                     alt={dichVu.tenDichVu}
-                                    className="w-20 h-20 rounded-xl mr-6 w-1/5"
+                                    className="w-20 h-20 rounded-xl mr-6"
                                 />
                                 <div className="flex flex-col max-h-20 w-4/5 overflow-auto text-ml hide-scrollbar">
                                     <div className="text-xl font-semibold text-gray-800">
@@ -183,6 +189,7 @@ function ChonDichVu() {
                 >
                     Đi tiếp
                 </span>
+            </div>
             </div>
         </div>
     );

@@ -308,8 +308,8 @@ function LichSuGiaoDich() {
           <div className="flex-1">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Lịch sử giao dịch</h1>
-          <p className="text-gray-600">Xem lại các giao dịch thanh toán của bạn</p>
+          <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">Lịch sử giao dịch</h1>
+          <p className="text-white drop-shadow-md">Xem lại các giao dịch thanh toán của bạn</p>
         </div>
 
         {/* Filters */}

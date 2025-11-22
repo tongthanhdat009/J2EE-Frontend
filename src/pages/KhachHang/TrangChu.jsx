@@ -51,7 +51,7 @@ function TrangChu() {
               <svg viewBox="0 0 2 2" className="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true"><circle cx="1" cy="1" r="1" /></svg>
               Giảm giá lên đến 30% cho tất cả các chuyến bay. Đặt vé ngay hôm nay!
             </p>
-            <a href="/chuyen-bay" className="flex-none rounded-full bg-yellow-400 px-3.5 py-1 text-sm font-semibold text-gray-900 shadow-sm hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400 transition-all">
+            <a href="/" className="flex-none rounded-full bg-yellow-400 px-3.5 py-1 text-sm font-semibold text-gray-900 shadow-sm hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400 transition-all">
               Đặt vé ngay <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
@@ -173,7 +173,7 @@ function TrangChu() {
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                 {/* Đặt chuyến bay */}
-                <a href="/chuyen-bay" className="flex flex-col items-center p-6 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
+                <a href="/" className="flex flex-col items-center p-6 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
                   <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4 p-3">
                     <img src="/service/booking-1634319183743.svg" alt="Đặt chuyến bay" className="w-full h-full" />
                   </div>

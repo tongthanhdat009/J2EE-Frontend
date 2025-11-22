@@ -194,7 +194,7 @@ function CaNhan() {
                   </button>
                   
                   <button
-                    onClick={() => navigate('/dat-ve')}
+                    onClick={() => navigate('/')}
                     className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition shadow-md"
                   >
                     <span className="text-xl">🎫</span>

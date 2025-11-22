@@ -222,8 +222,8 @@ function QuanLyChuyenBay() {
           <div className="flex-1">
             {/* Header */}
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Quản lý chuyến bay</h1>
-              <p className="text-gray-600">Xem và quản lý các chuyến bay đã đặt của bạn</p>
+              <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">Quản lý chuyến bay</h1>
+              <p className="text-white drop-shadow-md">Xem và quản lý các chuyến bay đã đặt của bạn</p>
             </div>
 
             {/* Filters */}
