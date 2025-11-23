@@ -303,10 +303,8 @@ function TrangChu() {
                     </div>
                   </div>
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
-                    <a href="/chuyen-bay?destination=tphcm">
-                      <span className="absolute inset-0"></span>
-                      {t('destinations.tphcm.title')}
-                    </a>
+                    <span className="absolute inset-0"></span>
+                    {t('destinations.tphcm.title')}
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
                     {t('destinations.tphcm.desc')}
@@ -331,10 +329,8 @@ function TrangChu() {
                     </div>
                   </div>
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
-                    <a href="/chuyen-bay?destination=hanoi">
-                      <span className="absolute inset-0"></span>
-                      {t('destinations.hanoi.title')}
-                    </a>
+                    <span className="absolute inset-0"></span>
+                    {t('destinations.hanoi.title')}
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
                     {t('destinations.hanoi.desc')}
@@ -359,10 +355,8 @@ function TrangChu() {
                     </div>
                   </div>
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
-                    <a href="/chuyen-bay?destination=danang">
-                      <span className="absolute inset-0"></span>
-                      {t('destinations.danang.title')}
-                    </a>
+                    <span className="absolute inset-0"></span>
+                    {t('destinations.danang.title')}
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
                     {t('destinations.danang.desc')}
@@ -387,10 +381,8 @@ function TrangChu() {
                     </div>
                   </div>
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
-                    <a href="/chuyen-bay?destination=phuquoc">
-                      <span className="absolute inset-0"></span>
-                      {t('destinations.phuquoc.title')}
-                    </a>
+                    <span className="absolute inset-0"></span>
+                    {t('destinations.phuquoc.title')}
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
                     {t('destinations.phuquoc.desc')}
@@ -415,10 +407,8 @@ function TrangChu() {
                     </div>
                   </div>
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
-                    <a href="/chuyen-bay?destination=nhatrang">
-                      <span className="absolute inset-0"></span>
-                      {t('destinations.nhatrang.title')}
-                    </a>
+                    <span className="absolute inset-0"></span>
+                    {t('destinations.nhatrang.title')}
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
                     {t('destinations.nhatrang.desc')}
@@ -443,10 +433,8 @@ function TrangChu() {
                     </div>
                   </div>
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
-                    <a href="/chuyen-bay?destination=dalat">
-                      <span className="absolute inset-0"></span>
-                      {t('destinations.dalat.title')}
-                    </a>
+                    <span className="absolute inset-0"></span>
+                    {t('destinations.dalat.title')}
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
                     {t('destinations.dalat.desc')}

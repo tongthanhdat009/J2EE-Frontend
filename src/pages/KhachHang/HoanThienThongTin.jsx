@@ -18,6 +18,10 @@ function HoanThienThongTin() {
     quocGia: 'Vietnam'
   });
 
+  const [countries, setCountries] = useState([]);
+  const [countriesLoading, setCountriesLoading] = useState(true);
+  const [countriesError, setCountriesError] = useState('');
+
   useEffect(() => {
     
     const fetchAccountInfo = async () => {
@@ -63,8 +67,52 @@ function HoanThienThongTin() {
     fetchAccountInfo();
   }, [navigate]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    const fetchCountries = async () => {
+      setCountriesLoading(true);
+      try {
+        const res = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2', { signal: controller.signal });
+        if (!res.ok) throw new Error('Network response was not ok');
+        const data = await res.json();
+        const list = data
+          .map(c => ({ code: c.cca2 || c.ccn3 || c.cioc || c.name.common, name: c.name?.common || '' }))
+          .filter(c => c.name)
+          .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+        setCountries(list);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Error fetching countries', err);
+          setCountriesError('Không thể tải danh sách quốc gia');
+        }
+      } finally {
+        setCountriesLoading(false);
+      }
+    };
+
+    fetchCountries();
+    return () => controller.abort();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Validate họ tên - chỉ cho phép chữ cái, khoảng trắng và dấu tiếng Việt
+    if (name === 'hoVaTen') {
+      const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ ]*$/;
+      if (value && !nameRegex.test(value)) {
+        return; // Không cập nhật nếu có ký tự đặc biệt
+      }
+    }
+    
+    // Validate số điện thoại - chỉ cho phép số
+    if (name === 'soDienThoai') {
+      const phoneRegex = /^[0-9]*$/;
+      if (value && !phoneRegex.test(value)) {
+        return; // Không cập nhật nếu có ký tự không phải số
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -80,14 +128,26 @@ function HoanThienThongTin() {
       setError('Vui lòng nhập họ và tên');
       return;
     }
+    
+    // Kiểm tra họ tên không chứa ký tự đặc biệt
+    const nameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ ]+$/;
+    if (!nameRegex.test(formData.hoVaTen.trim())) {
+      setError('Họ và tên không được chứa ký tự đặc biệt, chỉ bao gồm chữ cái và khoảng trắng');
+      return;
+    }
+    
     if (!formData.soDienThoai.trim()) {
       setError('Vui lòng nhập số điện thoại');
       return;
     }
-    if (!/^[0-9]{10,11}$/.test(formData.soDienThoai)) {
-      setError('Số điện thoại không hợp lệ (10-11 số)');
+    
+    // Kiểm tra số điện thoại: 10 số, bắt đầu bằng 0
+    const phoneRegex = /^0[0-9]{9}$/;
+    if (!phoneRegex.test(formData.soDienThoai)) {
+      setError('Số điện thoại không hợp lệ. Vui lòng nhập 10 số, bắt đầu bằng 0 (VD: 0912345678)');
       return;
     }
+    
     if (!formData.ngaySinh) {
       setError('Vui lòng chọn ngày sinh');
       return;
@@ -179,7 +239,9 @@ function HoanThienThongTin() {
                       onChange={handleChange}
                       className="w-full py-3 pl-11 pr-4 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(220,38,38,0.1)]"
                       placeholder="Nguyễn Văn A"
+                      title="Chỉ được nhập chữ cái và khoảng trắng"
                     />
+                    <p className="mt-1 text-xs text-gray-500">💡 Chỉ bao gồm chữ cái và khoảng trắng, không có ký tự đặc biệt</p>
                   </div>
                 </div>
 
@@ -195,9 +257,12 @@ function HoanThienThongTin() {
                       name="soDienThoai"
                       value={formData.soDienThoai}
                       onChange={handleChange}
+                      maxLength="10"
                       className="w-full py-3 pl-11 pr-4 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(220,38,38,0.1)]"
                       placeholder="0912345678"
+                      title="Nhập 10 số, bắt đầu bằng 0"
                     />
+                    <p className="mt-1 text-xs text-gray-500">💡 Nhập 10 số, bắt đầu bằng 0 (VD: 0912345678)</p>
                   </div>
                 </div>
 
@@ -244,14 +309,23 @@ function HoanThienThongTin() {
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg">🌍</span>
-                    <input
-                      type="text"
-                      name="quocGia"
-                      value={formData.quocGia}
-                      onChange={handleChange}
-                      className="w-full py-3 pl-11 pr-4 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(220,38,38,0.1)]"
-                      placeholder="Vietnam"
-                    />
+                    {countriesLoading ? (
+                      <div className="w-full py-3 pl-11 pr-4 border-2 border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500">Đang tải danh sách quốc gia...</div>
+                    ) : countriesError ? (
+                      <div className="w-full py-3 pl-11 pr-4 border-2 border-gray-200 rounded-lg text-sm bg-gray-50 text-red-600">{countriesError}</div>
+                    ) : (
+                      <select
+                        name="quocGia"
+                        value={formData.quocGia}
+                        onChange={handleChange}
+                        className="w-full py-3 pl-11 pr-4 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white"
+                      >
+                        <option value="">-- Chọn quốc gia --</option>
+                        {countries.map(c => (
+                          <option key={c.code} value={c.name}>{c.name}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                 </div>
               </div>
