@@ -21,7 +21,7 @@ const ThongKeDoanhThu = () => {
     const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' });
 
     // State cho bộ lọc thời gian
-    const [timeRange, setTimeRange] = useState('7days'); // Đổi về mặc định 7days
+    const [timeRange, setTimeRange] = useState('30days'); // Mặc định 30 ngày qua
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
 

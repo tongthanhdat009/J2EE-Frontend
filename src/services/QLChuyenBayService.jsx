@@ -80,3 +80,13 @@ export const updateCancel = (cancelData) => {
         throw error;
     }
 };
+
+export const addGheToChuyenBay = async (maChuyenBay, soGheTheoHangVe) => {
+    try {
+        const response = await apiClient.post(`/admin/dashboard/chuyenbay/${maChuyenBay}/ghe`, soGheTheoHangVe);
+        return response.data;
+    } catch (error) {
+        console.error('Error adding seats to flight:', error);
+        throw error;
+    }
+};

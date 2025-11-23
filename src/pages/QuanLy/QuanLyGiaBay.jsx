@@ -42,8 +42,17 @@ const QuanLyGiaBay = () => {
                 getAllGiaChuyenBay(),
                 getAllTuyenBay()
             ]);
-            setPrices(pricesRes.data || []);
-            setRoutes(routesRes.data || []);
+            
+            // Xử lý dữ liệu giá - có thể nằm trong data hoặc data.data
+            const pricesData = pricesRes.data?.data || pricesRes.data || [];
+            // Xử lý dữ liệu tuyến bay - getAllTuyenBay đã trả về data trực tiếp
+            const routesData = routesRes.data || routesRes || [];
+            
+            console.log('Prices fetched:', pricesData);
+            console.log('Routes fetched:', routesData);
+            
+            setPrices(Array.isArray(pricesData) ? pricesData : []);
+            setRoutes(Array.isArray(routesData) ? routesData : []);
         } catch (err) {
             console.error('Error fetching data:', err);
             showToast('Không thể tải dữ liệu. Vui lòng thử lại.', 'error');
@@ -62,11 +71,13 @@ const QuanLyGiaBay = () => {
                 getAllTuyenBay()
             ]);
             
-            const updatedPrices = pricesRes.data || [];
-            const updatedRoutes = routesRes.data || [];
+            // Xử lý dữ liệu giá - có thể nằm trong data hoặc data.data
+            const updatedPrices = pricesRes.data?.data || pricesRes.data || [];
+            // Xử lý dữ liệu tuyến bay - getAllTuyenBay đã trả về data trực tiếp
+            const updatedRoutes = routesRes.data || routesRes || [];
             
-            setPrices(updatedPrices);
-            setRoutes(updatedRoutes);
+            setPrices(Array.isArray(updatedPrices) ? updatedPrices : []);
+            setRoutes(Array.isArray(updatedRoutes) ? updatedRoutes : []);
             
             // Cập nhật selectedRoute với dữ liệu mới
             const updatedRoute = groupedPricesByRoute.find(r => r.maTuyenBay === selectedRoute.maTuyenBay);
@@ -92,8 +103,15 @@ const QuanLyGiaBay = () => {
     const groupedPricesByRoute = useMemo(() => {
         const grouped = {};
         
+        // Đảm bảo routes và prices là array
+        const routesArray = Array.isArray(routes) ? routes : [];
+        const pricesArray = Array.isArray(prices) ? prices : [];
+        
+        console.log('groupedPricesByRoute - routesArray:', routesArray.length);
+        console.log('groupedPricesByRoute - pricesArray:', pricesArray.length);
+        
         // Khởi tạo tất cả tuyến bay từ danh sách routes
-        routes.forEach(route => {
+        routesArray.forEach(route => {
             grouped[route.maTuyenBay] = {
                 maTuyenBay: route.maTuyenBay,
                 tuyenBay: route,
@@ -105,7 +123,7 @@ const QuanLyGiaBay = () => {
         });
         
         // Thêm giá vào các tuyến bay tương ứng
-        prices.forEach(price => {
+        pricesArray.forEach(price => {
             const routeId = price.tuyenBay?.maTuyenBay;
             if (!routeId || !grouped[routeId]) return;
             
@@ -121,7 +139,9 @@ const QuanLyGiaBay = () => {
             }
         });
         
-        return Object.values(grouped);
+        const result = Object.values(grouped);
+        console.log('groupedPricesByRoute result:', result);
+        return result;
     }, [prices, routes]);
 
     const filteredRoutes = useMemo(() => {
@@ -175,6 +195,8 @@ const QuanLyGiaBay = () => {
     };
 
     const handleViewDetail = (routeData) => {
+        console.log('handleViewDetail - routeData:', routeData);
+        console.log('handleViewDetail - routeData.prices:', routeData.prices);
         setSelectedRoute(routeData);
         setExpandedClassId(null);
         setIsDetailModalOpen(true);

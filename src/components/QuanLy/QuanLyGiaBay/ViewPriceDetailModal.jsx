@@ -30,6 +30,8 @@ const ViewPriceDetailModal = ({
     const groupPricesByClass = (prices) => {
         const grouped = {};
         
+        console.log('ViewPriceDetailModal - groupPricesByClass input prices:', prices);
+        
         prices.forEach(price => {
             const classId = price.hangVe?.maHangVe;
             if (!classId) return;
@@ -53,7 +55,9 @@ const ViewPriceDetailModal = ({
             grouped[classId].avgPrice = grouped[classId].totalPrice / grouped[classId].count;
         });
         
-        return Object.values(grouped);
+        const result = Object.values(grouped);
+        console.log('ViewPriceDetailModal - groupPricesByClass result:', result);
+        return result;
     };
 
     const handleRefresh = async () => {

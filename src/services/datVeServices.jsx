@@ -73,6 +73,7 @@ export const getLuaChonByDichVuId = async (dichVuId) => {
 export const kiemTraConGhe = async (maChuyenBay, maHangVe, soLuongNguoi) => {
     try {
         const response = await apiClient.get(`/api/sanbay/${maChuyenBay}/hang-ve/${maHangVe}/${soLuongNguoi}`);
+        console.log(response);
         return response.data;
     } catch (error) {
         console.error("Lỗi khi kiểm tra còn ghế", error);

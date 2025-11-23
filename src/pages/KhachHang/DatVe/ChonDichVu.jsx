@@ -6,10 +6,10 @@ import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 
 import { formatCurrencyWithCommas } from "../../../services/utils";
 import { getAllDichVuCungCapByChuyenBay } from "../../../services/datVeServices";
+import { getDichVuByChuyenBay } from "../../../services/QLDichVuChuyenBayService";
 import SlidePanel from "../../../components/KhachHang/SlidePanel";
 import ThongTinThanhToan from "../../../components/KhachHang/ThongTinThanhToan";
 import HeaderTimKiemChuyen from "../../../components/KhachHang/HeaderTimKiemChuyen";
-import Navbar from "../../../components/common/Navbar";
 
 function ChonDichVu() {
     const { t } = useTranslation();
@@ -69,13 +69,37 @@ function ChonDichVu() {
     useEffect(() => {
         const fetchDichVuCungCap = async () => {
             try {
-                const res = await getAllDichVuCungCapByChuyenBay(
+                // Lấy dịch vụ cho chuyến bay đi
+                const resDi = await getDichVuByChuyenBay(
                     formData.selectedTuyenBayDi.maChuyenBay
                 );
+                console.log("Dịch vụ chuyến bay đi:", resDi.data);
 
-                setDichVuCungCapList(res.data || []);
+                let allDichVu = resDi.data?.data || resDi.data || [];
+
+                // Nếu là chuyến bay khứ hồi, lấy thêm dịch vụ cho chuyến bay về
+                if (formData.flightType === 'round' && formData.selectedTuyenBayVe) {
+                    const resVe = await getDichVuByChuyenBay(
+                        formData.selectedTuyenBayVe.maChuyenBay
+                    );
+                    console.log("Dịch vụ chuyến bay về:", resVe.data);
+                    
+                    const dichVuVe = resVe.data?.data || resVe.data || [];
+                    
+                    // Gộp 2 danh sách và loại bỏ trùng lặp dựa trên maDichVu
+                    const dichVuMap = new Map();
+                    [...allDichVu, ...dichVuVe].forEach(dv => {
+                        if (dv && dv.maDichVu) {
+                            dichVuMap.set(dv.maDichVu, dv);
+                        }
+                    });
+                    allDichVu = Array.from(dichVuMap.values());
+                }
+
+                setDichVuCungCapList(Array.isArray(allDichVu) ? allDichVu : []);
             } catch (error) {
-                console.error("Lỗi khi lấy danh sách dịch vụ cung cấp", error);
+                console.error("Lỗi khi lấy danh sách dịch vụ đã gán cho chuyến bay", error);
+                setDichVuCungCapList([]);
             }
         };
 

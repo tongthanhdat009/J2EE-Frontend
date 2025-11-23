@@ -132,15 +132,24 @@ function ChonChuyenBay() {
         for (let hangVeId = 1; hangVeId <= 4; hangVeId++) {
             try {
             const res = await getGiaVe(cb.maChuyenBay, hangVeId);
-            if (res.success && res.data) {
-                giaMap[`${cb.maChuyenBay}_${hangVeId}`] = res.data;
+            console.log(`[DEBUG] Response giá vé chuyến ${cb.maChuyenBay}, hạng ${hangVeId}:`, res);
+            
+            // Xử lý cả 2 trường hợp: res.data hoặc res.data.data
+            const giaData = res.data?.data || res.data;
+            
+            if (giaData && giaData.giaVe != null) {
+                console.log(`[DEBUG] ✅ Lưu giá: ${giaData.giaVe} VND cho key ${cb.maChuyenBay}_${hangVeId}`);
+                giaMap[`${cb.maChuyenBay}_${hangVeId}`] = giaData;
+            } else {
+                console.log(`[DEBUG] ❌ Không có dữ liệu giá vé hợp lệ`, giaData);
             }
             } catch (err) {
-            console.error(`Lỗi lấy giá vé cho chuyến ${cb.maChuyenBay}, hạng ${hangVeId}`, err);
+            console.error(`[DEBUG] ❌ Lỗi lấy giá vé cho chuyến ${cb.maChuyenBay}, hạng ${hangVeId}`, err);
             }
         }
         }
 
+        console.log("[DEBUG] Tất cả giá vé đã lưu vào giaMap:", giaMap);
         setGiaVes(giaMap);
     };
 
@@ -150,7 +159,17 @@ function ChonChuyenBay() {
     const hienThiGiaVe = (maChuyenBay, hangVeId, cb) => {
         const key = `${maChuyenBay}_${hangVeId}`;
         const gia = giaVes[key];
-        const hetCho = !gia || !gia.giaVe || soGheCon[key] === false;
+        const giaVeValue = gia?.giaVe;
+        const conGhe = soGheCon[key];
+        const hetCho = !gia || giaVeValue == null || giaVeValue === '' || conGhe === false;
+        
+        console.log(`[DEBUG] Hiển thị giá - Chuyến: ${maChuyenBay}, Hạng: ${hangVeId}`);
+        console.log(`[DEBUG] - Key: ${key}`);
+        console.log(`[DEBUG] - Giá data:`, gia);
+        console.log(`[DEBUG] - Giá vé value:`, giaVeValue, typeof giaVeValue);
+        console.log(`[DEBUG] - Ghế còn:`, conGhe, typeof conGhe);
+        console.log(`[DEBUG] - Hết chỗ?:`, hetCho);
+        
         if (hetCho) {
             return (
             <div className={`bg-gray-100 flex flex-col items-center justify-center ${ hangVeId===1 ? '' : 'border-r-[1px]'}`}>

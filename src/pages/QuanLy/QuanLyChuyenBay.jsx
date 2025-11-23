@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Card from '../../components/QuanLy/CardChucNang';
 import { FaPlus, FaSearch, FaPlane, FaEdit, FaEye } from 'react-icons/fa';
-import { getAllChuyenBay, createChuyenBay, updateChuyenBay, updateTrangThaiChuyenBay, updateDelay, updateCancel } from '../../services/QLChuyenBayService';
+import { getAllChuyenBay, createChuyenBay, updateChuyenBay, updateTrangThaiChuyenBay, updateDelay, updateCancel, addGheToChuyenBay } from '../../services/QLChuyenBayService';
 import { getAllTuyenBay } from '../../services/QLTuyenBayService';
 import { getActiveSanBay } from '../../services/QLSanBayService';
+import { getAllServices } from '../../services/QLDichVuService';
+import { getDichVuByChuyenBay, addDichVuToChuyenBay, removeDichVuFromChuyenBay } from '../../services/QLDichVuChuyenBayService';
 import EditFlightModal from '../../components/QuanLy/QuanLyChuyenBay/EditFlightModal';
 import DelayFlightModal from '../../components/QuanLy/QuanLyChuyenBay/DelayFlightModal';
 import CancelFlightModal from '../../components/QuanLy/QuanLyChuyenBay/CancelFlightModal';
@@ -16,6 +18,8 @@ const QuanLyChuyenBay = () => {
     const [airports, setAirports] = useState([]);
     const [routes, setRoutes] = useState([]);
     const [flights, setFlights] = useState([]);
+    const [services, setServices] = useState([]);
+    const [selectedServices, setSelectedServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,14 +46,16 @@ const QuanLyChuyenBay = () => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const [flightsRes, routesRes, airportsRes] = await Promise.all([
+                const [flightsRes, routesRes, airportsRes, servicesRes] = await Promise.all([
                     getAllChuyenBay(),
                     getAllTuyenBay(),
-                    getActiveSanBay()
+                    getActiveSanBay(),
+                    getAllServices()
                 ]);
                 setFlights(flightsRes.data.data || []);
                 setRoutes(routesRes.data.data || []);
                 setAirports(airportsRes.data.data || []);
+                setServices(servicesRes.data?.data || servicesRes.data || []);
             } catch (err) {
                 setError('Không thể tải dữ liệu. Vui lòng thử lại.');
                 console.error('Error fetching data:', err);
@@ -114,7 +120,7 @@ const QuanLyChuyenBay = () => {
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     // --- MODAL HANDLERS ---
-    const handleOpenModal = (flight = null) => {
+    const handleOpenModal = async (flight = null) => {
         // Nếu chuyến bay có trạng thái Delay, mở DelayModal
         if (flight && flight.trangThai === 'Delay') {
             setDelayFlightId(flight.maChuyenBay);
@@ -134,16 +140,40 @@ const QuanLyChuyenBay = () => {
         } : {
             maTuyenBay: '', soHieuChuyenBay: '', ngayDi: '', gioDi: '', ngayDen: '', gioDen: ''
         });
+        
+        // Nếu là sửa chuyến bay, load dịch vụ đã gán
+        if (flight) {
+            try {
+                const servicesRes = await getDichVuByChuyenBay(flight.maChuyenBay);
+                const flightServices = servicesRes.data?.data || servicesRes.data || [];
+                setSelectedServices(flightServices.map(s => s.maDichVu));
+            } catch (error) {
+                console.error('Error fetching flight services:', error);
+                setSelectedServices([]);
+            }
+        } else {
+            setSelectedServices([]);
+        }
+        
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setCurrentFlight(null);
+        setSelectedServices([]);
     };
 
     const handleFormChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleServiceChange = (maDichVu) => {
+        setSelectedServices(prev => 
+            prev.includes(maDichVu) 
+                ? prev.filter(id => id !== maDichVu)
+                : [...prev, maDichVu]
+        );
     };
 
     const showToast = (message, type = 'success') => {
@@ -171,11 +201,33 @@ const QuanLyChuyenBay = () => {
             };
             
             if (currentFlight) {
+                // Cập nhật chuyến bay
                 await updateChuyenBay(flightDataDi);
+                
+                // Cập nhật dịch vụ cho chuyến bay
+                await updateFlightServices(currentFlight.maChuyenBay, selectedServices);
+                
                 showToast('Cập nhật chuyến bay thành công!', 'success');
             } else {
                 // Tạo chuyến bay đi
-                await createChuyenBay(flightDataDi);
+                const createdFlightDi = await createChuyenBay(flightDataDi);
+                const maChuyenBayDi = createdFlightDi.data?.data?.maChuyenBay || createdFlightDi.data?.maChuyenBay;
+                
+                // Thêm ghế cho chuyến bay đi
+                if (maChuyenBayDi) {
+                    const soGheData = {
+                        soGheEconomy: parseInt(formData.soGheEconomy) || 0,
+                        soGheDeluxe: parseInt(formData.soGheDeluxe) || 0,
+                        soGheBusiness: parseInt(formData.soGheBusiness) || 0,
+                        soGheFirstClass: parseInt(formData.soGheFirstClass) || 0
+                    };
+                    await addGheToChuyenBay(maChuyenBayDi, soGheData);
+                }
+                
+                // Gán dịch vụ cho chuyến bay đi
+                if (maChuyenBayDi && selectedServices.length > 0) {
+                    await assignServicesToFlight(maChuyenBayDi, selectedServices);
+                }
                 
                 // Nếu là khứ hồi, tạo thêm chuyến bay về
                 if (loaiChuyenBay === 'khu-hoi') {
@@ -199,7 +251,25 @@ const QuanLyChuyenBay = () => {
                         tuyenBay: returnRoute
                     };
                     
-                    await createChuyenBay(flightDataVe);
+                    const createdFlightVe = await createChuyenBay(flightDataVe);
+                    const maChuyenBayVe = createdFlightVe.data?.data?.maChuyenBay || createdFlightVe.data?.maChuyenBay;
+                    
+                    // Thêm ghế cho chuyến bay về
+                    if (maChuyenBayVe) {
+                        const soGheData = {
+                            soGheEconomy: parseInt(formData.soGheEconomy) || 0,
+                            soGheDeluxe: parseInt(formData.soGheDeluxe) || 0,
+                            soGheBusiness: parseInt(formData.soGheBusiness) || 0,
+                            soGheFirstClass: parseInt(formData.soGheFirstClass) || 0
+                        };
+                        await addGheToChuyenBay(maChuyenBayVe, soGheData);
+                    }
+                    
+                    // Gán dịch vụ cho chuyến bay về
+                    if (maChuyenBayVe && selectedServices.length > 0) {
+                        await assignServicesToFlight(maChuyenBayVe, selectedServices);
+                    }
+                    
                     showToast('Thêm mới chuyến bay khứ hồi thành công!', 'success');
                 } else {
                     showToast('Thêm mới chuyến bay thành công!', 'success');
@@ -213,6 +283,44 @@ const QuanLyChuyenBay = () => {
         } catch (err) {
             console.error('Error saving flight:', err);
             showToast('Có lỗi xảy ra khi lưu chuyến bay. Vui lòng thử lại.', 'error');
+        }
+    };
+
+    // Hàm gán dịch vụ cho chuyến bay mới
+    const assignServicesToFlight = async (maChuyenBay, serviceIds) => {
+        for (const maDichVu of serviceIds) {
+            try {
+                await addDichVuToChuyenBay(maChuyenBay, maDichVu);
+            } catch (error) {
+                console.error(`Error assigning service ${maDichVu} to flight ${maChuyenBay}:`, error);
+            }
+        }
+    };
+
+    // Hàm cập nhật dịch vụ cho chuyến bay hiện tại
+    const updateFlightServices = async (maChuyenBay, newServiceIds) => {
+        try {
+            // Lấy danh sách dịch vụ hiện tại
+            const servicesRes = await getDichVuByChuyenBay(maChuyenBay);
+            const currentServices = servicesRes.data?.data || servicesRes.data || [];
+            const currentServiceIds = currentServices.map(s => s.maDichVu);
+            
+            // Xóa các dịch vụ không còn được chọn
+            for (const maDichVu of currentServiceIds) {
+                if (!newServiceIds.includes(maDichVu)) {
+                    await removeDichVuFromChuyenBay(maChuyenBay, maDichVu);
+                }
+            }
+            
+            // Thêm các dịch vụ mới
+            for (const maDichVu of newServiceIds) {
+                if (!currentServiceIds.includes(maDichVu)) {
+                    await addDichVuToChuyenBay(maChuyenBay, maDichVu);
+                }
+            }
+        } catch (error) {
+            console.error('Error updating flight services:', error);
+            throw error;
         }
     };
 
@@ -482,37 +590,90 @@ const QuanLyChuyenBay = () => {
                         Hiển thị <span className="font-bold text-blue-600">{indexOfFirstItem + 1}</span> đến <span className="font-bold text-blue-600">{Math.min(indexOfLastItem, filteredFlights.length)}</span> của <span className="font-bold text-blue-600">{filteredFlights.length}</span> kết quả
                     </span>
                     <nav>
-                        <ul className="flex gap-2">
+                        <ul className="flex gap-1">
                             <li>
                                 <button
                                     onClick={() => paginate(currentPage - 1)}
                                     disabled={currentPage === 1}
-                                    className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm"
+                                    className="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm text-sm"
                                 >
-                                    ← Trước
+                                    Trước
                                 </button>
                             </li>
-                            {[...Array(totalPages)].map((_, index) => (
-                                <li key={index}>
-                                    <button
-                                        onClick={() => paginate(index + 1)}
-                                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                                            currentPage === index + 1
-                                                ? 'bg-blue-600 text-white shadow-lg'
-                                                : 'bg-white border border-gray-300 hover:bg-gray-100'
-                                        }`}
-                                    >
-                                        {index + 1}
-                                    </button>
-                                </li>
-                            ))}
+                            
+                            {/* Trang đầu */}
+                            {currentPage > 3 && (
+                                <>
+                                    <li>
+                                        <button
+                                            onClick={() => paginate(1)}
+                                            className="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 font-medium transition-all text-sm"
+                                        >
+                                            1
+                                        </button>
+                                    </li>
+                                    {currentPage > 4 && (
+                                        <li className="flex items-center px-2">
+                                            <span className="text-gray-400">...</span>
+                                        </li>
+                                    )}
+                                </>
+                            )}
+
+                            {/* Các trang xung quanh trang hiện tại */}
+                            {[...Array(totalPages)].map((_, index) => {
+                                const pageNum = index + 1;
+                                if (
+                                    pageNum === currentPage ||
+                                    pageNum === currentPage - 1 ||
+                                    pageNum === currentPage + 1 ||
+                                    (currentPage <= 2 && pageNum <= 3) ||
+                                    (currentPage >= totalPages - 1 && pageNum >= totalPages - 2)
+                                ) {
+                                    return (
+                                        <li key={index}>
+                                            <button
+                                                onClick={() => paginate(pageNum)}
+                                                className={`px-3 py-2 rounded-lg font-medium transition-all text-sm ${
+                                                    currentPage === pageNum
+                                                        ? 'bg-blue-600 text-white shadow-lg'
+                                                        : 'bg-white border border-gray-300 hover:bg-gray-100'
+                                                }`}
+                                            >
+                                                {pageNum}
+                                            </button>
+                                        </li>
+                                    );
+                                }
+                                return null;
+                            })}
+
+                            {/* Trang cuối */}
+                            {currentPage < totalPages - 2 && (
+                                <>
+                                    {currentPage < totalPages - 3 && (
+                                        <li className="flex items-center px-2">
+                                            <span className="text-gray-400">...</span>
+                                        </li>
+                                    )}
+                                    <li>
+                                        <button
+                                            onClick={() => paginate(totalPages)}
+                                            className="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 font-medium transition-all text-sm"
+                                        >
+                                            {totalPages}
+                                        </button>
+                                    </li>
+                                </>
+                            )}
+
                             <li>
                                 <button
                                     onClick={() => paginate(currentPage + 1)}
                                     disabled={currentPage === totalPages}
-                                    className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm"
+                                    className="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm text-sm"
                                 >
-                                    Sau →
+                                    Sau
                                 </button>
                             </li>
                         </ul>
@@ -521,7 +682,19 @@ const QuanLyChuyenBay = () => {
             )}
 
             {/* Modal */}
-            <EditFlightModal isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmit} formData={formData} onFormChange={handleFormChange} routes={routes} getRouteInfo={getRouteInfo} currentFlight={currentFlight} />
+            <EditFlightModal 
+                isOpen={isModalOpen} 
+                onClose={handleCloseModal} 
+                onSubmit={handleSubmit} 
+                formData={formData} 
+                onFormChange={handleFormChange} 
+                routes={routes} 
+                getRouteInfo={getRouteInfo} 
+                currentFlight={currentFlight}
+                services={services}
+                selectedServices={selectedServices}
+                onServiceChange={handleServiceChange}
+            />
 
             {/* Delay Modal */}
             <DelayFlightModal isOpen={isDelayModalOpen} onClose={handleDelayClose} onSubmit={handleDelaySubmit} delayData={delayData} onDelayDataChange={setDelayData} flights={flights} delayFlightId={delayFlightId} />

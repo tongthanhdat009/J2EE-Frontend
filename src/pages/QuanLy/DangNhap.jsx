@@ -13,10 +13,10 @@ function DangNhapAdmin() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Nếu đã đăng nhập, chuyển về dashboard
+    // Nếu đã đăng nhập, chuyển về trang thống kê
     useEffect(() => {
         if (isAuthenticated('admin')) {
-            navigate('/admin/dashboard');
+            navigate('/admin/dashboard/ThongKe');
         }
     }, [navigate]);
 
@@ -49,9 +49,9 @@ function DangNhapAdmin() {
                 password: formData.password
             });
 
-            // Đăng nhập thành công, chuyển về dashboard
+            // Đăng nhập thành công, chuyển về trang thống kê
             console.log('Đăng nhập thành công:', response);
-            navigate('/admin/dashboard');
+            navigate('/admin/dashboard/ThongKe');
             
         } catch (err) {
             console.error('Lỗi đăng nhập:', err);

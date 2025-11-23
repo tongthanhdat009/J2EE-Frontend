@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlane } from 'react-icons/fa';
+import { FaPlane, FaConciergeBell } from 'react-icons/fa';
 
-const EditFlightModal = ({ isOpen, onClose, onSubmit, formData, onFormChange, routes, getRouteInfo, currentFlight }) => {
+const EditFlightModal = ({ isOpen, onClose, onSubmit, formData, onFormChange, routes, getRouteInfo, currentFlight, services = [], selectedServices = [], onServiceChange }) => {
     const [loaiChuyenBay, setLoaiChuyenBay] = useState('1-chieu'); // '1-chieu' hoặc 'khu-hoi'
     const [errors, setErrors] = useState({});
 
@@ -209,6 +209,86 @@ const EditFlightModal = ({ isOpen, onClose, onSubmit, formData, onFormChange, ro
                     </div>
                     </div>
 
+                    {/* Số lượng ghế cho từng hạng vé - chỉ hiển thị khi thêm mới */}
+                    {!currentFlight && (
+                        <div className="mt-6 pt-6 border-t border-gray-200">
+                            <h3 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center gap-2">
+                                <FaPlane className="text-blue-600" />
+                                Số lượng ghế theo hạng vé
+                            </h3>
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <p className="text-sm text-gray-700 mb-4">
+                                    Nhập số lượng ghế cho từng hạng vé trên chuyến bay:
+                                </p>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                                            Economy (Hạng 1)
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            name="soGheEconomy" 
+                                            value={formData.soGheEconomy || 0} 
+                                            onChange={onFormChange} 
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                                            min="0"
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                                            Deluxe (Hạng 2)
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            name="soGheDeluxe" 
+                                            value={formData.soGheDeluxe || 0} 
+                                            onChange={onFormChange} 
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" 
+                                            min="0"
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                                            Business (Hạng 3)
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            name="soGheBusiness" 
+                                            value={formData.soGheBusiness || 0} 
+                                            onChange={onFormChange} 
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" 
+                                            min="0"
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                                            FirstClass (Hạng 4)
+                                        </label>
+                                        <input 
+                                            type="number" 
+                                            name="soGheFirstClass" 
+                                            value={formData.soGheFirstClass || 0} 
+                                            onChange={onFormChange} 
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" 
+                                            min="0"
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="mt-3 p-3 bg-blue-100 rounded text-sm text-blue-800">
+                                    <span className="font-semibold">Tổng số ghế: </span>
+                                    {(parseInt(formData.soGheEconomy || 0) + 
+                                      parseInt(formData.soGheDeluxe || 0) + 
+                                      parseInt(formData.soGheBusiness || 0) + 
+                                      parseInt(formData.soGheFirstClass || 0))} ghế
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Chuyến bay về - chỉ hiển thị khi chọn khứ hồi */}
                     {!currentFlight && loaiChuyenBay === 'khu-hoi' && (
                         <div className="mt-6 pt-6 border-t border-gray-200">
@@ -283,7 +363,47 @@ const EditFlightModal = ({ isOpen, onClose, onSubmit, formData, onFormChange, ro
                                 </p>
                             </div>
                         </div>
-                    )}
+                    )})
+
+                    {/* Phần gán dịch vụ cho chuyến bay */}
+                    <div className="mt-6 pt-6 border-t border-gray-200">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200 flex items-center gap-2">
+                            <FaConciergeBell className="text-purple-600" />
+                            Dịch vụ chuyến bay
+                        </h3>
+                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                            <p className="text-sm text-gray-700 mb-3">
+                                Chọn các dịch vụ sẽ được cung cấp trên chuyến bay này:
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
+                                {services.length > 0 ? (
+                                    services.map(service => (
+                                        <label key={service.maDichVu} className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 cursor-pointer transition-all">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedServices.includes(service.maDichVu)}
+                                                onChange={() => onServiceChange(service.maDichVu)}
+                                                className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                                            />
+                                            <div className="flex-1">
+                                                <div className="font-medium text-gray-900">{service.tenDichVu}</div>
+                                                <div className="text-xs text-gray-500 line-clamp-1">{service.moTa}</div>
+                                            </div>
+                                        </label>
+                                    ))
+                                ) : (
+                                    <p className="col-span-2 text-center text-gray-500 py-4">
+                                        Không có dịch vụ nào để hiển thị
+                                    </p>
+                                )}
+                            </div>
+                            {selectedServices.length > 0 && (
+                                <div className="mt-3 p-2 bg-purple-100 rounded text-sm text-purple-800">
+                                    Đã chọn {selectedServices.length} dịch vụ
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
                     <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
                         <button 
