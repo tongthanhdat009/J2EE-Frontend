@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { FaPlaneDeparture, FaPlaneArrival, FaChevronDown } from 'react-icons/fa';
 import { HiUser } from 'react-icons/hi';
 import DatePicker from "react-datepicker";
@@ -9,6 +10,7 @@ import { getAllSanBay } from '../../services/datVeServices';
 
 function TimChuyenBayForm() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [departureValue, setDepartureValue] = useState('');
@@ -72,12 +74,12 @@ function TimChuyenBayForm() {
     const validateForm = () => {
         const errors = [];
         
-        if (!flightType) errors.push("Vui lòng chọn loại vé");
-        if (!departureValue) errors.push("Vui lòng chọn điểm xuất phát");
-        if (!arrivalValue) errors.push("Vui lòng chọn điểm đến");
-        if (!startDate) errors.push("Vui lòng chọn ngày đi");
-        if (flightType === 'round' && !endDate) errors.push("Vui lòng chọn ngày về");
-        if (!passengers || passengers < 1) errors.push("Vui lòng nhập số hành khách hợp lệ");
+        if (!flightType) errors.push(t('validation.required'));
+        if (!departureValue) errors.push(t('validation.required'));
+        if (!arrivalValue) errors.push(t('validation.required'));
+        if (!startDate) errors.push(t('validation.required'));
+        if (flightType === 'round' && !endDate) errors.push(t('validation.required'));
+        if (!passengers || passengers < 1) errors.push(t('validation.required'));
         
         return errors;
     };
@@ -88,7 +90,7 @@ function TimChuyenBayForm() {
         
         const errors = validateForm();
         if (errors.length > 0) {
-            alert("Lỗi:\n" + errors.join("\n"));
+            alert(t('common.error') + ":\n" + errors.join("\n"));
             return;
         }
         const formData = getFormData();
@@ -108,7 +110,7 @@ function TimChuyenBayForm() {
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                 >
-                    ⚡ Khứ hồi
+                    ⚡ {t('booking.search_form.round_trip')}
                 </button>
                 <button
                     type="button"
@@ -119,7 +121,7 @@ function TimChuyenBayForm() {
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                 >
-                    ✈️ Một chiều
+                    ✈️ {t('booking.search_form.one_way')}
                 </button>
             </div>
 
@@ -127,7 +129,7 @@ function TimChuyenBayForm() {
             <div className="grid md:grid-cols-2 gap-4">
                 <div className="relative">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Điểm khởi hành
+                        {t('booking.search_form.from')}
                     </label>
                     <div className="relative">
                         <FaPlaneDeparture className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500' />
@@ -138,7 +140,7 @@ function TimChuyenBayForm() {
                             onChange={(e) => setDepartureValue(e.target.value)}
                             className='w-full pl-12 pr-10 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all appearance-none cursor-pointer'
                         >
-                            <option value="">Chọn điểm xuất phát</option>
+                            <option value="">{t('booking.search_form.from')}</option>
                             {Object.entries(grouped).map(([country, cities]) => (
                                 <optgroup key={country} label={country}>
                                     {cities.map((city, index) => (
@@ -155,7 +157,7 @@ function TimChuyenBayForm() {
 
                 <div className="relative">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Điểm đến
+                        {t('booking.search_form.to')}
                     </label>
                     <div className="relative">
                         <FaPlaneArrival className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500' />
@@ -166,7 +168,7 @@ function TimChuyenBayForm() {
                             onChange={(e) => setArrivalValue(e.target.value)}
                             className='w-full pl-12 pr-10 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all appearance-none cursor-pointer'
                         >
-                            <option value="">Chọn điểm đến</option>
+                            <option value="">{t('booking.search_form.to')}</option>
                             {Object.entries(grouped).map(([country, cities]) => (
                                 <optgroup key={country} label={country}>
                                     {cities.map((city, index) => (
@@ -186,12 +188,12 @@ function TimChuyenBayForm() {
             <div className="grid md:grid-cols-3 gap-4">
                 <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Ngày đi
+                        {t('booking.search_form.departure_date')}
                     </label>
                     <DatePicker
                         selected={startDate}
                         onChange={(date) => setStartDate(date)}
-                        placeholderText="Chọn ngày đi"
+                        placeholderText={t('booking.search_form.departure_date')}
                         dateFormat="dd/MM/yyyy"
                         minDate={new Date()}
                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
@@ -201,12 +203,12 @@ function TimChuyenBayForm() {
                 {flightType === 'round' && (
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Ngày về
+                            {t('booking.search_form.return_date')}
                         </label>
                         <DatePicker
                             selected={endDate}
                             onChange={(date) => setEndDate(date)}
-                            placeholderText="Chọn ngày về"
+                            placeholderText={t('booking.search_form.return_date')}
                             dateFormat="dd/MM/yyyy"
                             minDate={startDate || new Date()}
                             className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
@@ -216,7 +218,7 @@ function TimChuyenBayForm() {
                 
                 <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Hành khách
+                        {t('booking.search_form.passengers')}
                     </label>
                     <div className="relative">
                         <HiUser className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500' />
@@ -225,9 +227,9 @@ function TimChuyenBayForm() {
                             onChange={(e) => setPassengers(e.target.value)}
                             className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none transition-all"
                         >
-                            <option value="">Chọn số hành khách</option>
+                            <option value="">{t('booking.search_form.passengers')}</option>
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                                <option key={num} value={num}>{num} người</option>
+                                <option key={num} value={num}>{num} {t('booking.search_form.passengers').toLowerCase()}</option>
                             ))}
                         </select>
                     </div>
@@ -239,7 +241,7 @@ function TimChuyenBayForm() {
                 type="submit"
                 className="w-full py-4 bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-gray-900 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
             >
-                🔍 Tìm chuyến bay
+                🔍 {t('booking.search_form.btn_search')}
             </button>
         </form>
     );

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Navbar from "../../components/common/Navbar";
 import ClientDichVuService from "../../services/ClientDichVuService";
 
 function DichVuChuyenBay() {
+  const { t } = useTranslation();
   const [maDatCho, setMaDatCho] = useState("");
   const [loading, setLoading] = useState(false);
   const [availableServices, setAvailableServices] = useState([]);
@@ -19,7 +21,7 @@ function DichVuChuyenBay() {
     setBookingInfo(null);
 
     if (!maDatCho) {
-      setError("Vui lòng nhập mã đặt chỗ");
+      setError(t('pages.dich_vu_chuyen_bay.label_booking_code') + ' ' + t('pages.dich_vu_chuyen_bay.error_empty') || t('pages.dich_vu_chuyen_bay.select_service_error'));
       return;
     }
 
@@ -42,7 +44,7 @@ function DichVuChuyenBay() {
       }
     } catch (err) {
       console.error("Error fetching services:", err);
-      setError(err.response?.data?.message || "Không thể tải danh sách dịch vụ. Vui lòng kiểm tra lại mã đặt chỗ.");
+      setError(err.response?.data?.message || t('pages.dich_vu_chuyen_bay.error_not_found'));
     } finally {
       setLoading(false);
     }
@@ -113,8 +115,8 @@ function DichVuChuyenBay() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-red-600 mb-3">Dịch vụ chuyến bay</h1>
-            <p className="text-gray-600 text-lg">Nâng cao trải nghiệm bay của bạn với các dịch vụ bổ sung</p>
+            <h1 className="text-4xl font-bold text-red-600 mb-3">{t('pages.dich_vu_chuyen_bay.title')}</h1>
+          <p className="text-gray-600 text-lg">{t('pages.dich_vu_chuyen_bay.subtitle')}</p>
           </div>
 
           {/* Search Form */}
@@ -122,13 +124,13 @@ function DichVuChuyenBay() {
             <form onSubmit={handleSearchServices} className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Mã đặt chỗ
+                  {t('pages.dich_vu_chuyen_bay.label_booking_code')}
                 </label>
                 <input
                   type="number"
                   value={maDatCho}
                   onChange={(e) => setMaDatCho(e.target.value)}
-                  placeholder="Nhập mã đặt chỗ của bạn"
+                  placeholder={t('pages.dich_vu_chuyen_bay.placeholder_booking_code')}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-600 focus:outline-none transition-all"
                   disabled={loading}
                 />
@@ -145,7 +147,7 @@ function DichVuChuyenBay() {
                 disabled={loading}
                 className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all disabled:opacity-50"
               >
-                {loading ? "Đang tìm kiếm..." : "Tìm dịch vụ"}
+                {loading ? t('pages.dich_vu_chuyen_bay.searching') : t('pages.dich_vu_chuyen_bay.search_btn')}
               </button>
             </form>
           </div>
@@ -153,23 +155,23 @@ function DichVuChuyenBay() {
           {/* Booking Info */}
           {bookingInfo && (
             <div className="bg-blue-50 rounded-xl p-6 mb-8">
-              <h3 className="font-bold text-lg mb-2">Thông tin đặt chỗ</h3>
-              <p className="text-gray-700">Mã đặt chỗ: <span className="font-bold">{bookingInfo.maDatCho}</span></p>
-              <p className="text-gray-700">Hành khách: <span className="font-bold">{bookingInfo.tenHanhKhach}</span></p>
-              <p className="text-gray-700">Mã chuyến bay: <span className="font-bold">{bookingInfo.maChuyenBay}</span></p>
+              <h3 className="font-bold text-lg mb-2">{t('pages.dich_vu_chuyen_bay.booking_info_title')}</h3>
+              <p className="text-gray-700">{t('pages.dich_vu_chuyen_bay.booking_code_label')} <span className="font-bold">{bookingInfo.maDatCho}</span></p>
+              <p className="text-gray-700">{t('pages.dich_vu_chuyen_bay.passenger_label')} <span className="font-bold">{bookingInfo.tenHanhKhach}</span></p>
+              <p className="text-gray-700">{t('pages.dich_vu_chuyen_bay.flight_code_label')} <span className="font-bold">{bookingInfo.maChuyenBay}</span></p>
             </div>
           )}
 
           {/* Booked Services */}
           {bookedServices.length > 0 && (
             <div className="bg-green-50 rounded-xl p-6 mb-8">
-              <h3 className="font-bold text-lg mb-4">Dịch vụ đã đặt</h3>
+              <h3 className="font-bold text-lg mb-4">{t('pages.dich_vu_chuyen_bay.booked_services_title')}</h3>
               <div className="space-y-3">
                 {bookedServices.map((service, index) => (
                   <div key={index} className="flex justify-between items-center bg-white p-4 rounded-lg">
                     <div>
                       <p className="font-semibold">{service.luaChon?.tenDichVu} - {service.luaChon?.tenLuaChon}</p>
-                      <p className="text-sm text-gray-600">Số lượng: {service.soLuong}</p>
+                      <p className="text-sm text-gray-600">{t('pages.dich_vu_chuyen_bay.quantity_label')} {service.soLuong}</p>
                     </div>
                     <p className="font-bold text-red-600">{formatCurrency(service.donGia * service.soLuong)}</p>
                   </div>
@@ -181,7 +183,7 @@ function DichVuChuyenBay() {
           {/* Available Services */}
           {availableServices.length > 0 && (
             <>
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Dịch vụ có sẵn</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('pages.dich_vu_chuyen_bay.available_services_title')}</h2>
               
               <div className="space-y-8 mb-12">
                 {availableServices.map((service) => (
@@ -222,7 +224,7 @@ function DichVuChuyenBay() {
                             <p className="text-sm text-gray-600 mb-2">{option.moTa}</p>
                             <p className="text-red-600 font-bold">{formatCurrency(option.gia)}</p>
                             {isSelected && (
-                              <div className="mt-2 text-sm text-red-600 font-semibold">✓ Đã chọn</div>
+                              <div className="mt-2 text-sm text-red-600 font-semibold">✓ {t('pages.dich_vu_chuyen_bay.selected_label')}</div>
                             )}
                           </div>
                         );
@@ -236,7 +238,7 @@ function DichVuChuyenBay() {
               {Object.keys(selectedServices).length > 0 && (
                 <div className="bg-white rounded-2xl shadow-xl p-8 sticky bottom-4">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold">Tổng cộng</h3>
+                    <h3 className="text-xl font-bold">{t('pages.dich_vu_chuyen_bay.total_label')}</h3>
                     <p className="text-2xl font-bold text-red-600">{formatCurrency(calculateTotal())}</p>
                   </div>
                   <button
@@ -244,7 +246,7 @@ function DichVuChuyenBay() {
                     disabled={loading}
                     className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all disabled:opacity-50"
                   >
-                    {loading ? "Đang xử lý..." : "Thêm vào đặt chỗ"}
+                    {loading ? t('pages.dich_vu_chuyen_bay.processing') : t('pages.dich_vu_chuyen_bay.process_btn')}
                   </button>
                 </div>
               )}
@@ -255,12 +257,12 @@ function DichVuChuyenBay() {
           {!availableServices.length && !loading && !error && (
             <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-2xl p-8 text-white">
               <div className="max-w-3xl mx-auto text-center">
-                <h2 className="text-2xl font-bold mb-4">🎁 Ưu đãi đặc biệt</h2>
+                <h2 className="text-2xl font-bold mb-4">🎁 {t('pages.dich_vu_chuyen_bay_extra.info_banner_title')}</h2>
                 <p className="text-lg mb-6">
-                  Đặt trước các dịch vụ để nhận giá tốt nhất và đảm bảo có chỗ trên chuyến bay của bạn
+                  {t('pages.dich_vu_chuyen_bay_extra.info_banner_desc')}
                 </p>
                 <div className="text-sm opacity-90">
-                  Nhập mã đặt chỗ ở trên để xem các dịch vụ có sẵn cho chuyến bay của bạn
+                  {t('pages.dich_vu_chuyen_bay.info_enter_code', 'Enter booking code above to see available services for your flight')}
                 </div>
               </div>
             </div>

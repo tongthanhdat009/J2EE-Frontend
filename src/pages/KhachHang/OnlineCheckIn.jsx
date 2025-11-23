@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function OnlineCheckIn() {
+  const { t } = useTranslation();
   const [bookingCode, setBookingCode] = useState("");
   const [lastName, setLastName] = useState("");
 
@@ -15,25 +17,25 @@ function OnlineCheckIn() {
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-red-600 mb-3">Online Check-in</h1>
-            <p className="text-gray-600">Làm thủ tục trực tuyến nhanh chóng, tiện lợi</p>
+            <h1 className="text-4xl font-bold text-red-600 mb-3">{t('pages.online_checkin.title')}</h1>
+            <p className="text-gray-600">{t('pages.online_checkin.subtitle')}</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Left Side - Check-in Form */}
             <div className="bg-white rounded-2xl shadow-xl p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Thông tin hành khách</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('pages.online_checkin.passenger_info_title')}</h2>
               
               <form onSubmit={handleCheckIn} className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Mã đặt chỗ
+                    {t('pages.online_checkin.label_booking_code')}
                   </label>
                   <input
                     type="text"
                     value={bookingCode}
                     onChange={(e) => setBookingCode(e.target.value.toUpperCase())}
-                    placeholder="VD: ABC123"
+                    placeholder={t('pages.online_checkin.placeholder_booking_code')}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-600 focus:outline-none transition-all"
                     maxLength={6}
                   />
@@ -41,13 +43,13 @@ function OnlineCheckIn() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Họ (Như trên passport)
+                    {t('pages.online_checkin.label_last_name')}
                   </label>
                   <input
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    placeholder="NGUYEN"
+                    placeholder={t('pages.online_checkin.placeholder_last_name')}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-red-600 focus:outline-none transition-all"
                   />
                 </div>
@@ -56,13 +58,13 @@ function OnlineCheckIn() {
                   type="submit"
                   className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
                 >
-                  Bắt đầu Check-in
+                  {t('pages.online_checkin.checkin_btn')}
                 </button>
               </form>
 
               <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                 <p className="text-sm text-gray-700">
-                  <strong>Lưu ý:</strong> Check-in trực tuyến mở từ 24 giờ đến 1 giờ trước giờ khởi hành
+                  <strong>{t('pages.online_checkin.note_title', 'Lưu ý:')}</strong> {t('pages.online_checkin_extra.note')}
                 </p>
               </div>
             </div>
@@ -73,8 +75,8 @@ function OnlineCheckIn() {
                 <div className="flex items-start gap-4">
                   <div className="text-4xl">⏰</div>
                   <div>
-                    <h3 className="font-bold text-gray-800 mb-2">Tiết kiệm thời gian</h3>
-                    <p className="text-sm text-gray-600">Không cần xếp hàng tại sân bay, làm thủ tục chỉ trong vài phút</p>
+                    <h3 className="font-bold text-gray-800 mb-2">{t('pages.online_checkin_extra.benefit_time', t('pages.online_checkin.benefit_time'))}</h3>
+                    <p className="text-sm text-gray-600">{t('pages.online_checkin_extra.benefit_time_desc')}</p>
                   </div>
                 </div>
               </div>
@@ -83,8 +85,8 @@ function OnlineCheckIn() {
                 <div className="flex items-start gap-4">
                   <div className="text-4xl">🎫</div>
                   <div>
-                    <h3 className="font-bold text-gray-800 mb-2">Thẻ lên máy bay điện tử</h3>
-                    <p className="text-sm text-gray-600">Nhận thẻ lên máy bay ngay trên điện thoại, in tại nhà</p>
+                    <h3 className="font-bold text-gray-800 mb-2">{t('pages.online_checkin_extra.benefit_boarding_pass', t('pages.online_checkin.benefit_boarding_pass'))}</h3>
+                    <p className="text-sm text-gray-600">{t('pages.online_checkin_extra.benefit_boarding_pass_desc')}</p>
                   </div>
                 </div>
               </div>
@@ -93,8 +95,8 @@ function OnlineCheckIn() {
                 <div className="flex items-start gap-4">
                   <div className="text-4xl">💺</div>
                   <div>
-                    <h3 className="font-bold text-gray-800 mb-2">Chọn chỗ ngồi</h3>
-                    <p className="text-sm text-gray-600">Tự do lựa chọn vị trí ghế ngồi yêu thích của bạn</p>
+                    <h3 className="font-bold text-gray-800 mb-2">{t('pages.online_checkin_extra.benefit_seat', t('pages.online_checkin.benefit_seat'))}</h3>
+                    <p className="text-sm text-gray-600">{t('pages.online_checkin_extra.benefit_seat_desc')}</p>
                   </div>
                 </div>
               </div>
@@ -103,8 +105,8 @@ function OnlineCheckIn() {
                 <div className="flex items-start gap-4">
                   <div className="text-4xl">🎒</div>
                   <div>
-                    <h3 className="font-bold text-gray-800 mb-2">Mua thêm hành lý</h3>
-                    <p className="text-sm text-gray-600">Dễ dàng mua thêm hành lý ký gửi với giá ưu đãi</p>
+                    <h3 className="font-bold text-gray-800 mb-2">{t('pages.online_checkin_extra.benefit_baggage', t('pages.online_checkin.benefit_baggage'))}</h3>
+                    <p className="text-sm text-gray-600">{t('pages.online_checkin_extra.benefit_baggage_desc')}</p>
                   </div>
                 </div>
               </div>

@@ -1,9 +1,11 @@
 import React from "react";
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from "react-router-dom";
 import { DangNhapClientServices } from "../../services/DangNhapClientServices";
 import { getClientAccessToken, setClientAuthToken, setClientUserEmail } from "../../utils/cookieUtils";
 
 function DangNhap() {
+  const { t } = useTranslation()
   const [showPass, setShowPass] = React.useState(false);
   const navigate = useNavigate();
 
@@ -102,13 +104,13 @@ function DangNhap() {
           <div className="p-8 md:p-10">
             <div className="max-w-sm mx-auto">
               {/* Tiêu đề căn giữa và to hơn */}
-              <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">Đăng nhập</h1>
-              <p className="text-sm text-gray-600 mb-6 text-center">Chào mừng bạn trở lại! ✈️</p>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">{t('common.login')}</h1>
+              <p className="text-sm text-gray-600 mb-6 text-center">{t('auth.welcome_back')} ✈️</p>
 
               <form onSubmit={handleSubmit} noValidate>
                 <div className="mb-4">
                   <label htmlFor="email" className="block text-sm font-semibold text-gray-800 mb-1.5">
-                    Số điện thoại / Email
+                    {t('auth.email_phone')}
                   </label>
                   <div className="relative flex items-center">
                     <span className="absolute left-3 text-base pointer-events-none">📧</span>
@@ -118,7 +120,7 @@ function DangNhap() {
                       id="email"
                       type="email"
                       className="w-full py-2.5 pr-10 pl-10 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(227,6,19,0.1)]"
-                      placeholder="Nhập email của bạn"
+                      placeholder={t('auth.email_phone')}
                       autoComplete="email"
                     />
                   </div>
@@ -126,7 +128,7 @@ function DangNhap() {
 
                 <div className="mb-4">
                   <label htmlFor="password" className="block text-sm font-semibold text-gray-800 mb-1.5">
-                    Mật khẩu
+                    {t('auth.password')}
                   </label>
                   <div className="relative flex items-center">
                     <span className="absolute left-3 text-base pointer-events-none">🔒</span>
@@ -136,7 +138,7 @@ function DangNhap() {
                       id="password"
                       type={showPass ? "text" : "password"}
                       className="w-full py-2.5 pr-10 pl-10 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(227,6,19,0.1)]"
-                      placeholder="Nhập mật khẩu"
+                      placeholder={t('auth.password')}
                       autoComplete="current-password"
                     />
                     <button
@@ -155,7 +157,7 @@ function DangNhap() {
                     <span>Ghi nhớ đăng nhập</span>
                   </label>
                   <a href="/quen-mat-khau" className="text-red-600 no-underline font-medium hover:underline">
-                    Quên mật khẩu?
+                    {t('auth.forgot_password')}
                   </a>
                 </div>
 
@@ -175,12 +177,12 @@ function DangNhap() {
                   className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-[0_4px_15px_rgba(227,6,19,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(227,6,19,0.4)] disabled:opacity-60 disabled:cursor-not-allowed"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Đang xử lý..." : "Đăng nhập"}
+                  {isLoading ? t('common.processing') : t('common.login')}
                 </button>
 
                 <div className="flex items-center text-center my-5">
                   <div className="flex-1 border-b border-gray-200"></div>
-                  <span className="px-3 text-gray-400 text-xs font-medium">hoặc</span>
+                  <span className="px-3 text-gray-400 text-xs font-medium">{t('common.or')}</span>
                   <div className="flex-1 border-b border-gray-200"></div>
                 </div>
 
@@ -195,13 +197,13 @@ function DangNhap() {
                     <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
                     <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C44.438,36.338,48,30.638,48,24c0-2.659-0.238-5.35-0.689-7.917H43.611z" />
                   </svg>
-                  <span>Đăng nhập với Google</span>
+                  <span>{t('auth.login_google')}</span>
                 </button>
 
                 <p className="text-center mt-5 text-xs text-gray-600">
-                  Chưa có tài khoản?{" "}
+                  {t('auth.no_account')} {" "}
                   <a href="/dang-ky-client" className="text-red-600 no-underline font-semibold hover:underline">
-                    Đăng ký ngay
+                    {t('auth.register_now')}
                   </a>
                 </p>
               </form>

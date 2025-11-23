@@ -1,17 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-gray-900 text-white pt-12 pb-6">
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
-        {/* Main Footer Content */}
+          {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Column 1 - Đề cố chuyến bay tốt đẹp */}
           <div>
             <h3 className="text-red-500 font-bold mb-4 flex items-center gap-2">
               <span>✈️</span>
-              Đề cố chuyến bay tốt đẹp
+              {t('footer.about_us')}
             </h3>
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="hover:text-red-500 transition-colors">Điều lệ vận chuyển</Link></li>
@@ -37,7 +40,7 @@ function Footer() {
           <div>
             <h3 className="text-red-500 font-bold mb-4 flex items-center gap-2">
               <span>✈️</span>
-              Mua hành lý, suất ăn, chỗ ngồi và hơn thế nữa...
+              {t('footer.follow_us')}
             </h3>
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="hover:text-red-500 transition-colors">Chọn chỗ ngồi ưu tiên</Link></li>
@@ -54,7 +57,7 @@ function Footer() {
 
             <h3 className="text-red-500 font-bold mb-4 mt-6 flex items-center gap-2">
               <span>✈️</span>
-              Vé SGU Airline
+              {t('footer.about_us')}
             </h3>
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="hover:text-red-500 transition-colors">Giới thiệu công ty</Link></li>
@@ -72,7 +75,7 @@ function Footer() {
           <div>
             <h3 className="text-red-500 font-bold mb-4 flex items-center gap-2">
               <span>🌟</span>
-              Dịch vụ cao cấp
+              {t('footer.policy')}
             </h3>
             <ul className="space-y-2 text-sm">
               <li><Link to="/" className="hover:text-red-500 transition-colors">Hạng vé thương gia - Business</Link></li>
@@ -103,7 +106,7 @@ function Footer() {
           <div>
             <h3 className="text-red-500 font-bold mb-4 flex items-center gap-2">
               <span>🎯</span>
-              Câu hỏi thường gặp
+              {t('footer.contact')}
             </h3>
             
             <h3 className="text-red-500 font-bold mb-4 mt-6 flex items-center gap-2">
@@ -133,12 +136,12 @@ function Footer() {
           </div>
         </div>
 
-        {/* Download App Section */}
+          {/* Download App Section */}
         <div className="border-t border-gray-700 pt-8 mb-8">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
-              <h3 className="text-xl font-bold mb-4">Hướng dẫn đặt chuyến bay</h3>
-              <p className="text-gray-400 mb-4">Tải ứng dụng di động SGU Airline</p>
+              <h3 className="text-xl font-bold mb-4">{t('footer.download_app')}</h3>
+              <p className="text-gray-400 mb-4">{t('footer.download_app_desc')}</p>
               <div className="flex gap-4">
                 <a href="#" className="hover:opacity-80 transition-opacity">
                   <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store" className="h-10" />
@@ -150,8 +153,8 @@ function Footer() {
             </div>
             
             <div>
-              <h3 className="text-xl font-bold mb-4">Hướng dẫn thanh toán</h3>
-              <p className="text-gray-400">Thanh toán dễ dàng, an toàn với nhiều phương thức</p>
+              <h3 className="text-xl font-bold mb-4">{t('footer.payment_help_title')}</h3>
+              <p className="text-gray-400">{t('footer.payment_help_desc')}</p>
             </div>
           </div>
         </div>
@@ -225,7 +228,7 @@ function Footer() {
 
         {/* Copyright */}
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-500">
-          <p>&copy; 2025 SGU Airline. All rights reserved. Developed by SkyJoy Team</p>
+          <p>&copy; 2025 SGU Airline. All rights reserved. Developed by SGU Team</p>
         </div>
       </div>
     </footer>

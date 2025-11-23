@@ -1,17 +1,19 @@
 import { HiUser, HiShoppingCart, HiCreditCard, HiMiniPaperAirplane } from 'react-icons/hi2';
 import { MdFlight} from 'react-icons/md';
-import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function HeaderTimKiemChuyen({ data}) {
+  const { t } = useTranslation();
+  const flightTypeText = data.flightType === "round" ? t('booking.flight_type.round') : t('booking.flight_type.one_way');
   return (
     <div className="w-full min-h-16 from-yellow-500 to-yellow-300 bg-gradient-to-r flex items-center justify-between px-32 py-4">
         <div className='text-black'>
             <p className="mb-1">
-                Chuyến bay {data.flightType === "round" ? "khứ hồi" : "một chiều"} | {data.passengers} Người
+                {t('booking.header.flight_prefix')} {flightTypeText} | {data.passengers} {t('booking.header.passenger_label')}
             </p>
             <div className='flex gap-6'>
-                <div className='text-black'>Điểm khởi hành: <span className='text-red-500 font-medium'>{data.departure} ({data.sanBayDi?.maIATA || data.selectedTuyenBayDi?.tuyenBay.sanBayDi?.maIATA})</span></div>
-                <div className='text-black'>Điểm đến: <span className='text-red-500 font-medium'>{data.arrival} ({data.sanBayDen?.maIATA || data.selectedTuyenBayDi?.tuyenBay.sanBayDen?.maIATA})</span></div>
+                <div className='text-black'>{t('booking.header.departure_label')}: <span className='text-red-500 font-medium'>{data.departure} ({data.sanBayDi?.maIATA || data.selectedTuyenBayDi?.tuyenBay.sanBayDi?.maIATA})</span></div>
+                <div className='text-black'>{t('booking.header.destination_label')}: <span className='text-red-500 font-medium'>{data.arrival} ({data.sanBayDen?.maIATA || data.selectedTuyenBayDi?.tuyenBay.sanBayDen?.maIATA})</span></div>
             </div>
         </div>
         <div className="flex gap-4">

@@ -1,10 +1,12 @@
 import React from "react";
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from "react-router-dom";
 import { DangKyClientServices } from "../../services/DangKyClientServices";
 import { EmailVerificationService } from "../../services/EmailVerificationService";
 import { getClientAccessToken } from "../../utils/cookieUtils";
 
 function DangKy() {
+  const { t } = useTranslation()
   const navigate = useNavigate();
   const [showPass, setShowPass] = React.useState(false);
   const [hoVaTen, setHoVaTen] = React.useState("");
@@ -39,40 +41,40 @@ function DangKy() {
     setMessage("");
     setError("");
 
-    if (!hoVaTen.trim()) {
-      setError("Họ và tên không được để trống!");
+      if (!hoVaTen.trim()) {
+        setError(t('validation.required'));
       return;
     }
     if (!email.trim()) {
-      setError("Email không được để trống!");
+        setError(t('validation.required'));
       return;
     }
     if (!validateEmail(email)) {
-      setError("Định dạng email không hợp lệ!");
+        setError(t('validation.invalid_email'));
       return;
     }
     if (!soDienThoai.trim()) {
-      setError("Số điện thoại không được để trống!");
+        setError(t('validation.required'));
       return;
     }
     if (!/^[0-9]{10,11}$/.test(soDienThoai)) {
-      setError("Số điện thoại không hợp lệ (10-11 số)!");
+        setError(t('validation.invalid_phone'));
       return;
     }
     if (!ngaySinh.trim()) {
-      setError("Ngày sinh không được để trống!");
+        setError(t('validation.required'));
       return;
     }
     if (!matKhau.trim()) {
-      setError("Mật khẩu không được để trống!");
+        setError(t('validation.required'));
       return;
     }
     if (matKhau.length < 6) {
-      setError("Mật khẩu phải chứa ít nhất 6 ký tự!");
+        setError(t('validation.min_length', { count: 6 }))
       return;
     }
     if (matKhau !== xacNhanMatKhau) {
-      setError("Mật khẩu xác nhận không khớp!");
+        setError(t('validation.password_mismatch'));
       return;
     }
 
@@ -177,14 +179,14 @@ function DangKy() {
           <div className="p-8 md:p-10">
             <div className="max-w-md mx-auto">
               {/* Tiêu đề căn giữa */}
-              <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">Đăng ký</h1>
-              <p className="text-sm text-gray-600 mb-6 text-center">Bắt đầu hành trình của bạn ✈️</p>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">{t('common.register')}</h1>
+              <p className="text-sm text-gray-600 mb-6 text-center">{t('auth.register_intro') || 'Bắt đầu hành trình của bạn ✈️'}</p>
 
               {!showVerificationPrompt ? (
                 <form onSubmit={handleSubmit} noValidate>
                   <div className="mb-4">
                     <label htmlFor="username" className="block text-xs font-semibold text-gray-800 mb-1.5">
-                      Họ và tên
+                      {t('auth.full_name')}
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-3 text-base pointer-events-none">👤</span>
@@ -194,7 +196,7 @@ function DangKy() {
                         id="username"
                         type="text"
                         className="w-full py-2.5 pr-10 pl-10 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(227,6,19,0.1)]"
-                        placeholder="Nhập họ và tên"
+                        placeholder={t('auth.full_name')}
                         autoComplete="name"
                       />
                     </div>
@@ -202,7 +204,7 @@ function DangKy() {
 
                   <div className="mb-4">
                     <label htmlFor="email" className="block text-xs font-semibold text-gray-800 mb-1.5">
-                      Email
+                      {t('auth.email_phone')}
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-3 text-base pointer-events-none">📧</span>
@@ -212,7 +214,7 @@ function DangKy() {
                         id="email"
                         type="email"
                         className="w-full py-2.5 pr-10 pl-10 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(227,6,19,0.1)]"
-                        placeholder="email@example.com"
+                        placeholder={t('auth.email_phone')}
                         autoComplete="email"
                       />
                     </div>
@@ -220,7 +222,7 @@ function DangKy() {
 
                   <div className="mb-4">
                     <label htmlFor="phone" className="block text-xs font-semibold text-gray-800 mb-1.5">
-                      Số điện thoại
+                      {t('auth.phone')}
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-3 text-base pointer-events-none">📱</span>
@@ -230,7 +232,7 @@ function DangKy() {
                         id="phone"
                         type="tel"
                         className="w-full py-2.5 pr-10 pl-10 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(227,6,19,0.1)]"
-                        placeholder="0912345678"
+                        placeholder={t('auth.phone')}
                         autoComplete="tel"
                       />
                     </div>
@@ -238,7 +240,7 @@ function DangKy() {
 
                   <div className="mb-4">
                     <label htmlFor="dob" className="block text-xs font-semibold text-gray-800 mb-1.5">
-                      Ngày sinh
+                      {t('auth.dob')}
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-3 text-base pointer-events-none">🎂</span>
@@ -265,7 +267,7 @@ function DangKy() {
                         id="password"
                         type={showPass ? "text" : "password"}
                         className="w-full py-2.5 pr-10 pl-10 border-2 border-gray-200 rounded-lg text-sm transition-all bg-gray-50 focus:outline-none focus:border-red-600 focus:bg-white focus:shadow-[0_0_0_3px_rgba(227,6,19,0.1)]"
-                        placeholder="Tối thiểu 6 ký tự"
+                        placeholder={t('auth.password_hint') || 'Tối thiểu 6 ký tự'}
                         autoComplete="new-password"
                       />
                       <button
@@ -280,7 +282,7 @@ function DangKy() {
 
                   <div className="mb-4">
                     <label htmlFor="confirm-password" className="block text-xs font-semibold text-gray-800 mb-1.5">
-                      Xác nhận mật khẩu
+                      {t('auth.confirm_password')}
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-3 text-base pointer-events-none">🔐</span>
@@ -312,12 +314,12 @@ function DangKy() {
                     className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-[0_4px_15px_rgba(227,6,19,0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(227,6,19,0.4)] disabled:opacity-60 disabled:cursor-not-allowed"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Đang xử lý..." : "Đăng ký"}
+                    {isLoading ? t('common.processing') : t('common.register')}
                   </button>
 
                   <div className="flex items-center text-center my-4">
                     <div className="flex-1 border-b border-gray-200"></div>
-                    <span className="px-3 text-gray-400 text-xs font-medium">hoặc</span>
+                    <span className="px-3 text-gray-400 text-xs font-medium">{t('common.or')}</span>
                     <div className="flex-1 border-b border-gray-200"></div>
                   </div>
 
@@ -332,13 +334,13 @@ function DangKy() {
                       <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
                       <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C44.438,36.338,48,30.638,48,24c0-2.659-0.238-5.35-0.689-7.917H43.611z" />
                     </svg>
-                    <span>Đăng ký với Google</span>
+                    <span>{t('auth.login_google')}</span>
                   </button>
 
                   <p className="text-center mt-4 text-xs text-gray-600">
-                    Đã có tài khoản?{" "}
+                    {t('auth.has_account') || 'Đã có tài khoản?'}{" "}
                     <a href="/dang-nhap-client" className="text-red-600 no-underline font-semibold hover:underline">
-                      Đăng nhập ngay
+                      {t('common.login')}
                     </a>
                   </p>
                 </form>

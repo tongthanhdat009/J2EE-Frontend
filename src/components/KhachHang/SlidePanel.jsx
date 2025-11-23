@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { getChiTietGheByGheId, getLuaChonByDichVuId } from "../../services/datVeServices";
 
 function ChoNgoiPanel({
@@ -435,9 +435,6 @@ function ChoNgoiPanel({
                   <div className="w-5 h-5 rounded-md border border-gray-300 bg-yellow-300"></div>
                   <span>First Class</span>
                 </div>
-
-
-
                 <div className="flex items-center gap-2">
                   <div className="w-5 h-5 rounded-md border border-gray-300 bg-blue-500"></div>
                   <span>Đã chọn</span>

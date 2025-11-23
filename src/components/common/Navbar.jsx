@@ -1,13 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { clearClientAuthCookies, getClientAccessToken, getClientUserEmail } from "../../utils/cookieUtils";
 import Cookies from "js-cookie";
 
 function Navbar() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState(localStorage.getItem('language') || 'vi');
   
   useEffect(() => {
     const token = getClientAccessToken();
@@ -25,6 +28,13 @@ function Navbar() {
     setMobileMenuOpen(false);
   };
 
+  const handleLanguageChange = (e) => {
+    const newLanguage = e.target.value;
+    setCurrentLanguage(newLanguage);
+    i18n.changeLanguage(newLanguage);
+    localStorage.setItem('language', newLanguage);
+  };
+
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
   };
@@ -36,7 +46,7 @@ function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-1.5 flex justify-end items-center gap-4 text-xs">
           <Link to="/ho-tro" className="text-white hover:text-yellow-400 transition-colors flex items-center gap-1">
             <span>🏠</span>
-            <span>Hỗ trợ</span>
+            <span>{t('common.support')}</span>
           </Link>
           
           {isLoggedIn ? (
@@ -54,7 +64,7 @@ function Navbar() {
                 onClick={handleLogout}
                 className="text-white hover:text-yellow-400 transition-colors font-medium"
               >
-                Đăng xuất
+                {t('common.logout')}
               </button>
             </>
           ) : (
@@ -64,14 +74,14 @@ function Navbar() {
                 to="/dang-ky-client"
                 className="text-white hover:text-yellow-400 transition-colors font-medium"
               >
-                Đăng ký
+                {t('common.register')}
               </Link>
               <span className="text-white/80">|</span>
               <Link 
                 to="/dang-nhap-client"
                 className="text-white hover:text-yellow-400 transition-colors font-medium"
               >
-                Đăng nhập
+                {t('common.login')}
               </Link>
             </>
           )}
@@ -79,7 +89,11 @@ function Navbar() {
           <span className="text-white/80">|</span>
           <div className="flex items-center gap-1">
             <span className="text-white">🌐</span>
-            <select className="bg-transparent text-white text-xs border border-white/30 rounded px-2 py-0.5 focus:outline-none focus:border-yellow-400 cursor-pointer">
+            <select 
+              value={currentLanguage}
+              onChange={handleLanguageChange}
+              className="bg-transparent text-white text-xs border border-white/30 rounded px-2 py-0.5 focus:outline-none focus:border-yellow-400 cursor-pointer"
+            >
               <option value="vi" className="bg-red-700">Tiếng Việt</option>
               <option value="en" className="bg-red-700">English</option>
             </select>
@@ -105,7 +119,7 @@ function Navbar() {
               to="/tra-cuu-chuyen-bay" 
               className="text-white no-underline font-semibold text-sm uppercase tracking-wide hover:text-yellow-400 transition-colors"
             >
-              Tra cứu chuyến bay
+              {t('navbar.lookup_flight')}
             </Link>
           </li>
           <li>
@@ -113,7 +127,7 @@ function Navbar() {
               to="/online-check-in" 
               className="text-white no-underline font-semibold text-sm uppercase tracking-wide hover:text-yellow-400 transition-colors"
             >
-              ONLINE CHECK-IN
+              {t('navbar.online_checkin')}
             </Link>
           </li>
           <li>
@@ -121,7 +135,7 @@ function Navbar() {
               to="/dich-vu-chuyen-bay" 
               className="text-white no-underline font-semibold text-sm uppercase tracking-wide hover:text-yellow-400 transition-colors"
             >
-              DỊCH VỤ CHUYẾN BAY
+              {t('navbar.flight_services')}
             </Link>
           </li>
           <li>
@@ -129,7 +143,7 @@ function Navbar() {
               to="/dich-vu-khac" 
               className="text-white no-underline font-semibold text-sm uppercase tracking-wide hover:text-yellow-400 transition-colors"
             >
-              DỊCH VỤ KHÁC
+              {t('navbar.other_services')}
             </Link>
           </li>
         </ul>
@@ -167,7 +181,7 @@ function Navbar() {
                 className="text-white py-2 px-3 rounded hover:bg-white/10 transition-colors"
                 onClick={closeMobileMenu}
               >
-                🏠 Hỗ trợ
+                🏠 {t('common.support')}
               </Link>
               
               {isLoggedIn ? (
@@ -183,7 +197,7 @@ function Navbar() {
                     onClick={handleLogout}
                     className="text-white py-2 px-3 rounded hover:bg-white/10 transition-colors text-left"
                   >
-                    Đăng xuất
+                    {t('common.logout')}
                   </button>
                 </>
               ) : (
@@ -193,14 +207,14 @@ function Navbar() {
                     className="text-white py-2 px-3 rounded hover:bg-white/10 transition-colors"
                     onClick={closeMobileMenu}
                   >
-                    Đăng ký
+                    {t('common.register')}
                   </Link>
                   <Link 
                     to="/dang-nhap-client"
                     className="text-white py-2 px-3 rounded hover:bg-white/10 transition-colors"
                     onClick={closeMobileMenu}
                   >
-                    Đăng nhập
+                    {t('common.login')}
                   </Link>
                 </>
               )}
@@ -215,7 +229,7 @@ function Navbar() {
                 className="block text-white py-2.5 px-3 rounded hover:bg-white/10 transition-colors font-semibold uppercase text-sm"
                 onClick={closeMobileMenu}
               >
-                SKYJOY
+                {t('common.home')}
               </Link>
             </li>
             <li>
@@ -224,7 +238,7 @@ function Navbar() {
                 className="block text-white py-2.5 px-3 rounded hover:bg-white/10 transition-colors font-semibold uppercase text-sm"
                 onClick={closeMobileMenu}
               >
-                CHUYẾN BAY CỦA TÔI
+                {t('navbar.my_flights')}
               </Link>
             </li>
             <li>
@@ -233,7 +247,7 @@ function Navbar() {
                 className="block text-white py-2.5 px-3 rounded hover:bg-white/10 transition-colors font-semibold uppercase text-sm"
                 onClick={closeMobileMenu}
               >
-                ONLINE CHECK-IN
+                {t('navbar.online_checkin')}
               </Link>
             </li>
             <li>
@@ -242,7 +256,7 @@ function Navbar() {
                 className="block text-white py-2.5 px-3 rounded hover:bg-white/10 transition-colors font-semibold uppercase text-sm"
                 onClick={closeMobileMenu}
               >
-                DỊCH VỤ CHUYẾN BAY
+                {t('navbar.flight_services')}
               </Link>
             </li>
             <li>
@@ -251,7 +265,7 @@ function Navbar() {
                 className="block text-white py-2.5 px-3 rounded hover:bg-white/10 transition-colors font-semibold uppercase text-sm"
                 onClick={closeMobileMenu}
               >
-                DỊCH VỤ KHÁC
+                {t('navbar.other_services')}
               </Link>
             </li>
           </ul>

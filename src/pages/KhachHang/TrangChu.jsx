@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Footer from "../../components/common/Footer";
 import Chatbot from "../../components/common/Chatbot";
 import ProfileCompleteBanner from "../../components/common/ProfileCompleteBanner";
 import TimChuyenBayForm from '../../components/KhachHang/TimChuyenBayForm'
 
 function TrangChu() {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showBanner, setShowBanner] = useState(true);
 
@@ -47,17 +49,17 @@ function TrangChu() {
           </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <p className="text-sm leading-6 text-white">
-              <strong className="font-semibold">🎉 Khuyến mãi đặc biệt 2025</strong>
+              <strong className="font-semibold">{t('home_page.announcement_title')}</strong>
               <svg viewBox="0 0 2 2" className="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true"><circle cx="1" cy="1" r="1" /></svg>
-              Giảm giá lên đến 30% cho tất cả các chuyến bay. Đặt vé ngay hôm nay!
+              {t('home_page.announcement_desc')}
             </p>
-            <a href="/" className="flex-none rounded-full bg-yellow-400 px-3.5 py-1 text-sm font-semibold text-gray-900 shadow-sm hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400 transition-all">
-              Đặt vé ngay <span aria-hidden="true">&rarr;</span>
+            <a href="/" className="flex-none rounded-full bg-yellow-400 px-3.5 py-1 text-sm font-semibold text-gray-900 shadow-sm hover:bg-yellow-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400 transition-all">
+              {t('home_page.book_now')} <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
           <div className="flex flex-1 justify-end">
             <button type="button" onClick={() => setShowBanner(false)} className="-m-3 p-3 focus-visible:outline-offset-[-4px]">
-              <span className="sr-only">Đóng</span>
+              <span className="sr-only">{t('home_page.close')}</span>
               <svg className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
               </svg>
@@ -140,27 +142,27 @@ function TrangChu() {
           <div className="container mx-auto px-4 lg:px-20 py-5">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-800 mb-4">
-                Tại sao chọn <span className="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent text-4xl">SGU Airline?</span>
+                {t('home_page.why_choose')} <span className="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent text-4xl">SGU Airline?</span>
               </h2>
               <p className="text-lg text-gray-600 max-w-1xl mx-auto">
-                Chúng tôi cam kết mang đến trải nghiệm bay tốt nhất với dịch vụ chuyên nghiệp và giá cả hợp lý
+                {t('home_page.why_choose_desc')}
               </p>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2 border-t-4 border-red-600">
                 <div className="text-5xl mb-4">💰</div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">Giá vé ưu đãi</h3>
-                <p className="text-gray-600">Đặt vé sớm với giá tốt nhất, nhiều chương trình khuyến mãi hấp dẫn</p>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">{t('home_page.best_price')}</h3>
+                <p className="text-gray-600">{t('home_page.best_price_desc')}</p>
               </div>
               <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2 border-t-4 border-yellow-400">
                 <div className="text-5xl mb-4">⚡</div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">Đặt vé nhanh chóng</h3>
-                <p className="text-gray-600">Giao diện đơn giản, dễ sử dụng, thanh toán an toàn</p>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">{t('home_page.fast_booking')}</h3>
+                <p className="text-gray-600">{t('home_page.fast_booking_desc')}</p>
               </div>
               <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-2 border-t-4 border-pink-600">
                 <div className="text-5xl mb-4">🎯</div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">Hỗ trợ 24/7</h3>
-                <p className="text-gray-600">Đội ngũ chăm sóc khách hàng luôn sẵn sàng hỗ trợ bạn</p>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">{t('home_page.support_247')}</h3>
+                <p className="text-gray-600">{t('home_page.support_247_desc')}</p>
               </div>
             </div>
           </div>
@@ -169,23 +171,23 @@ function TrangChu() {
           <div className="bg-white/90 backdrop-blur-sm py-16">
             <div className="container mx-auto px-4 lg:px-20">
               <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
-                Dịch vụ tiện ích
+                {t('home_page.quick_services')}
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                 {/* Đặt chuyến bay */}
                 <a href="/" className="flex flex-col items-center p-6 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
                   <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4 p-3">
-                    <img src="/service/booking-1634319183743.svg" alt="Đặt chuyến bay" className="w-full h-full" />
+                    <img src="/service/booking-1634319183743.svg" alt="Booking" className="w-full h-full" />
                   </div>
-                  <span className="text-white font-bold text-center text-sm">Đặt chuyến bay</span>
+                  <span className="text-white font-bold text-center text-sm">{t('home_page.service_booking')}</span>
                 </a>
 
                 {/* Mua thêm */}
                 <a href="/dich-vu-chuyen-bay" className="flex flex-col items-center p-6 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
                   <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4 p-3">
-                    <img src="/service/buymore-1634319183745.svg" alt="Mua thêm dịch vụ" className="w-full h-full" />
+                    <img src="/service/buymore-1634319183745.svg" alt="Buy more" className="w-full h-full" />
                   </div>
-                  <span className="text-white font-bold text-center text-sm">Mua hành lý, suất ăn...</span>
+                  <span className="text-white font-bold text-center text-sm">{t('home_page.service_buy_more')}</span>
                 </a>
 
                 {/* Check-in */}
@@ -193,23 +195,23 @@ function TrangChu() {
                   <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4 p-3">
                     <img src="/service/checkin-1634319183747.svg" alt="Check-in" className="w-full h-full" />
                   </div>
-                  <span className="text-white font-bold text-center text-sm">Làm thủ tục nhanh</span>
+                  <span className="text-white font-bold text-center text-sm">{t('home_page.service_checkin')}</span>
                 </a>
 
                 {/* Khách sạn & xe */}
                 <a href="/dich-vu-khac" className="flex flex-col items-center p-6 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
                   <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4 p-3">
-                    <img src="/service/hotelbus-1634319183749.svg" alt="Khách sạn & xe" className="w-full h-full" />
+                    <img src="/service/hotelbus-1634319183749.svg" alt="Hotel" className="w-full h-full" />
                   </div>
-                  <span className="text-white font-bold text-center text-sm">Khách sạn & Xe</span>
+                  <span className="text-white font-bold text-center text-sm">{t('home_page.service_hotel_car')}</span>
                 </a>
 
                 {/* Bảo hiểm */}
                 <a href="/dich-vu-khac" className="flex flex-col items-center p-6 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all">
                   <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4 p-3">
-                    <img src="/service/insurance-1634319183751.svg" alt="Bảo hiểm" className="w-full h-full" />
+                    <img src="/service/insurance-1634319183751.svg" alt="Insurance" className="w-full h-full" />
                   </div>
-                  <span className="text-white font-bold text-center text-sm">Bảo hiểm</span>
+                  <span className="text-white font-bold text-center text-sm">{t('home_page.service_insurance')}</span>
                 </a>
               </div>
             </div>
@@ -218,7 +220,7 @@ function TrangChu() {
           {/* Promotions Banner Section - THÊM ẢNH NỀN */}
           <div className="container mx-auto px-4 lg:px-20 py-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-center text-gray-800 mb-12">
-              Khuyến mãi & Ưu đãi
+              {t('home_page.promotions_title')}
             </h2>
             <div className="grid md:grid-cols-3 gap-6">
               {/* Card 1 - Với ảnh nền */}
@@ -228,11 +230,11 @@ function TrangChu() {
                 <div className="relative h-full p-6 text-white flex flex-col justify-between">
                   <div>
                     <div className="text-4xl mb-3">🎟️</div>
-                    <h3 className="text-xl font-bold mb-2">CHỌN MUA VÉ SGU AIRLINE</h3>
-                    <p className="text-sm mb-4">Đã bao gồm bảo hiểm KH và 7KG hành lý xách tay</p>
+                    <h3 className="text-xl font-bold mb-2">{t('home_page.promo_airline_title')}</h3>
+                    <p className="text-sm mb-4">{t('home_page.promo_airline_desc')}</p>
                   </div>
                   <button className="px-6 py-2 bg-yellow-400 text-gray-900 rounded-xl font-bold hover:bg-yellow-500 transition-colors w-full">
-                    Xem ngay
+                    {t('home_page.view_now')}
                   </button>
                 </div>
               </div>
@@ -244,11 +246,11 @@ function TrangChu() {
                 <div className="relative h-full p-6 text-white flex flex-col justify-between">
                   <div>
                     <div className="text-4xl mb-3">💳</div>
-                    <h3 className="text-xl font-bold mb-2">Gói hàng nhanh</h3>
-                    <p className="text-sm mb-4">Vận chuyển Bắc - Trung - Nam siêu tốc, ưu đãi 24/7</p>
+                    <h3 className="text-xl font-bold mb-2">{t('home_page.promo_fast_title')}</h3>
+                    <p className="text-sm mb-4">{t('home_page.promo_fast_desc')}</p>
                   </div>
                   <button className="px-6 py-2 bg-yellow-400 text-gray-900 rounded-xl font-bold hover:bg-yellow-500 transition-colors w-full">
-                    Mua ngay
+                    {t('home_page.buy_now')}
                   </button>
                 </div>
               </div>
@@ -260,11 +262,11 @@ function TrangChu() {
                 <div className="relative h-full p-6 text-white flex flex-col justify-between">
                   <div>
                     <div className="text-4xl mb-3">🎁</div>
-                    <h3 className="text-xl font-bold mb-2">Thẻ HiBank SGU Airline</h3>
-                    <p className="text-sm mb-4">Ưu đãi cả tháng khi bay và mua sắm với thẻ</p>
+                    <h3 className="text-xl font-bold mb-2">{t('home_page.promo_card_title')}</h3>
+                    <p className="text-sm mb-4">{t('home_page.promo_card_desc')}</p>
                   </div>
                   <button className="px-6 py-2 bg-yellow-400 text-gray-900 rounded-xl font-bold hover:bg-yellow-500 transition-colors w-full">
-                    Đăng ký thẻ mới
+                    {t('home_page.register_card')}
                   </button>
                 </div>
               </div>
@@ -276,21 +278,21 @@ function TrangChu() {
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="mx-auto max-w-2xl text-center">
                 <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 mb-4">
-                  Điểm đến <span className="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">nổi tiếng</span>
+                  {t('home_page.popular_destinations')} <span className="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">{t('home_page.popular_destinations_highlight')}</span>
                 </h2>
                 <p className="text-xl leading-8 text-gray-600">
-                  Khám phá những địa điểm du lịch hot nhất với giá vé ưu đãi
+                  {t('home_page.popular_destinations_desc')}
                 </p>
               </div>
               <div className="mx-auto mt-16 grid max-w-2xl auto-rows-fr grid-cols-1 gap-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
                 {/* Destination 1 - TP. Hồ Chí Minh */}
                 <article className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80 hover:scale-105 transition-transform duration-300">
-                  <img src="/destination/tphcm.jpg" alt="TP. Hồ Chí Minh" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+                  <img src="/destination/tphcm.jpg" alt={t('home_page.destinations.tphcm.title')} className="absolute inset-0 -z-10 h-full w-full object-cover" />
                   <div className="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
                   <div className="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10"></div>
 
                   <div className="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm leading-6 text-gray-300">
-                    <time dateTime="2024-01-01" className="mr-8">Từ 399,000 VNĐ</time>
+                    <time dateTime="2024-01-01" className="mr-8">{t('destinations.tphcm.price')}</time>
                     <div className="-ml-4 flex items-center gap-x-4">
                       <svg viewBox="0 0 2 2" className="-ml-0.5 h-0.5 w-0.5 flex-none fill-white/50">
                         <circle cx="1" cy="1" r="1" />
@@ -303,22 +305,22 @@ function TrangChu() {
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
                     <a href="/chuyen-bay?destination=tphcm">
                       <span className="absolute inset-0"></span>
-                      TP. Hồ Chí Minh
+                      {t('destinations.tphcm.title')}
                     </a>
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
-                    Trung tâm kinh tế sôi động với ẩm thực phong phú và văn hóa đa dạng
+                    {t('destinations.tphcm.desc')}
                   </p>
                 </article>
 
                 {/* Destination 2 - Hà Nội */}
                 <article className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80 hover:scale-105 transition-transform duration-300">
-                  <img src="/destination/hanoi.jpg" alt="Hà Nội" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+                  <img src="/destination/hanoi.jpg" alt={t('home_page.destinations.hanoi.title')} className="absolute inset-0 -z-10 h-full w-full object-cover" />
                   <div className="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
                   <div className="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10"></div>
 
                   <div className="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm leading-6 text-gray-300">
-                    <time dateTime="2024-01-01" className="mr-8">Từ 499,000 VNĐ</time>
+                    <time dateTime="2024-01-01" className="mr-8">{t('destinations.hanoi.price')}</time>
                     <div className="-ml-4 flex items-center gap-x-4">
                       <svg viewBox="0 0 2 2" className="-ml-0.5 h-0.5 w-0.5 flex-none fill-white/50">
                         <circle cx="1" cy="1" r="1" />
@@ -331,22 +333,22 @@ function TrangChu() {
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
                     <a href="/chuyen-bay?destination=hanoi">
                       <span className="absolute inset-0"></span>
-                      Hà Nội
+                      {t('destinations.hanoi.title')}
                     </a>
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
-                    Thủ đô nghìn năm văn hiến với di sản văn hóa và ẩm thực truyền thống
+                    {t('destinations.hanoi.desc')}
                   </p>
                 </article>
 
                 {/* Destination 3 - Đà Nẵng */}
                 <article className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80 hover:scale-105 transition-transform duration-300">
-                  <img src="/destination/danang.jpg" alt="Đà Nẵng" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+                  <img src="/destination/danang.jpg" alt={t('home_page.destinations.danang.title')} className="absolute inset-0 -z-10 h-full w-full object-cover" />
                   <div className="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
                   <div className="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10"></div>
 
                   <div className="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm leading-6 text-gray-300">
-                    <time dateTime="2024-01-01" className="mr-8">Từ 599,000 VNĐ</time>
+                    <time dateTime="2024-01-01" className="mr-8">{t('destinations.danang.price')}</time>
                     <div className="-ml-4 flex items-center gap-x-4">
                       <svg viewBox="0 0 2 2" className="-ml-0.5 h-0.5 w-0.5 flex-none fill-white/50">
                         <circle cx="1" cy="1" r="1" />
@@ -359,22 +361,22 @@ function TrangChu() {
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
                     <a href="/chuyen-bay?destination=danang">
                       <span className="absolute inset-0"></span>
-                      Đà Nẵng
+                      {t('destinations.danang.title')}
                     </a>
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
-                    Thành phố đáng sống với biển xanh, cầu Vàng và ẩm thực tuyệt vời
+                    {t('destinations.danang.desc')}
                   </p>
                 </article>
 
                 {/* Destination 4 - Phú Quốc */}
                 <article className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80 hover:scale-105 transition-transform duration-300">
-                  <img src="/destination/phuquoc.jpeg" alt="Phú Quốc" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+                  <img src="/destination/phuquoc.jpeg" alt={t('home_page.destinations.phuquoc.title')} className="absolute inset-0 -z-10 h-full w-full object-cover" />
                   <div className="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
                   <div className="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10"></div>
 
                   <div className="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm leading-6 text-gray-300">
-                    <time dateTime="2024-01-01" className="mr-8">Từ 699,000 VNĐ</time>
+                    <time dateTime="2024-01-01" className="mr-8">{t('destinations.phuquoc.price')}</time>
                     <div className="-ml-4 flex items-center gap-x-4">
                       <svg viewBox="0 0 2 2" className="-ml-0.5 h-0.5 w-0.5 flex-none fill-white/50">
                         <circle cx="1" cy="1" r="1" />
@@ -387,22 +389,22 @@ function TrangChu() {
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
                     <a href="/chuyen-bay?destination=phuquoc">
                       <span className="absolute inset-0"></span>
-                      Phú Quốc
+                      {t('destinations.phuquoc.title')}
                     </a>
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
-                    Đảo ngọc thiên đường với bãi biển tuyệt đẹp và resort sang trọng
+                    {t('destinations.phuquoc.desc')}
                   </p>
                 </article>
 
                 {/* Destination 5 - Nha Trang */}
                 <article className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80 hover:scale-105 transition-transform duration-300">
-                  <img src="/destination/nha-trang.png" alt="Nha Trang" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+                  <img src="/destination/nha-trang.png" alt={t('home_page.destinations.nhatrang.title')} className="absolute inset-0 -z-10 h-full w-full object-cover" />
                   <div className="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
                   <div className="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10"></div>
 
                   <div className="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm leading-6 text-gray-300">
-                    <time dateTime="2024-01-01" className="mr-8">Từ 549,000 VNĐ</time>
+                    <time dateTime="2024-01-01" className="mr-8">{t('destinations.nhatrang.price')}</time>
                     <div className="-ml-4 flex items-center gap-x-4">
                       <svg viewBox="0 0 2 2" className="-ml-0.5 h-0.5 w-0.5 flex-none fill-white/50">
                         <circle cx="1" cy="1" r="1" />
@@ -415,22 +417,22 @@ function TrangChu() {
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
                     <a href="/chuyen-bay?destination=nhatrang">
                       <span className="absolute inset-0"></span>
-                      Nha Trang
+                      {t('destinations.nhatrang.title')}
                     </a>
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
-                    Thiên đường biển đảo với hoạt động lặn biển và vui chơi phong phú
+                    {t('destinations.nhatrang.desc')}
                   </p>
                 </article>
 
                 {/* Destination 6 - Đà Lạt */}
                 <article className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80 hover:scale-105 transition-transform duration-300">
-                  <img src="/destination/dalat.jpg" alt="Đà Lạt" className="absolute inset-0 -z-10 h-full w-full object-cover" />
+                  <img src="/destination/dalat.jpg" alt={t('home_page.destinations.dalat.title')} className="absolute inset-0 -z-10 h-full w-full object-cover" />
                   <div className="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/40"></div>
                   <div className="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10"></div>
 
                   <div className="flex flex-wrap items-center gap-y-1 overflow-hidden text-sm leading-6 text-gray-300">
-                    <time dateTime="2024-01-01" className="mr-8">Từ 649,000 VNĐ</time>
+                    <time dateTime="2024-01-01" className="mr-8">{t('destinations.dalat.price')}</time>
                     <div className="-ml-4 flex items-center gap-x-4">
                       <svg viewBox="0 0 2 2" className="-ml-0.5 h-0.5 w-0.5 flex-none fill-white/50">
                         <circle cx="1" cy="1" r="1" />
@@ -443,11 +445,11 @@ function TrangChu() {
                   <h3 className="mt-3 text-3xl font-semibold leading-6 text-white">
                     <a href="/chuyen-bay?destination=dalat">
                       <span className="absolute inset-0"></span>
-                      Đà Lạt
+                      {t('destinations.dalat.title')}
                     </a>
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-gray-300">
-                    Thành phố ngàn hoa lãng mạn với khí hậu mát mẻ quanh năm
+                    {t('destinations.dalat.desc')}
                   </p>
                 </article>
               </div>
@@ -461,14 +463,14 @@ function TrangChu() {
                 <div className="lg:grid lg:grid-cols-12 lg:gap-8">
                   <div className="lg:col-span-5">
                     <h2 className="text-3xl font-bold leading-10 tracking-tight text-gray-900">
-                      Câu hỏi <span className="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">thường gặp</span>
+                      {t('home_page.faq_title')} <span className="bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">{t('home_page.faq_highlight')}</span>
                     </h2>
                     <p className="mt-4 text-base leading-7 text-gray-600">
-                      Không tìm thấy câu trả lời bạn cần?{' '}
+                      {t('home_page.faq_contact')}{' '}
                       <a href="/ho-tro" className="font-semibold text-red-600 hover:text-red-500">
-                        Liên hệ đội ngũ hỗ trợ
+                        {t('home_page.faq_contact_team')}
                       </a>{' '}
-                      của chúng tôi để được giúp đỡ.
+                      {t('home_page.faq_contact_help')}
                     </p>
                   </div>
                   <div className="mt-10 lg:col-span-7 lg:mt-0">
@@ -477,7 +479,7 @@ function TrangChu() {
                         <dt>
                           <button className="group flex w-full items-start justify-between text-left text-gray-900">
                             <span className="text-base font-semibold leading-7">
-                              Làm thế nào để đặt vé máy bay?
+                              {t('home_page.faq_q1')}
                             </span>
                             <span className="ml-6 flex h-7 items-center">
                               <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -488,7 +490,7 @@ function TrangChu() {
                         </dt>
                         <dd className="mt-2 pr-12">
                           <p className="text-base leading-7 text-gray-600">
-                            Bạn có thể đặt vé trực tuyến qua website, ứng dụng di động hoặc liên hệ tổng đài 1900 1886. Chỉ cần chọn điểm đi, điểm đến, ngày bay và số lượng hành khách, sau đó thanh toán an toàn qua nhiều hình thức khác nhau.
+                            {t('home_page.faq_a1')}
                           </p>
                         </dd>
                       </div>
@@ -497,7 +499,7 @@ function TrangChu() {
                         <dt>
                           <button className="group flex w-full items-start justify-between text-left text-gray-900">
                             <span className="text-base font-semibold leading-7">
-                              Chính sách hành lý xách tay và ký gửi như thế nào?
+                              {t('home_page.faq_q2')}
                             </span>
                             <span className="ml-6 flex h-7 items-center">
                               <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -508,7 +510,7 @@ function TrangChu() {
                         </dt>
                         <dd className="mt-2 pr-12">
                           <p className="text-base leading-7 text-gray-600">
-                            Hành lý xách tay miễn phí tối đa 7kg (kích thước 56cm x 36cm x 23cm). Hành lý ký gửi tùy thuộc vào hạng vé, bạn có thể mua thêm hành lý trực tuyến với giá ưu đãi hơn so với mua tại sân bay.
+                            {t('home_page.faq_a2')}
                           </p>
                         </dd>
                       </div>
@@ -517,7 +519,7 @@ function TrangChu() {
                         <dt>
                           <button className="group flex w-full items-start justify-between text-left text-gray-900">
                             <span className="text-base font-semibold leading-7">
-                              Tôi có thể thay đổi hoặc hủy vé không?
+                              {t('home_page.faq_q3')}
                             </span>
                             <span className="ml-6 flex h-7 items-center">
                               <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -528,7 +530,7 @@ function TrangChu() {
                         </dt>
                         <dd className="mt-2 pr-12">
                           <p className="text-base leading-7 text-gray-600">
-                            Có, bạn có thể thay đổi hoặc hủy vé theo quy định của từng hạng vé. Phí thay đổi/hủy sẽ khác nhau tùy thuộc vào thời gian và loại vé. Khuyến nghị thay đổi sớm để tiết kiệm chi phí.
+                            {t('home_page.faq_a3')}
                           </p>
                         </dd>
                       </div>
@@ -537,7 +539,7 @@ function TrangChu() {
                         <dt>
                           <button className="group flex w-full items-start justify-between text-left text-gray-900">
                             <span className="text-base font-semibold leading-7">
-                              Thời gian check-in trực tuyến và tại sân bay là bao lâu?
+                              {t('home_page.faq_q4')}
                             </span>
                             <span className="ml-6 flex h-7 items-center">
                               <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -548,7 +550,7 @@ function TrangChu() {
                         </dt>
                         <dd className="mt-2 pr-12">
                           <p className="text-base leading-7 text-gray-600">
-                            Check-in trực tuyến mở từ 24h trước giờ bay và đóng 1h trước giờ khởi hành. Tại sân bay, quầy check-in mở 2h và đóng 40 phút trước giờ bay. Vui lòng có mặt sớm để hoàn tất thủ tục.
+                            {t('home_page.faq_a4')}
                           </p>
                         </dd>
                       </div>
@@ -557,7 +559,7 @@ function TrangChu() {
                         <dt>
                           <button className="group flex w-full items-start justify-between text-left text-gray-900">
                             <span className="text-base font-semibold leading-7">
-                              Có những hình thức thanh toán nào?
+                              {t('home_page.faq_q5')}
                             </span>
                             <span className="ml-6 flex h-7 items-center">
                               <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -568,7 +570,7 @@ function TrangChu() {
                         </dt>
                         <dd className="mt-2 pr-12">
                           <p className="text-base leading-7 text-gray-600">
-                            Chúng tôi chấp nhận nhiều hình thức thanh toán: thẻ tín dụng/ghi nợ (Visa, Mastercard, JCB), ví điện tử (MoMo, ZaloPay, VNPay), chuyển khoản ngân hàng và thanh toán tại các đại lý.
+                            {t('home_page.faq_a5')}
                           </p>
                         </dd>
                       </div>

@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 
 import { formatCurrencyWithCommas } from "../../../services/utils";
@@ -11,6 +12,7 @@ import HeaderTimKiemChuyen from "../../../components/KhachHang/HeaderTimKiemChuy
 import Navbar from "../../../components/common/Navbar";
 
 function ChonDichVu() {
+    const { t } = useTranslation();
     const location = useLocation();
     const formData = location.state || {};
     const navigate = useNavigate();
@@ -40,8 +42,8 @@ function ChonDichVu() {
 
     const dichVuChonChoNgoi = {
         maDichVu: 99,
-        tenDichVu: "Chọn chỗ ngồi",
-        moTa: "Chọn chỗ ngồi yêu thích của bạn trên chuyến bay",
+        tenDichVu: t('booking.services.seat_selection'),
+        moTa: t('booking.services.select_seat_desc'),
         anh: "public/service/select-service_favorite-seat.cc6498ae.svg",
     };
 
@@ -52,12 +54,12 @@ function ChonDichVu() {
 
         if (formData.flightType === "round") {
             if (choNgoiDi !== soHanhKhach || choNgoiVe !== soHanhKhach) {
-                alert(`Vui lòng chọn đủ ${soHanhKhach} ghế cho cả chuyến đi và chuyến về!`);
+                alert(t('booking.services.error_select_seats_round', { count: soHanhKhach }));
                 return;
             }
-        }else{
+        } else {
             if (choNgoiDi !== soHanhKhach) {
-                alert(`Vui lòng chọn đủ ${soHanhKhach} ghế cho chuyến đi!`);
+                alert(t('booking.services.error_select_seats_oneway', { count: soHanhKhach }));
                 return;
             }
         }
@@ -114,7 +116,7 @@ function ChonDichVu() {
             <HeaderTimKiemChuyen data={{ ...formData }} />
 
             <div className="text-green-500 font-bold text-2xl px-32 pt-2">
-                Đừng quên mua hành lý, suất ăn, chọn chỗ ngồi và hơn thế nữa...
+                {t('booking.services.reminder')}
             </div>
 
             <div className="flex justify-between gap-8 px-32 py-2 ">
@@ -177,17 +179,17 @@ function ChonDichVu() {
                     className="bg-gray-200 rounded-xl flex items-center justify-center px-10 py-2 text-black cursor-pointer hover:bg-gray-300 transition mr-100"
                     onClick={() => navigate(-1)}
                 >
-                    Quay lại
+                    {t('common.back')}
                 </span>
                 <div className="flex flex-col text-black">
-                    <span className="text-xl">Tổng tiền</span>
+                    <span className="text-xl">{t('common.total_price')}</span>
                     <span className="text-2xl font-bold">{formatCurrencyWithCommas(calculateTotal())+" VND"}</span>
                 </div>
                 <span
                     className="bg-gradient-to-bl from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center px-10 py-2 text-black cursor-pointer"
                     onClick={() => tiepTucOnClick()}
                 >
-                    Đi tiếp
+                    {t('common.continue')}
                 </span>
             </div>
             </div>

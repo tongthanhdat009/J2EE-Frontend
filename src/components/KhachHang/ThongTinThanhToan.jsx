@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import { LuPencilLine } from "react-icons/lu";
 import { IoAirplane } from "react-icons/io5";
 import { IoMdArrowDropdown, IoMdArrowDropup} from "react-icons/io";
+import { useTranslation } from 'react-i18next';
 
 function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonChuyenVe = () => {}, onBackToThongTinKhachHang = () => {} }) {
     const [sanBayDi, setSanBayDi] = useState(null);
     const [sanBayDen, setSanBayDen] = useState(null);
     const [expanded, setExpanded] = useState({giaVe: false, thuePhi: false, dichVu: false, thongTinKhachHang: false});
+    const { t } = useTranslation();
     const totalDichVuDi = cb.dichVu?.di
     ? (cb.dichVu.di.selectedSeats?.length || 0) * (cb.dichVu.di.seatPrice || 0) +
         (cb.dichVu.di.options?.reduce((sum, o) => sum + (o.quantity || 1) * o.price, 0) || 0)
@@ -69,10 +71,10 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
 
     return (
         <div className="w-[400px]">
-            <div className="flex justify-start text-xl font-bold bg-red-600 text-white p-4 rounded-t-md">THÔNG TIN ĐẶT CHỖ</div>
+            <div className="flex justify-start text-xl font-bold bg-red-600 text-white p-4 rounded-t-md">{t('booking.summary.header')}</div>
             <div className="p-4 bg-white">
                 <div className="flex justify-between bg-gray-200 px-4 py-2 " onClick={() => toggleExpand("thongTinKhachHang")}>
-                    <div>Thông tin hành khách</div>
+                    <div>{t('booking.summary.passenger_info')}</div>
                     {cb.passengerInfo && (
                         expanded.thongTinKhachHang ? <IoMdArrowDropup className="ml-2 text-2xl cursor-pointer"/> : <IoMdArrowDropdown className="ml-2 text-2xl cursor-pointer"/>
                     )}
@@ -88,9 +90,9 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
                         </div>
                 ))}
             </div>
-            <div className=" bg-blue-200">
+                <div className=" bg-blue-200">
                 <div className="flex justify-between items-center px-4 py-2"> 
-                    <span className="text-xm">Chuyến đi</span>
+                    <span className="text-xm">{t('booking.summary.outbound')}</span>
                     <span className="flex text-red-500 font-bold">{cb.selectedTuyenBayDi ?<> {formatCurrencyWithCommas(calcTotalPrice())+" VND"} <LuPencilLine className="mt-1 cursor-pointer"   onClick={(e) => {
                                                                                                                                                                                                     e.stopPropagation();
                                                                                                                                                                                                     onBackToChonChuyenDi?.(); // chỉ gọi khi click
@@ -107,46 +109,46 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
                 </div>
                 <div className="flex text-sm text-gray-600">
                     <span>
-                        {cb.selectedTuyenBayDi ? <>{formatDateType(cb.selectedTuyenBayDi?.ngayDi)} | {formatTime(cb.selectedTuyenBayDi?.gioDi)} - {formatTime(cb.selectedTuyenBayDi?.gioDen)} | {cb.selectedTuyenBayDi?.soHieuChuyenBay} | {cb.selectedTuyenBayDi?.hangVe.hangVe.tenHangVe}</> : <>--- | --- | --- | ---</>}
+                        {cb.selectedTuyenBayDi ? <>{formatDateType(cb.selectedTuyenBayDi?.ngayDi)} | {formatTime(cb.selectedTuyenBayDi?.gioDi)} - {formatTime(cb.selectedTuyenBayDi?.gioDen)} | {cb.selectedTuyenBayDi?.soHieuChuyenBay} | {cb.selectedTuyenBayDi?.hangVe.hangVe.tenHangVe}</> : <>{t('booking.summary.flight_details_missing')}</>}
                     </span>
                 </div>
                 <div className="mt-2 select-none" onClick={() => toggleExpand("giaVe")}>
                     <div className={`flex justify-between bg-gray-200 px-4 py-2 cursor-pointer ${expanded.giaVe ? "rounded-t-md" : "rounded-md"}`}>
-                        <span>Giá vé</span>
+                        <span>{t('booking.summary.fare')}</span>
                         <span className="font-bold flex cursor-pointer">{cb.selectedTuyenBayDi? <>{formatCurrencyWithCommas(cb.selectedTuyenBayDi?.hangVe.giaVe) + " VND"} {expanded.giaVe ? <IoMdArrowDropup className="ml-2 text-2xl cursor-pointer"/> : <IoMdArrowDropdown className="ml-2 text-2xl cursor-pointer"/>}</> : ""}</span>
                     </div>
                     {expanded.giaVe && 
                         <div className="flex justify-between bg-gray-100 px-4 py-2 rounded-b-md text-sm">
-                            <span>Vé {cb.selectedTuyenBayDi?.hangVe.hangVe.tenHangVe}</span>
+                            <span>{t('booking.summary.fare')} {cb.selectedTuyenBayDi?.hangVe.hangVe.tenHangVe}</span>
                             <span>{formatCurrencyWithCommas(cb.selectedTuyenBayDi?.hangVe.giaVe) + " VND"}</span>
                         </div>
                     }
                 </div>
                 <div className="mt-2 select-none" onClick={() => toggleExpand("thuePhi")}>
                     <div className={`flex justify-between bg-gray-200 px-4 py-2 mt-2 cursor-pointer ${expanded.thuePhi ? "rounded-t-md" : "rounded-md"}`}>    
-                        <span>Thuế, phí</span>
+                        <span>{t('booking.summary.taxes_fees')}</span>
                         <span className="font-bold flex cursor-pointer" >{cb.selectedTuyenBayDi? <>583,000 VND {expanded.thuePhi ? <IoMdArrowDropup className="ml-2 text-2xl cursor-pointer"/> : <IoMdArrowDropdown className="ml-2 text-2xl cursor-pointer"/>}</> : ""}</span>
                     </div>
                     {expanded.thuePhi && 
                         <div className="flex flex-col bg-gray-100 px-4 py-2 rounded-b-md text-sm gap-3">
                             <div className="flex justify-between">
-                                <span>Phí an ninh soi chiếu</span>
+                                <span>{t('booking.summary.fees.security_screening')}</span>
                                 <span>20,000 VND</span>
                             </div>
                             <div className="flex justify-between">
-                                <span>Phí sân bay quốc nội</span>
+                                <span>{t('booking.summary.fees.domestic_airport')}</span>
                                 <span>99,000 VND</span>
                             </div>
                             <div className="flex justify-between">
-                                <span>Phụ thu dịch vụ hệ thống</span>
+                                <span>{t('booking.summary.fees.system_service')}</span>
                                 <span>215,000 VND</span>
                             </div>
                             <div className="flex justify-between">
-                                <span>Phụ phí quản trị hệ thống</span>
+                                <span>{t('booking.summary.fees.admin_fee')}</span>
                                 <span>215,000 VND</span>
                             </div>
                             <div className="flex justify-between">
-                                <span>Thuế VAT</span>
+                                <span>{t('booking.summary.fees.vat')}</span>
                                 <span>34,400 VND</span>
                             </div>
                         </div>
@@ -154,7 +156,7 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
                 </div>
                 <div className="mt-2 select-none" onClick={() => toggleExpand("dichVu")}>
                     <div className={`flex justify-between bg-gray-200 px-4 py-2 mt-2 rounded-md ${expanded.dichVu ? "rounded-t-md" : "rounded-md"}`}>
-                        <span>Dịch vụ</span>
+                        <span>{t('booking.summary.services')}</span>
                         <span className="font-bold flex cursor-pointer" >{cb.selectedTuyenBayDi?<> {formatCurrencyWithCommas(totalDichVuDi)} VND {expanded.dichVu ? <IoMdArrowDropup className="ml-2 text-2xl cursor-pointer"/> : <IoMdArrowDropdown className="ml-2 text-2xl cursor-pointer"/>}</> : ""}</span>
                     </div>
                     {expanded.dichVu && cb?.dichVu?.di &&
@@ -178,7 +180,7 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
                 <div className=" ">
                     <div className=" bg-yellow-200">
                         <div className="flex justify-between items-center px-4 py-2"> 
-                            <span className="text-xm">Chuyến về</span>
+                            <span className="text-xm">{t('booking.summary.return')}</span>
                             <span className="flex text-red-500 font-bold">
                             {cb.selectedTuyenBayVe ? (
                                 <>
@@ -205,14 +207,14 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
 
                         <div className="flex text-sm text-gray-600">
                             {cb.selectedTuyenBayVe ? (
-                            <>
-                                {formatDateType(cb.selectedTuyenBayVe?.ngayDi)} | {formatTime(cb.selectedTuyenBayVe?.gioDi)} -{" "}
-                                {formatTime(cb.selectedTuyenBayVe?.gioDen)} | {cb.selectedTuyenBayVe?.soHieuChuyenBay} |{" "}
-                                {cb.selectedTuyenBayVe?.hangVe.hangVe.tenHangVe}
-                            </>
-                            ) : (
-                            <>--- | --- | --- | ---</>
-                            )}
+                                <>
+                                    {formatDateType(cb.selectedTuyenBayVe?.ngayDi)} | {formatTime(cb.selectedTuyenBayVe?.gioDi)} -{" "}
+                                    {formatTime(cb.selectedTuyenBayVe?.gioDen)} | {cb.selectedTuyenBayVe?.soHieuChuyenBay} |{" "}
+                                    {cb.selectedTuyenBayVe?.hangVe.hangVe.tenHangVe}
+                                </>
+                                ) : (
+                                <>{t('booking.summary.flight_details_missing')}</>
+                                )}
                         </div>
 
                         <div className="mt-2 select-none" onClick={() => toggleExpand("giaVeVe")}>
@@ -221,7 +223,7 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
                                 expanded.giaVeVe ? "rounded-t-md" : "rounded-md"
                             }`}
                             >
-                            <span>Giá vé</span>
+                            <span>{t('booking.summary.fare')}</span>
                             <span className="font-bold flex cursor-pointer">
                                 {cb.selectedTuyenBayVe ? (
                                 <>
@@ -239,8 +241,8 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
                             </div>
 
                             {expanded.giaVeVe && (
-                            <div className="flex justify-between bg-gray-100 px-4 py-2 rounded-b-md text-sm">
-                                <span>Vé {cb.selectedTuyenBayVe?.hangVe.hangVe.tenHangVe}</span>
+                                <div className="flex justify-between bg-gray-100 px-4 py-2 rounded-b-md text-sm">
+                                <span>{t('booking.summary.fare')} {cb.selectedTuyenBayVe?.hangVe.hangVe.tenHangVe}</span>
                                 <span>{formatCurrencyWithCommas(cb.selectedTuyenBayVe?.hangVe.giaVe) + " VND"}</span>
                             </div>
                             )}
@@ -252,7 +254,7 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
                                 expanded.thuePhiVe ? "rounded-t-md" : "rounded-md"
                             }`}
                             >
-                            <span>Thuế, phí</span>
+                            <span>{t('booking.summary.taxes_fees')}</span>
                             <span className="font-bold flex cursor-pointer">
                                 {cb.selectedTuyenBayVe ? (
                                 <>
@@ -272,23 +274,23 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
                             {expanded.thuePhiVe && (
                             <div className="flex flex-col bg-gray-100 px-4 py-2 rounded-b-md text-sm gap-3">
                                 <div className="flex justify-between">
-                                <span>Phí an ninh soi chiếu</span>
+                                <span>{t('booking.summary.fees.security_screening')}</span>
                                 <span>20,000 VND</span>
                                 </div>
                                 <div className="flex justify-between">
-                                <span>Phí sân bay quốc nội</span>
+                                <span>{t('booking.summary.fees.domestic_airport')}</span>
                                 <span>99,000 VND</span>
                                 </div>
                                 <div className="flex justify-between">
-                                <span>Phụ thu dịch vụ hệ thống</span>
+                                <span>{t('booking.summary.fees.system_service')}</span>
                                 <span>215,000 VND</span>
                                 </div>
                                 <div className="flex justify-between">
-                                <span>Phụ phí quản trị hệ thống</span>
+                                <span>{t('booking.summary.fees.admin_fee')}</span>
                                 <span>215,000 VND</span>
                                 </div>
                                 <div className="flex justify-between">
-                                <span>Thuế VAT</span>
+                                <span>{t('booking.summary.fees.vat')}</span>
                                 <span>34,400 VND</span>
                                 </div>
                             </div>
@@ -301,7 +303,7 @@ function ThongTinThanhToan({ cb, onBackToChonChuyenDi = () => {}, onBackToChonCh
                                 expanded.dichVuVe ? "rounded-t-md" : "rounded-md"
                             }`}
                             >
-                            <span>Dịch vụ</span>
+                            <span>{t('booking.summary.services')}</span>
                             <span className="font-bold flex cursor-pointer">
                                 {cb.selectedTuyenBayVe ? (
                                 <>

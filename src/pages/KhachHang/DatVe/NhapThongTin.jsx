@@ -10,7 +10,10 @@ import { getAllCountries } from "../../../services/CountryService";
 import TaiKhoanService from "../../../services/TaiKhoanService";
 import { getClientUserEmail } from "../../../utils/cookieUtils";
 
+import { useTranslation } from 'react-i18next'
+
 function NhapThongTin() {
+    const { t } = useTranslation()
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -133,36 +136,36 @@ function NhapThongTin() {
             const err = {};
 
             // Giới tính
-            if (!p.sex) err.sex = "Vui lòng chọn giới tính";
+            if (!p.sex) err.sex = t('validation.required_gender') || "Vui lòng chọn giới tính";
 
             // Họ và tên
-            if (!p.fullName.trim()) err.fullName = "Vui lòng nhập họ và tên";
+            if (!p.fullName.trim()) err.fullName = t('validation.required') || "Vui lòng nhập họ và tên";
             else if (!nameRegex.test(p.fullName))
-                err.fullName = "Họ và tên chỉ được chứa chữ cái và tối thiểu 2 ký tự";
+                err.fullName = t('validation.invalid_name') || "Họ và tên chỉ được chứa chữ cái và tối thiểu 2 ký tự";
 
             // Ngày sinh
-            if (!p.birthday) err.birthday = "Vui lòng nhập ngày sinh";
+            if (!p.birthday) err.birthday = t('validation.required') || "Vui lòng nhập ngày sinh";
 
             // Quốc gia
-            if (!p.country.trim()) err.country = "Vui lòng chọn quốc gia";
+            if (!p.country.trim()) err.country = t('validation.required') || "Vui lòng chọn quốc gia";
 
             // Số điện thoại
-            if (!p.phone.trim()) err.phone = "Vui lòng nhập số điện thoại";
+            if (!p.phone.trim()) err.phone = t('validation.required') || "Vui lòng nhập số điện thoại";
             else if (!phoneRegex.test(p.phone))
-                err.phone = "Số điện thoại không hợp lệ (9-12 chữ số)";
+                err.phone = t('validation.invalid_phone') || "Số điện thoại không hợp lệ (9-12 chữ số)";
 
             // Email
-            if (!p.email.trim()) err.email = "Vui lòng nhập email";
+            if (!p.email.trim()) err.email = t('validation.required') || "Vui lòng nhập email";
             else if (!emailRegex.test(p.email))
-                err.email = "Email không hợp lệ";
+                err.email = t('validation.invalid_email') || "Email không hợp lệ";
 
             // CCCD/Hộ chiếu
-            if (!p.idCard.trim()) err.idCard = "Vui lòng nhập CCCD/Hộ chiếu";
+            if (!p.idCard.trim()) err.idCard = t('validation.required') || "Vui lòng nhập CCCD/Hộ chiếu";
             else if (!idCardRegex.test(p.idCard))
-                err.idCard = "CCCD/Hộ chiếu không hợp lệ (ít nhất 9 ký tự, chỉ chữ và số)";
+                err.idCard = t('validation.invalid_idcard') || "CCCD/Hộ chiếu không hợp lệ (ít nhất 9 ký tự, chỉ chữ và số)";
 
             // Địa chỉ
-            if (!p.address.trim()) err.address = "Vui lòng nhập địa chỉ";
+            if (!p.address.trim()) err.address = t('validation.required') || "Vui lòng nhập địa chỉ";
 
             if (Object.keys(err).length > 0) {
                 hasError = true;
@@ -203,7 +206,7 @@ function NhapThongTin() {
         style={{ backgroundImage: 'url(/background/home/bgBannerHomePage.72a61446.webp)' }}>
             <HeaderTimKiemChuyen data={{ ...formData, state: 1 }} />
 
-            <div className="px-32 mt-4 text-xl font-semibold text-white drop-shadow-lg">Thông tin hành khách</div>
+            <div className="px-32 mt-4 text-xl font-semibold text-white drop-shadow-lg">{t('booking.passenger_info.title')}</div>
 
             <div className="flex justify-between gap-8 mt-4 px-32 mb-20">
                 <div className="w-full">
@@ -225,7 +228,7 @@ function NhapThongTin() {
                                 }
                             >
                                 <FaUser className="mr-2" />
-                                <div className="text-lg font-semibold">Hành khách {index + 1}</div>
+                                <div className="text-lg font-semibold">{t('booking.passenger_info.passenger')} {index + 1}</div>
                                 {index === 0 && accountInfo && (
                                     <label className="ml-4 flex items-center">
                                         <input
@@ -235,7 +238,7 @@ function NhapThongTin() {
                                             className="mr-2"
                                             onClick={(e) => e.stopPropagation()}
                                         />
-                                        <span className="text-sm">Sử dụng thông tin tài khoản hiện tại</span>
+                                        <span className="text-sm">{t('booking.passenger_info.use_account_info')}</span>
                                     </label>
                                 )}
                                 {expanded[index] ? (
@@ -268,7 +271,7 @@ function NhapThongTin() {
                                                     disabled={index === 0 && useAccountInfo}
                                                     className="mr-2"
                                                 />
-                                                Nam
+                                                {t('booking.passenger_info.male')}
                                             </label>
                                             <label className={`mr-6 ${index === 0 && useAccountInfo ? "cursor-not-allowed opacity-50" : ""}`}>
                                                 <input
@@ -282,7 +285,7 @@ function NhapThongTin() {
                                                     disabled={index === 0 && useAccountInfo}
                                                     className="mr-2"
                                                 />
-                                                Nữ
+                                                {t('booking.passenger_info.female')}
                                             </label>
                                             <label className={index === 0 && useAccountInfo ? "cursor-not-allowed opacity-50" : ""}>
                                                 <input
@@ -296,7 +299,7 @@ function NhapThongTin() {
                                                     disabled={index === 0 && useAccountInfo}
                                                     className="mr-2"
                                                 />
-                                                Khác
+                                                {t('booking.passenger_info.other')}
                                             </label>
                                         </div>
                                         {errors[index]?.sex && (
@@ -308,10 +311,10 @@ function NhapThongTin() {
 
                                     {/* Họ và tên */}
                                     <div>
-                                        <div className="font-semibold mb-2">Thông tin cá nhân</div>
+                                        <div className="font-semibold mb-2">{t('booking.passenger_info.passenger')}</div>
                                         <input
                                             type="text"
-                                            placeholder="Họ và tên"
+                                            placeholder={t('booking.passenger_info.full_name')}
                                             value={passengerInfo[index].fullName}
                                             onChange={(e) =>
                                                 handleChange(
@@ -336,7 +339,7 @@ function NhapThongTin() {
 
                                     {/* Ngày sinh + Quốc gia */}
                                     <div>
-                                        <div className="font-semibold mb-2">Ngày sinh & Quốc gia</div>
+                                        <div className="font-semibold mb-2">{t('booking.passenger_info.gender')} & {t('booking.passenger_info.nationality')}</div>
                                         <div className="flex gap-6">
                                             <div className="w-full">
                                                 <input
@@ -379,7 +382,7 @@ function NhapThongTin() {
                                                             : "border-gray-300 hover:border-gray-500"
                                                     }`}
                                                 >
-                                                    <option value="">Chọn quốc gia</option>
+                                                    <option value="">{t('booking.passenger_info.nationality')}</option>
                                                     {countries.map((country, idx) => (
                                                         <option key={idx} value={country.name || country}>
                                                             {country.name || country}
@@ -397,12 +400,12 @@ function NhapThongTin() {
 
                                     {/* LIÊN HỆ */}
                                     <div>
-                                        <div className="font-semibold mb-2">Thông tin liên hệ</div>
+                                        <div className="font-semibold mb-2">{t('booking.passenger_info.contact_info')}</div>
                                         <div className="flex gap-6">
                                             <div className="w-full">
                                                 <input
                                                     type="number"
-                                                    placeholder="Số điện thoại"
+                                                    placeholder={t('auth.phone')}
                                                     value={passengerInfo[index].phone}
                                                     onChange={(e) =>
                                                         handleChange(index, "phone", e.target.value)
@@ -424,7 +427,7 @@ function NhapThongTin() {
                                             <div className="w-full">
                                                 <input
                                                     type="email"
-                                                    placeholder="Email"
+                                                    placeholder={t('auth.email_phone')}
                                                     value={passengerInfo[index].email}
                                                     onChange={(e) =>
                                                         handleChange(index, "email", e.target.value)
@@ -447,10 +450,10 @@ function NhapThongTin() {
 
                                     {/* GIẤY TỜ */}
                                     <div>
-                                        <div className="font-semibold mb-2">Giấy tờ tùy thân</div>
+                                        <div className="font-semibold mb-2">{t('booking.passenger_info.id_card')}</div>
                                         <input
                                             type="text"
-                                            placeholder="CCCD / Hộ chiếu"
+                                            placeholder={t('booking.passenger_info.id_card')}
                                             value={passengerInfo[index].idCard}
                                             onChange={(e) =>
                                                 handleChange(index, "idCard", e.target.value)
@@ -470,10 +473,10 @@ function NhapThongTin() {
 
                                     {/* ĐỊA CHỈ */}
                                     <div>
-                                        <div className="font-semibold mb-3">Địa chỉ cư trú</div>
+                                        <div className="font-semibold mb-3">{t('booking.passenger_info.address')}</div>
                                         <input
                                             type="text"
-                                            placeholder="Nơi ở hiện tại"
+                                            placeholder={t('booking.passenger_info.address')}
                                             value={passengerInfo[index].address}
                                             onChange={(e) =>
                                                 handleChange(index, "address", e.target.value)
@@ -496,9 +499,9 @@ function NhapThongTin() {
                     ))}
 
                     <div className="bg-white px-8 py-4 rounded-lg mt-8 text-gray-600 mb-50">
-                        Bằng cách chọn “Đi tiếp”, Quý khách xác nhận đã đọc, hiểu và đồng ý với việc xử lý dữ liệu cá nhân theo
-                        <span className="text-blue-700 cursor-pointer"> Chính sách Quyền riêng tư </span>
-                        của J2EEairline.
+                        {t('booking.passenger_info.privacy_ack')}
+                        <span className="text-blue-700 cursor-pointer"> {t('footer.policy')}</span>
+                        {` ${t('booking.passenger_info.of')} J2EEairline.`}
                     </div>
                 </div>
 
@@ -521,10 +524,10 @@ function NhapThongTin() {
                     className="bg-gray-200 rounded-xl flex items-center justify-center px-10 py-2 text-black cursor-pointer hover:bg-gray-300 transition mr-100"
                     onClick={() => navigate(-1)}
                 >
-                    Quay lại
+                    {t('common.back')}
                 </span>
                 <div className="flex flex-col text-black">
-                    <span className="text-xl">Tổng tiền</span>
+                    <span className="text-xl">{t('common.total_price')}</span>
                     <span className="text-2xl font-bold">
                         {formData
                             ? formatCurrencyWithCommas(formData.totalPrice) + " VND"
@@ -535,7 +538,7 @@ function NhapThongTin() {
                     className="bg-gradient-to-bl from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center px-10 py-2 text-black cursor-pointer"
                     onClick={tiepTucOnClick}
                 >
-                    Đi tiếp
+                    {t('common.continue')}
                 </span>
             </div>
         </div>
