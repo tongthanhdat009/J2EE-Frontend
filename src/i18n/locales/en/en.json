@@ -407,7 +407,8 @@
       "use_account_info": "Use current account info",
       "contact_info": "Contact Information",
       "privacy_ack": "By selecting \"Continue\", you confirm that you have read, understood and agree to the processing of personal data according to",
-      "of": "of"
+      "of": "of",
+      "full_name": "Full Name"
     },
     "services": {
       "reminder": "Don't forget to add baggage, meals, seat selection and more...",

@@ -71,5 +71,4 @@ function OAuth2Callback() {
         </div>
     );
 }
-
 export default OAuth2Callback;

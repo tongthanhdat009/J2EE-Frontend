@@ -414,7 +414,8 @@
       "use_account_info": "Sử dụng thông tin tài khoản hiện tại",
       "contact_info": "Thông tin liên hệ",
       "privacy_ack": "Bằng cách chọn \u201cĐi tiếp\u201d, Quý khách xác nhận đã đọc, hiểu và đồng ý với việc xử lý dữ liệu cá nhân theo",
-      "of": "của"
+      "of": "của",
+      "full_name": "Họ và tên"
     },
     "services": {
       "reminder": "Đừng quên mua hành lý, suất ăn, chọn chỗ ngồi và hơn thế nữa...",

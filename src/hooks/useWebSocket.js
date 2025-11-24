@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 
-// Hàm để lấy access token (từ apiClient)
-const getAccessToken = () =>
-  "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc2MjEwMDE3OSwiZXhwIjoxNzY0NjkyMTc5LCJyb2xlIjoiQURNSU4iLCJ0eXAiOiJhY2Nlc3MifQ.m7dz9b5ftHR8wvth-xzQGD-V0MIK8ITkSc4k6rM0GX0";
+// Hàm để lấy access token từ localStorage
+const getAccessToken = () => {
+  return localStorage.getItem("accessToken") || "";
+};
 
 const useWebSocket = () => {
   const [flightUpdates, setFlightUpdates] = useState([]);
+  const [latestUpdate, setLatestUpdate] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const stompClientRef = useRef(null);
 
@@ -41,6 +43,7 @@ const useWebSocket = () => {
 
         // Thêm update vào state
         setFlightUpdates((prev) => [update, ...prev.slice(0, 9)]); // Giữ tối đa 10 updates gần nhất
+        setLatestUpdate(update);
       });
     };
 
@@ -75,10 +78,16 @@ const useWebSocket = () => {
     }
   };
 
+  const clearLatestUpdate = useCallback(() => {
+    setLatestUpdate(null);
+  }, []);
+
   return {
     flightUpdates,
+    latestUpdate,
     isConnected,
     sendMessage,
+    clearLatestUpdate,
   };
 };
 

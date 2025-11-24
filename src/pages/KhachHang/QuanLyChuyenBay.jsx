@@ -4,6 +4,7 @@ import Footer from '../../components/common/Footer';
 import TaiKhoanService from '../../services/TaiKhoanService';
 import DatChoService from '../../services/DatChoService';
 import { getClientUserEmail, getClientAccessToken } from '../../utils/cookieUtils';
+import useWebSocket from '../../hooks/useWebSocket';
 
 function QuanLyChuyenBay() {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ function QuanLyChuyenBay() {
   const [flightsLoading, setFlightsLoading] = useState(false);
   const [selectedFlight, setSelectedFlight] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showUpdateNotification, setShowUpdateNotification] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState('');
   
   const [filters, setFilters] = useState({
     status: 'all',
@@ -20,6 +23,9 @@ function QuanLyChuyenBay() {
     dateTo: '',
     search: ''
   });
+
+  // WebSocket hook
+  const { latestUpdate, isConnected, clearLatestUpdate } = useWebSocket();
 
   useEffect(() => {
     const fetchAccountInfo = async () => {
@@ -65,6 +71,51 @@ function QuanLyChuyenBay() {
       fetchFlights();
     }
   }, [accountInfo]);
+
+  // WebSocket update handler
+  useEffect(() => {
+    if (!latestUpdate) return;
+
+    console.log('Received flight update:', latestUpdate);
+
+    // Cập nhật trạng thái chuyến bay trong danh sách
+    setFlights(prevFlights =>
+      prevFlights.map(flight => {
+        if (flight.chiTietGhe?.chiTietChuyenBay?.maChuyenBay === latestUpdate.maChuyenBay) {
+          return {
+            ...flight,
+            chiTietGhe: {
+              ...flight.chiTietGhe,
+              chiTietChuyenBay: {
+                ...flight.chiTietGhe.chiTietChuyenBay,
+                trangThai: latestUpdate.newStatus,
+                thoiGianDiThucTe: latestUpdate.thoiGianDiThucTe,
+                thoiGianDenThucTe: latestUpdate.thoiGianDenThucTe,
+                lyDoDelay: latestUpdate.lyDoDelay,
+                lyDoHuy: latestUpdate.lyDoHuy
+              }
+            }
+          };
+        }
+        return flight;
+      })
+    );
+
+    // Hiển thị thông báo
+    const updatedFlight = flights.find(f => f.chiTietGhe?.chiTietChuyenBay?.maChuyenBay === latestUpdate.maChuyenBay);
+    if (updatedFlight) {
+      const flightNumber = updatedFlight.chiTietGhe?.chiTietChuyenBay?.soHieuChuyenBay || `#${latestUpdate.maChuyenBay}`;
+      setUpdateMessage(`Chuyến bay ${flightNumber} đã cập nhật: ${latestUpdate.oldStatus} → ${latestUpdate.newStatus}`);
+      setShowUpdateNotification(true);
+
+      // Tự động ẩn sau 5 giây
+      setTimeout(() => {
+        setShowUpdateNotification(false);
+      }, 5000);
+    }
+
+    clearLatestUpdate();
+  }, [latestUpdate, flights, clearLatestUpdate]);
 
   const handleViewDetail = (flight) => {
     setSelectedFlight(flight);
@@ -224,6 +275,30 @@ function QuanLyChuyenBay() {
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">Quản lý chuyến bay</h1>
               <p className="text-white drop-shadow-md">Xem và quản lý các chuyến bay đã đặt của bạn</p>
+            </div>
+
+            {/* WebSocket Update Notification */}
+            {showUpdateNotification && (
+              <div className="mb-4 p-4 bg-blue-600 border-l-4 border-blue-800 rounded-lg shadow-lg flex items-center justify-between animate-slide-in">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl animate-bounce">✈️</span>
+                  <span className="text-white font-semibold">{updateMessage}</span>
+                </div>
+                <button
+                  onClick={() => setShowUpdateNotification(false)}
+                  className="text-white hover:text-blue-200 font-bold text-xl"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
+            {/* WebSocket Connection Status */}
+            <div className="mb-4 flex items-center gap-2 text-sm bg-white/80 backdrop-blur-sm rounded-lg px-4 py-2 w-fit shadow-md">
+              <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+              <span className={isConnected ? 'text-green-700 font-medium' : 'text-gray-500'}>
+                {isConnected ? '🟢 Đang cập nhật real-time' : '⚫ Không có kết nối real-time'}
+              </span>
             </div>
 
             {/* Filters */}

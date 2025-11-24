@@ -5,6 +5,17 @@ body{
 }
 
 @layer utilities {
+  @keyframes slide-in {
+    from {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
   @keyframes slide-in-right {
     from {
       transform: translateX(100%);
@@ -23,6 +34,10 @@ body{
     to {
       width: 0%;
     }
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.3s ease-out;
   }
 
   .animate-slide-in-right {

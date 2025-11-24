@@ -36,10 +36,12 @@ const QuanLyChuyenBay = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedFlight, setSelectedFlight] = useState(null);
+    const [showUpdateNotification, setShowUpdateNotification] = useState(false);
+    const [updateMessage, setUpdateMessage] = useState('');
     const itemsPerPage = 5;
 
     // --- WEBSOCKET ---
-    const { flightUpdates } = useWebSocket();
+    const { flightUpdates, latestUpdate, isConnected, clearLatestUpdate } = useWebSocket();
 
     // --- FETCH DATA ---
     useEffect(() => {
@@ -68,31 +70,42 @@ const QuanLyChuyenBay = () => {
 
     // --- WEBSOCKET UPDATE HANDLER ---
     useEffect(() => {
-        if (flightUpdates.length > 0) {
-            const latestUpdate = flightUpdates[0];
-            console.log('Processing flight update:', latestUpdate);
+        if (!latestUpdate) return;
 
-            // Cập nhật trạng thái và thời gian thực tế của chuyến bay
-            setFlights(prevFlights =>
-                prevFlights.map(flight =>
-                    flight.maChuyenBay === latestUpdate.maChuyenBay
-                        ? { 
-                            ...flight, 
-                            trangThai: latestUpdate.newStatus,
-                            thoiGianDiThucTe: latestUpdate.thoiGianDiThucTe,
-                            thoiGianDenThucTe: latestUpdate.thoiGianDenThucTe
-                          }
-                        : flight
-                )
-            );
+        console.log('Processing flight update:', latestUpdate);
 
-            // Hiển thị toast notification
-            showToast(
-                `Chuyến bay ${latestUpdate.maChuyenBay} đã chuyển từ "${latestUpdate.oldStatus}" sang "${latestUpdate.newStatus}"`,
-                'info'
-            );
-        }
-    }, [flightUpdates]);
+        // Cập nhật trạng thái và thời gian thực tế của chuyến bay
+        setFlights(prevFlights =>
+            prevFlights.map(flight =>
+                flight.maChuyenBay === latestUpdate.maChuyenBay
+                    ? { 
+                        ...flight, 
+                        trangThai: latestUpdate.newStatus,
+                        thoiGianDiThucTe: latestUpdate.thoiGianDiThucTe,
+                        thoiGianDenThucTe: latestUpdate.thoiGianDenThucTe,
+                        lyDoDelay: latestUpdate.lyDoDelay,
+                        lyDoHuy: latestUpdate.lyDoHuy
+                      }
+                    : flight
+            )
+        );
+
+        // Tìm thông tin chuyến bay để hiển thị
+        const updatedFlight = flights.find(f => f.maChuyenBay === latestUpdate.maChuyenBay);
+        const flightNumber = updatedFlight?.soHieuChuyenBay || latestUpdate.maChuyenBay;
+        
+        // Hiển thị notification
+        setUpdateMessage(`Chuyến bay ${flightNumber} đã chuyển từ "${latestUpdate.oldStatus}" sang "${latestUpdate.newStatus}"`);
+        setShowUpdateNotification(true);
+        
+        // Tự động ẩn sau 5 giây
+        setTimeout(() => {
+            setShowUpdateNotification(false);
+        }, 5000);
+
+        // Clear latest update
+        clearLatestUpdate();
+    }, [latestUpdate, flights, clearLatestUpdate]);
 
     // --- HELPER FUNCTIONS ---
     const getRouteInfo = (route) => {
@@ -443,6 +456,30 @@ const QuanLyChuyenBay = () => {
                 onClose={hideToast}
                 duration={3000}
             />
+
+            {/* WebSocket Update Notification */}
+            {showUpdateNotification && (
+                <div className="mb-4 p-4 bg-blue-100 border-l-4 border-blue-500 rounded-lg shadow-md flex items-center justify-between animate-slide-in">
+                    <div className="flex items-center gap-3">
+                        <FaPlane className="text-blue-600 text-xl animate-bounce" />
+                        <span className="text-blue-800 font-semibold">{updateMessage}</span>
+                    </div>
+                    <button 
+                        onClick={() => setShowUpdateNotification(false)}
+                        className="text-blue-600 hover:text-blue-800 font-bold text-lg"
+                    >
+                        ×
+                    </button>
+                </div>
+            )}
+
+            {/* WebSocket Connection Status */}
+            <div className="mb-4 flex items-center gap-2 text-sm">
+                <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                <span className={isConnected ? 'text-green-700' : 'text-gray-500'}>
+                    {isConnected ? 'Kết nối real-time đang hoạt động' : 'Không có kết nối real-time'}
+                </span>
+            </div>
 
             {/* Thanh công cụ */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-3">
