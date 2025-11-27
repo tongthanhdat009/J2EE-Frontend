@@ -1,14 +1,22 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { isAuthenticated } from '../../utils/cookieUtils';
+import { isClientAuthenticated, isAdminAuthenticated } from '../../utils/cookieUtils';
 
-// Component bảo vệ các route yêu cầu đăng nhập
+// Default client protected route (for frontend /client flows)
 const ProtectedRoute = ({ children }) => {
-    if (!isAuthenticated()) {
-        // Chuyển hướng về trang đăng nhập nếu chưa xác thực
-        return <Navigate to="/admin/login" replace />;
+    if (!isClientAuthenticated()) {
+        // Chuyển hướng về trang đăng nhập client nếu chưa xác thực
+        return <Navigate to="/dang-nhap-client" replace />;
     }
 
+    return children;
+};
+
+// Admin-only protected route component (use for /admin routes)
+export const AdminProtectedRoute = ({ children }) => {
+    if (!isAdminAuthenticated()) {
+        return <Navigate to="/admin/login" replace />;
+    }
     return children;
 };
 

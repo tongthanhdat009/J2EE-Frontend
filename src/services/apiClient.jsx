@@ -19,18 +19,26 @@ let pendingQueue = [];
  * Xác định loại người dùng dựa trên URL hoặc cookie
  */
 const getUserType = (url) => {
-  // Nếu URL chứa /admin/ hoặc có admin token
+  // Nếu URL chứa /admin/ thì chắc chắn là admin request
   if (url && url.includes('/admin/')) {
     return 'admin';
   }
-  // Kiểm tra cookie để xác định
+
+  // Nếu URL chứa /client/ hoặc /customer/ thì đánh dấu là customer
+  if (url && (url.includes('/client/') || url.includes('/customer/'))) {
+    return 'customer';
+  }
+
+  // Nếu không có dấu hiệu từ URL, kiểm tra cookie để xác định
   if (Cookies.get('admin_access_token')) {
     return 'admin';
   }
   if (Cookies.get('accessToken')) {
     return 'customer';
   }
-  return null;
+
+  // Mặc định là customer (frontend) để tránh vô tình redirect về admin login
+  return 'customer';
 };
 
 /**
@@ -105,9 +113,8 @@ const getRefreshEndpoint = (userType) => {
 const getLoginPath = (userType) => {
   if (userType === 'admin') {
     return '/admin/login';
-  } else if (userType === 'customer') {
-    return '/dang-nhap-client';
   }
+  // For any non-admin (customer) default to client login
   return '/dang-nhap-client';
 };
 
@@ -162,15 +169,20 @@ apiClient.interceptors.response.use(
       const refreshToken = getRefreshTokenByType(userType);
 
       if (!refreshToken) {
-        // Không có refresh token => đăng nhập lại
+        // Không có refresh token => xóa token
         clearTokensByType(userType);
-        
-        // Kiểm tra nếu có flag skipRedirect (dùng cho test)
+
+        // Nếu originalRequest.skipRedirect được đặt thì không redirect
         if (!originalRequest.skipRedirect) {
-          const loginPath = getLoginPath(userType);
-          window.location.href = loginPath;
+          // Chỉ redirect nếu trang hiện tại tương ứng với loại user
+          const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+          if (userType === 'admin' && currentPath.startsWith('/admin')) {
+            window.location.href = getLoginPath('admin');
+          } else if (userType === 'customer' && !currentPath.startsWith('/admin')) {
+            window.location.href = getLoginPath('customer');
+          }
         }
-        
+
         return Promise.reject(error);
       }
 
@@ -213,13 +225,18 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
 
       } catch (err) {
-        // Refresh thất bại: xóa token và redirect
+        // Refresh thất bại: xóa token và xử lý queue
         clearTokensByType(userType);
         processQueue(null, err);
-        
-        const loginPath = getLoginPath(userType);
-        window.location.href = loginPath;
-        
+
+        // Chỉ redirect nếu trang hiện tại thuộc loại người dùng tương ứng
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+        if (userType === 'admin' && currentPath.startsWith('/admin')) {
+          window.location.href = getLoginPath('admin');
+        } else if (userType === 'customer' && !currentPath.startsWith('/admin')) {
+          window.location.href = getLoginPath('customer');
+        }
+
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

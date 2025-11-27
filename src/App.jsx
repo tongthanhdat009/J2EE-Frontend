@@ -5,7 +5,7 @@ import LoginAdmin from "./pages/QuanLy/DangNhap"
 import LoginClient from "./pages/KhachHang/DangNhap"
 // import SignupClient from "./pages/KhachHang/DangKy"
 import TestAPI from "./testAPI"; 
-import ProtectedRoute from "./components/common/ProtectedRoute"
+import ProtectedRoute, { AdminProtectedRoute } from "./components/common/ProtectedRoute"
 
 import ThongKeDoanhThu from './pages/QuanLy/ThongKeDoanhThu';
 import QuanLyKhachHang from './pages/QuanLy/QuanLyKhachHang';
@@ -107,7 +107,7 @@ function AppContent() {
           <Route path="/test-api" element={<TestAPI/>}/>
 
           {/* Admin Routes - Bảo vệ bằng ProtectedRoute */}
-          <Route path="/admin/dashboard" element={<ProtectedRoute><Admin /></ProtectedRoute>}>
+          <Route path="/admin/dashboard" element={<AdminProtectedRoute><Admin /></AdminProtectedRoute>}>
             <Route path="KhachHang" element={<QuanLyKhachHang />} />
             <Route path="TuyenBay" element={<QuanLyTuyenBay />} />
             <Route path="ChuyenBay" element={<QuanLyChuyenBay />} />
@@ -120,7 +120,7 @@ function AppContent() {
           </Route>
           
           {/* Backward compatibility - redirect old routes */}
-          <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>}>
+          <Route path="/admin" element={<AdminProtectedRoute><Admin /></AdminProtectedRoute>}>
             <Route path="KhachHang" element={<QuanLyKhachHang />} />
             <Route path="TuyenBay" element={<QuanLyTuyenBay />} />
             <Route path="ChuyenBay" element={<QuanLyChuyenBay />} />

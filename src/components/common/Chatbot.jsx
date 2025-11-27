@@ -36,7 +36,7 @@ const Chatbot = () => {
       const response = await axios.post('http://localhost:8080/api/ai/chat', {
         message: userMessage,
         temperature: 0.7,
-        maxTokens: 2000
+        maxTokens: 4096
       });
 
       // Thêm phản hồi từ bot
